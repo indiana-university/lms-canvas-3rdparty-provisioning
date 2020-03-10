@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html lang="en-US"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="utf-8" />
+    <title>Canvas Provisioning Tool - Home</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <h1 class="rvt-ts-36">Canvas Provisioning Tool</h1>
+
+        <div class="rvt-box">
+            <div class="rvt-box__body">
+                <p>Make sure the files being uploaded are in the correct format. Format details can be found at <a href="https://kb.iu.edu/d/bfqc" target="_blank">https://kb.iu.edu/d/bfqc</a>.</p>
+                <form>
+                    <label for="deptDropdown">Associated department</label>
+                    <div class="rvt-width-md">
+                        <select id="deptDropdown" class="rvt-m-bottom-md">
+                            <option value="" selected>Select...</option>
+                            <option value="AGS">AGS</option>
+                            <option value="CHEM">CHEM</option>
+                            <option value="LMSDEV">LMSDEV</option>
+                        </select>
+                    </div>
+                    <p class="rvt-text-bold">Select all of the files to be provisioned in Canvas and/or Expand</p>
+                    <div class="rvt-file" data-upload="deptFileUpload">
+                        <input type="file" id="deptFileUpload" aria-describedby="deptFileUploadDescription" multiple>
+                        <label for="deptFileUpload" class="rvt-button rvt-button--secondary">
+                            <span>Upload file(s)</span>
+                            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                                <path fill="currentColor" d="M10.41,1H3.5A1.3,1.3,0,0,0,2.2,2.3V13.7A1.3,1.3,0,0,0,3.5,15h9a1.3,1.3,0,0,0,1.3-1.3V4.39ZM11.8,5.21V6H9.25V3h.34ZM4.2,13V3h3V6.75A1.25,1.25,0,0,0,8.5,8h3.3v5Z"/>
+                            </svg>
+                        </label>
+                        <div class="rvt-file__preview" data-file-preview="deptFileUpload" id="deptFileUploadDescription">
+                            No file(s) selected
+                        </div>
+                    </div>
+                    <!--                <div class="rvt-inline-alert rvt-inline-alert&#45;&#45;standalone rvt-inline-alert&#45;&#45;danger rvt-m-top-md">-->
+                    <!--                    <span class="rvt-inline-alert__icon">-->
+                    <!--                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">-->
+                    <!--                            <g fill="currentColor">-->
+                    <!--                                <path d="M8,0a8,8,0,1,0,8,8A8,8,0,0,0,8,0ZM8,14a6,6,0,1,1,6-6A6,6,0,0,1,8,14Z" />-->
+                    <!--                                <path d="M10.83,5.17a1,1,0,0,0-1.41,0L8,6.59,6.59,5.17A1,1,0,0,0,5.17,6.59L6.59,8,5.17,9.41a1,1,0,1,0,1.41,1.41L8,9.41l1.41,1.41a1,1,0,0,0,1.41-1.41L9.41,8l1.41-1.41A1,1,0,0,0,10.83,5.17Z"/>-->
+                    <!--                            </g>-->
+                    <!--                        </svg>-->
+                    <!--                    </span>-->
+                    <!--                    <span class="rvt-inline-alert__message" id="radio-list-message">-->
+                    <!--                        The format of filename.csv did not conform to any of the documented formats. No files will be processed. Correct filename.csv and try again.-->
+                    <!--                    </span>-->
+                    <!--                </div>-->
+                    <div class="rvt-m-top-sm">
+                        <fieldset>
+                            <legend class="sr-only">Checkbox to send custom notifications to new guest users</legend>
+                            <ul class="rvt-inline-list">
+                                <li>
+                                    <input type="checkbox" name="customUsersNotification" id="customUsersNotification">
+                                    <label for="customUsersNotification" class="rvt-m-right-sm">Send custom notifications to new guest users?</label>
+                                </li>
+                            </ul>
+                        </fieldset>
+                    </div>
+                    <div class="rvt-button-group rvt-m-top-sm">
+                        <button type="button" class="rvt-button">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
