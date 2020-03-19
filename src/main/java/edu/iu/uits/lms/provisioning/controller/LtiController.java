@@ -2,8 +2,11 @@ package edu.iu.uits.lms.provisioning.controller;
 
 import edu.iu.uits.lms.lti.security.LtiAuthenticationProvider;
 import edu.iu.uits.lms.lti.security.LtiAuthenticationToken;
+import edu.iu.uits.lms.provisioning.model.User;
+import edu.iu.uits.lms.provisioning.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import lombok.extern.log4j.Log4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -20,6 +23,9 @@ import java.util.Map;
 @RequestMapping({"/lti"})
 @Log4j
 public class LtiController extends edu.iu.uits.lms.lti.controller.LtiController {
+
+    @Autowired
+    private UserRepository userRepository;
 
     private boolean openLaunchUrlInNewWindow = false;
 
@@ -43,17 +49,27 @@ public class LtiController extends edu.iu.uits.lms.lti.controller.LtiController 
 
     @Override
     protected void preLaunchSetup(Map<String, String> launchParams, HttpServletRequest request, HttpServletResponse response) {
-        String rolesString = launchParams.get(BasicLTIConstants.ROLES);
+        String userId = launchParams.get(CUSTOM_CANVAS_USER_LOGIN_ID);
+
+        String rolesString = "NotAuthorized";
+        Map<String, Object> dataMap = new HashMap<>();
+
+        User user = userRepository.findByUsername(userId);
+
+        if (user != null) {
+            rolesString = "Instructor";
+            dataMap.put(Constants.AVAILABLE_GROUPS_KEY, user.getGroupCode());
+        }
+
         String[] userRoles = rolesString.split(",");
         String authority = returnEquivalentAuthority(Arrays.asList(userRoles), getDefaultInstructorRoles());
         log.debug("LTI equivalent authority: " + authority);
 
-        String userId = launchParams.get(CUSTOM_CANVAS_USER_LOGIN_ID);
         String systemId = launchParams.get(BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID);
         String courseId = launchParams.get(CUSTOM_CANVAS_COURSE_ID);
 
-        LtiAuthenticationToken token = new LtiAuthenticationToken(userId,
-                courseId, systemId, AuthorityUtils.createAuthorityList(LtiAuthenticationProvider.LTI_USER_ROLE, authority), null, getToolContext());
+        LtiAuthenticationToken token = new LtiAuthenticationToken(userId, courseId, systemId,
+              AuthorityUtils.createAuthorityList(LtiAuthenticationProvider.LTI_USER_ROLE, authority), dataMap, getToolContext());
         SecurityContextHolder.getContext().setAuthentication(token);
     }
 

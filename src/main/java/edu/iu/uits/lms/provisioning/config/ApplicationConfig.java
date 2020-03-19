@@ -1,6 +1,7 @@
 package edu.iu.uits.lms.provisioning.config;
 
 import canvas.config.CanvasClientConfig;
+import edu.iu.uits.lms.email.EmailClientConfig;
 import edu.iu.uits.lms.lti.config.LtiClientConfig;
 import lombok.extern.log4j.Log4j;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebMvc
 @EnableGlobalMethodSecurity(securedEnabled = true)
 @Log4j
-@Import({LtiClientConfig.class, CanvasClientConfig.class})
+@Import({LtiClientConfig.class, CanvasClientConfig.class, EmailClientConfig.class})
 public class ApplicationConfig implements WebMvcConfigurer {
 
    public ApplicationConfig() {

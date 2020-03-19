@@ -34,6 +34,30 @@ public class SecurityConfig {
         }
     }
 
+//    @Configuration
+//    @Order(2)
+//    public static class HierarchyResourceManagerRestWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+//        public static final String ANT_PATH_TO_MATCH = "/rest/**";
+//
+//        @Autowired
+//        DigestAuthenticationFilter digestAuthenticationFilter;
+//
+//        @Autowired
+//        DigestAuthenticationEntryPoint digestEntryPoint;
+//
+//        protected void configure(HttpSecurity http) throws Exception {
+//            http
+//                  .addFilter(digestAuthenticationFilter)
+//                  .exceptionHandling().authenticationEntryPoint(digestEntryPoint).and()
+//                  .csrf().disable()
+//                  .antMatcher(ANT_PATH_TO_MATCH)
+//                  .authorizeRequests()
+//                  .anyRequest().hasRole("USER")
+//                  .and()
+//                  .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+//        }
+//    }
+
     @Configuration
     @Order(2)
     public static class CourseListWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {

@@ -14,19 +14,17 @@
         <div class="rvt-box">
             <div class="rvt-box__body">
                 <p>Make sure the files being uploaded are in the correct format. Format details can be found at <a href="https://kb.iu.edu/d/bfqc" target="_blank">https://kb.iu.edu/d/bfqc</a>.</p>
-                <form>
+                <form action="/upload" method="post" enctype="multipart/form-data">
                     <label for="deptDropdown">Associated department</label>
                     <div class="rvt-width-md">
-                        <select id="deptDropdown" class="rvt-m-bottom-md">
+                        <select id="deptDropdown" name="deptDropdown" class="rvt-m-bottom-md">
                             <option value="" selected>Select...</option>
-                            <option value="AGS">AGS</option>
-                            <option value="CHEM">CHEM</option>
-                            <option value="LMSDEV">LMSDEV</option>
+                            <option th:each="group : ${groups}" th:value="${group}" th:text="${group}" th:selected="${group == selectedGroup}">dept</option>
                         </select>
                     </div>
                     <p class="rvt-text-bold">Select all of the files to be provisioned in Canvas and/or Expand</p>
                     <div class="rvt-file" data-upload="deptFileUpload">
-                        <input type="file" id="deptFileUpload" aria-describedby="deptFileUploadDescription" multiple>
+                        <input type="file" id="deptFileUpload" name="deptFileUpload" aria-describedby="deptFileUploadDescription" multiple>
                         <label for="deptFileUpload" class="rvt-button rvt-button--secondary">
                             <span>Upload file(s)</span>
                             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
@@ -37,19 +35,14 @@
                             No file(s) selected
                         </div>
                     </div>
-                    <!--                <div class="rvt-inline-alert rvt-inline-alert&#45;&#45;standalone rvt-inline-alert&#45;&#45;danger rvt-m-top-md">-->
-                    <!--                    <span class="rvt-inline-alert__icon">-->
-                    <!--                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">-->
-                    <!--                            <g fill="currentColor">-->
-                    <!--                                <path d="M8,0a8,8,0,1,0,8,8A8,8,0,0,0,8,0ZM8,14a6,6,0,1,1,6-6A6,6,0,0,1,8,14Z" />-->
-                    <!--                                <path d="M10.83,5.17a1,1,0,0,0-1.41,0L8,6.59,6.59,5.17A1,1,0,0,0,5.17,6.59L6.59,8,5.17,9.41a1,1,0,1,0,1.41,1.41L8,9.41l1.41,1.41a1,1,0,0,0,1.41-1.41L9.41,8l1.41-1.41A1,1,0,0,0,10.83,5.17Z"/>-->
-                    <!--                            </g>-->
-                    <!--                        </svg>-->
-                    <!--                    </span>-->
-                    <!--                    <span class="rvt-inline-alert__message" id="radio-list-message">-->
-                    <!--                        The format of filename.csv did not conform to any of the documented formats. No files will be processed. Correct filename.csv and try again.-->
-                    <!--                    </span>-->
-                    <!--                </div>-->
+                    <ul th:if="${fileErrors != null}" class="rvt-alert-list">
+                        <li th:each="error: ${fileErrors}" class="rvt-alert-list__item">
+                            <div class="rvt-alert rvt-alert--danger" role="alert">
+                                <h1 class="rvt-alert__title" th:text="${error.title}">Please correct the following errors.</h1>
+                                <p class="rvt-alert__message" th:text="${error.description}">Alert lists are useful for summarizing multiple errors on a page.</p>
+                            </div>
+                        </li>
+                    </ul>
                     <div class="rvt-m-top-sm">
                         <fieldset>
                             <legend class="sr-only">Checkbox to send custom notifications to new guest users</legend>
@@ -62,7 +55,7 @@
                         </fieldset>
                     </div>
                     <div class="rvt-button-group rvt-m-top-sm">
-                        <button type="button" class="rvt-button">Submit</button>
+                        <button type="submit" class="rvt-button">Submit</button>
                     </div>
                 </form>
             </div>

@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @Configuration
-@ConfigurationProperties(prefix = "deptprov")
+@ConfigurationProperties(prefix = "ams.service")
 @PropertySource(value = {"classpath:env.properties",
       "classpath:default.properties",
       "classpath:application.properties",
@@ -16,6 +16,8 @@ import org.springframework.context.annotation.PropertySource;
       "${app.fullFilePath}/security.properties"}, ignoreResourceNotFound = true)
 @Getter
 @Setter
-public class ToolConfig {
-   private String version;
+public class AmsConfig {
+   private String url;
+   private String user;
+   private String password;
 }

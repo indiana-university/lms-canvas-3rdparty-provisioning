@@ -5,6 +5,26 @@ spring:
     active: redis
   session:
     store-type: none
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        temp:
+          use_jdbc_metadata_defaults: false
+      jadira:
+        usertype:
+          autoRegisterUserTypes: true
+
+  datasource:
+    driverClassName: ${lti.db.driverClass}
+    url: ${lti.db.url}
+    username: ${lti.db.user}
+    password: ${lti.db.password}
 server:
   servlet:
     session:
@@ -35,8 +55,7 @@ logging:
       springframework:
         security: DEBUG
 
-courselist:
-  canvasBaseUrl: ${canvas.baseUrl}
+deptprov:
   version: ${app.version}
 
 ---
