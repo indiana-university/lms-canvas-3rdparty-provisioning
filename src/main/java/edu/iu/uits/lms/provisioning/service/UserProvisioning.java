@@ -9,8 +9,8 @@ import canvas.client.generated.model.CanvasLogin;
 import canvas.client.generated.model.User;
 import canvas.helpers.UserHelper;
 import edu.iu.uits.lms.provisioning.model.DeptAuthMessageSender;
-import edu.iu.uits.lms.provisioning.model.content.CsvFileContent;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
+import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
 import email.client.generated.api.EmailApi;
 import email.client.generated.model.EmailDetails;
 import lombok.extern.log4j.Log4j;
@@ -114,7 +114,7 @@ public class UserProvisioning {
             emailMessage.append(file.getFileName() + ":\r\n");
 
             // read individual files line by line
-            List <String[]> fileContents = ((CsvFileContent)file).getContents();
+            List <String[]> fileContents = ((StringArrayFileContent)file).getContents();
 
             for (String[] lineContentArray : fileContents) {
                 int lineLength = lineContentArray.length;

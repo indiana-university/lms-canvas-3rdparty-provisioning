@@ -1,13 +1,10 @@
-package edu.iu.uits.lms.provisioning.service;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
+package edu.iu.uits.lms.provisioning.service.exception;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileParsingException extends Exception {
+public class FileParsingException extends ProvisioningException {
    private static final String ERR_TITLE_PATTERN = "The format of {0} did not conform to any of the documented formats.";
    private static final String ERR_DESC_PATTERN = "No files will be processed. Correct {0} and try again.";
 
@@ -27,10 +24,4 @@ public class FileParsingException extends Exception {
       return fileErrors;
    }
 
-   @Data
-   @AllArgsConstructor
-   public static class FileError {
-      private String title;
-      private String description;
-   }
 }

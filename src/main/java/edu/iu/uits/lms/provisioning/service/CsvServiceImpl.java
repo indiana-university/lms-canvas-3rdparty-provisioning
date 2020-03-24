@@ -4,12 +4,15 @@ import com.opencsv.CSVWriter;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -44,20 +47,38 @@ public class CsvServiceImpl implements CsvService {
         csvWriter.close();
     }
 
-        /**
-         * Use this to zip up csv files into one archive.  Provide a list of file names to archive and
-         * the path/filename of the zip file to create
-         *
-         * @param fileList
-         * @param zipFileName
-         */
     @Override
-    public void zipCsv(List<File> fileList, String zipFileName) {
+    public InputStream writeCsvToStream(List<String[]> stringArrayList, String[] headerArray) throws IOException {
+        StringWriter stringWriter = new StringWriter();
+        CSVWriter csvWriter = new CSVWriter(stringWriter);
+        if (headerArray!=null && headerArray.length>0) {
+            csvWriter.writeNext(headerArray);
+        }
+        if (stringArrayList!=null && !stringArrayList.isEmpty()) {
+            csvWriter.writeAll(stringArrayList);
+        }
+        csvWriter.flush();
+        csvWriter.close();
+
+        //use ByteArrayInputStream to get the bytes of the String and convert them to InputStream.
+        InputStream inputStream = new ByteArrayInputStream(stringWriter.toString().getBytes(StandardCharsets.UTF_8));
+        return inputStream;
+    }
+
+    /**
+     * Use this to zip up csv files into one archive.  Provide a list of file names to archive and
+     * the path/filename of the zip file to create
+     *
+     * @param fileList
+     * @param filePath
+     */
+    @Override
+    public File zipCsv(List<ProvisioningResult.FileObject> fileList, String filePath) {
+        File file = new File(filePath);
         ZipOutputStream zos = null;
         try {
-            log.info("Creating a zip file at " + zipFileName);
-            zos = new ZipOutputStream(new FileOutputStream(zipFileName));
-            for (File fileEntry : fileList) {
+            zos = new ZipOutputStream(new FileOutputStream(file));
+            for (ProvisioningResult.FileObject fileEntry : fileList) {
                 addFileToZip(zos, fileEntry);
             }
         } catch (FileNotFoundException e) {
@@ -73,26 +94,25 @@ public class CsvServiceImpl implements CsvService {
                 }
             }
         }
+
+        return file;
     }
 
-    private void addFileToZip(ZipOutputStream zos, File file) {
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(file.getCanonicalFile());
-            log.info("Adding " + file.getName() + " to the zip file");
-            zos.putNextEntry(new ZipEntry(file.getName()));
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = fis.read(buf)) > 0) {
-                zos.write(buf, 0, len);
-            }
-            zos.closeEntry();
-        } catch (FileNotFoundException e) {
-            log.error(e);
-        } catch (IOException e) {
-            log.error(e);
-        } finally {
-            if (fis != null) {
+    private void addFileToZip(ZipOutputStream zos, ProvisioningResult.FileObject fileObject) {
+        InputStream fis = fileObject.getInputStream();
+        if (fis != null) {
+            try {
+                log.info("Adding " + fileObject.getFileName() + " to the zip file");
+                zos.putNextEntry(new ZipEntry(fileObject.getFileName()));
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = fis.read(buf)) > 0) {
+                    zos.write(buf, 0, len);
+                }
+                zos.closeEntry();
+            } catch (IOException e) {
+                log.error(e);
+            } finally {
                 try {
                     fis.close();
                 } catch (IOException e) {

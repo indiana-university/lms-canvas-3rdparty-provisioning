@@ -2,9 +2,9 @@ package edu.iu.uits.lms.provisioning.service;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.io.File;
+import java.io.InputStream;
+import java.io.Serializable;
 
 /**
  * Object used to define an email message from preprocessing and the file path that the DeptRouter will use.
@@ -12,8 +12,17 @@ import java.io.File;
  */
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
+//@NoArgsConstructor
 public class ProvisioningResult {
-    public StringBuilder emailMessage;
-    public File file;
+    private StringBuilder emailMessage;
+    private FileObject fileObject;
+    private boolean hasException;
+
+    @Data
+    @AllArgsConstructor
+    public static class FileObject implements Serializable {
+        private String fileName;
+        private InputStream inputStream;
+    }
+
 }

@@ -6,7 +6,10 @@ import edu.iu.uits.lms.lti.security.LtiAuthenticationToken;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.repository.UserRepository;
 import edu.iu.uits.lms.provisioning.service.DeptRouter;
-import edu.iu.uits.lms.provisioning.service.FileParsingException;
+import edu.iu.uits.lms.provisioning.service.ProvisioningResult;
+import edu.iu.uits.lms.provisioning.service.exception.FileParsingException;
+import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
+import edu.iu.uits.lms.provisioning.service.exception.FileUploadException;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -55,18 +59,28 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
                                @RequestParam("deptFileUpload") MultipartFile[] files,
                                @RequestParam(value = "customUsersNotification", required = false) boolean customUsersNotification,
                                Model model) {
-
-//        deptRouter.processFiles(deptDropdown, files, customUsersNotification);
-
         model.addAttribute("selectedGroup", deptDropdown);
 
         try {
             MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> filesByType = deptRouter.parseFiles(files);
-        } catch (FileParsingException e) {
+
+            List<ProvisioningResult> provisioningResults = deptRouter.processFiles(deptDropdown, filesByType, customUsersNotification);
+
+            List<ProvisioningResult.FileObject> allFiles = new ArrayList<>();
+            StringBuilder fullEmail = new StringBuilder();
+            for (ProvisioningResult provisioningResult : provisioningResults) {
+                allFiles.add(provisioningResult.getFileObject());
+                fullEmail.append(provisioningResult.getEmailMessage());
+            }
+
+            deptRouter.sendToCanvas(allFiles, deptDropdown, fullEmail);
+
+            model.addAttribute("uploadSuccess", true);
+
+        } catch (FileParsingException | FileProcessingException | FileUploadException e) {
             model.addAttribute("fileErrors", e.getFileErrors());
         }
 
-
-        return new ModelAndView("index");
+        return index(model);
     }
 }

@@ -4,8 +4,8 @@ import canvas.client.generated.api.ExpandApi;
 import canvas.client.generated.api.UsersApi;
 import canvas.client.generated.model.ExpandEnrollment;
 import canvas.client.generated.model.User;
-import edu.iu.uits.lms.provisioning.model.content.CsvFileContent;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
+import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -34,10 +34,8 @@ public class ExpandEnrollmentProvisioning {
     public List<ProvisioningResult> processEnrollments(Collection<FileContent> fileToProcess) {
         List<ProvisioningResult> prs = new ArrayList<>();
         for (FileContent file : fileToProcess) {
-            ProvisioningResult pr = new ProvisioningResult();
-            StringBuilder emailMessage = processInputFiles((CsvFileContent) file);
-            pr.setEmailMessage(emailMessage);
-            prs.add(pr);
+            StringBuilder emailMessage = processInputFiles((StringArrayFileContent) file);
+            prs.add(new ProvisioningResult(emailMessage, null, false));
         }
         return prs;
     }
@@ -46,10 +44,10 @@ public class ExpandEnrollmentProvisioning {
      * @param fileToProcess
      * @return
      */
-    private StringBuilder processInputFiles(CsvFileContent fileToProcess) {
+    private StringBuilder processInputFiles(StringArrayFileContent fileToProcess) {
         StringBuilder emailMessage = new StringBuilder(fileToProcess.getFileName() + ":\r\n");
 
-        List<ExpandEnrollment> enrollmentList = new ArrayList<>();
+//        List<ExpandEnrollment> enrollmentList = new ArrayList<>();
 
         // read individual files line by line
         List<String[]> fileContents = fileToProcess.getContents();

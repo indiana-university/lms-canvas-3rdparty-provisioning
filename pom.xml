@@ -181,10 +181,6 @@
                     <exclude>**/*.java</exclude>
                 </excludes>
             </testResource>
-            <testResource>
-                <filtering>false</filtering>
-                <directory>${project.build.directory}/impl-resources</directory>
-            </testResource>
         </testResources>
     </build>
 

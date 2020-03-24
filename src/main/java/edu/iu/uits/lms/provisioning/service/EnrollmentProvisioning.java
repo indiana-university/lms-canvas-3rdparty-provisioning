@@ -5,17 +5,16 @@ import canvas.client.generated.api.UsersApi;
 import canvas.client.generated.model.CanvasLogin;
 import canvas.client.generated.model.User;
 import edu.iu.uits.lms.provisioning.model.ImsUser;
-import edu.iu.uits.lms.provisioning.model.content.CsvFileContent;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
+import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
 import edu.iu.uits.lms.provisioning.repository.ImsUserRepository;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -46,25 +45,32 @@ public class EnrollmentProvisioning {
     /**
      * Pass in a path to a csv file and a department code and this validate the data and send enrollments to Canvas
      * @param fileToProcess
-     * @param destPath
      */
-    public List<ProvisioningResult> processEnrollments(Collection<FileContent> fileToProcess, Path destPath) throws IOException {
+    public List<ProvisioningResult> processEnrollments(Collection<FileContent> fileToProcess) {
         List<ProvisioningResult> prs = new ArrayList<>();
         for (FileContent file : fileToProcess) {
-            ProvisioningResult pr = new ProvisioningResult();
             StringBuilder emailMessage = new StringBuilder();
 
+            StringBuilder finalMessage = new StringBuilder(file.getFileName() + ":\r\n");
+
             // process input files and transform into what will be sent off
-            List<String[]> outputData = processInputFiles((CsvFileContent)file, emailMessage);
+            List<String[]> outputData = processInputFiles((StringArrayFileContent)file, emailMessage);
 
             // Create csv file to send to Canvas
-            String csvFilePath = writeCsv(outputData, file.getFileName(), destPath);
+            String[] enrollmentsHeader = CsvService.ENROLLMENTS_HEADER_SECTION_LIMIT.split(",");
 
-            File finalFile = new File(csvFilePath);
+            InputStream inputStream = null;
+            boolean fileException = false;
+            try {
+                inputStream = csvService.writeCsvToStream(outputData, enrollmentsHeader);
+                finalMessage.append(emailMessage);
+            } catch (IOException e) {
+                log.error("Error generating csv", e);
+                finalMessage.append("\tThere were errors when generating the CSV file to send to Canvas\r\n");
+                fileException = true;
+            }
 
-            pr.setEmailMessage(emailMessage);
-            pr.setFile(finalFile);
-            prs.add(pr);
+            prs.add(new ProvisioningResult(emailMessage, new ProvisioningResult.FileObject(file.getFileName(), inputStream), fileException));
         }
         return prs;
     }
@@ -74,14 +80,12 @@ public class EnrollmentProvisioning {
      * @param emailMessage
      * @return
      */
-    private List<String[]> processInputFiles(CsvFileContent fileToProcess, StringBuilder emailMessage) {
-        List<String[]> stringArray = new ArrayList<String[]>();
+    private List<String[]> processInputFiles(StringArrayFileContent fileToProcess, StringBuilder emailMessage) {
+        List<String[]> stringArray = new ArrayList<>();
 
             int successCount = 0;
             int failureCount = 0;
             int totalCount = 0;
-
-            emailMessage.append(fileToProcess.getFileName() + ":\r\n");
 
             // read individual files line by line
             List <String[]> fileContents = fileToProcess.getContents();
@@ -250,23 +254,4 @@ public class EnrollmentProvisioning {
 
         return stringArray;
     }
-
-
-    /**
-     * Convert the array list into comma delimited strings for that the CsvService can write to the system before sending to Canvas
-     *
-     * @return String filePathAndName
-     */
-    private String writeCsv(List<String[]> stringArrayList, String fileName, Path destPath) throws IOException {
-        log.info("Preparing to write a csv of the enrollments to send to Canvas...");
-
-        String fullPath = destPath.resolve(fileName).toString();
-        String[] enrollmentsHeader = CsvService.ENROLLMENTS_HEADER_SECTION_LIMIT.split(",");
-        csvService.writeCsv(stringArrayList, enrollmentsHeader, fullPath);
-
-        log.info("The csv file at " + fullPath + " was created!");
-
-        return fullPath;
-    }
-
 }

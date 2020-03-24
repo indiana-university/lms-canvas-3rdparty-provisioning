@@ -51,9 +51,10 @@ logging:
           lms:
             courselist: DEBUG
             common: DEBUG
-    org:
-      springframework:
-        security: DEBUG
+            email: DEBUG
+#    org:
+#      springframework:
+#        security: DEBUG
 
 deptprov:
   version: ${app.version}

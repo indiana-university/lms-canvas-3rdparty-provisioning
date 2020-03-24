@@ -7,7 +7,7 @@ import java.io.InputStream;
 
 @Data
 @AllArgsConstructor
-public class PropertiesFileContent implements FileContent {
+public class InputStreamFileContent implements FileContent {
    private String fileName;
    private InputStream contents;
 }

@@ -2,6 +2,7 @@ package edu.iu.uits.lms.provisioning.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 public interface CsvService {
@@ -44,8 +45,9 @@ public interface CsvService {
 
 
    void writeCsv(List<String[]> stringArrayList, String[] headerArray, String filePath) throws IOException;
+   InputStream writeCsvToStream(List<String[]> stringArrayList, String[] headerArray) throws IOException;
 
-   void zipCsv(List<File> fileList, String zipFileName);
+   File zipCsv(List<ProvisioningResult.FileObject> fileList, String filePath);
 
    List<File> filterFiles(File folder);
 

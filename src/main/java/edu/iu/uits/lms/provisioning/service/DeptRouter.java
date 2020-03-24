@@ -1,10 +1,21 @@
 package edu.iu.uits.lms.provisioning.service;
 
+import canvas.client.generated.api.CanvasApi;
+import canvas.client.generated.api.ImportApi;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
-import edu.iu.uits.lms.provisioning.model.content.CsvFileContent;
+import edu.iu.uits.lms.provisioning.model.CanvasImportId;
+import edu.iu.uits.lms.provisioning.model.LmsBatchEmail;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
-import edu.iu.uits.lms.provisioning.model.content.PropertiesFileContent;
+import edu.iu.uits.lms.provisioning.model.content.InputStreamFileContent;
+import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
+import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
+import edu.iu.uits.lms.provisioning.repository.LmsBatchEmailRepository;
+import edu.iu.uits.lms.provisioning.service.exception.FileParsingException;
+import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
+import edu.iu.uits.lms.provisioning.service.exception.FileUploadException;
+import email.client.generated.api.EmailApi;
+import email.client.generated.model.EmailDetails;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
@@ -13,15 +24,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 /**
@@ -53,10 +68,31 @@ public class DeptRouter {
    private EnrollmentProvisioning enrollmentProvisioning;
 
    @Autowired
-   private ExpandEnrollmentProvisioning expandEnrollmentProvisoning;
+   private SectionProvisioning sectionProvisioning;
 
-   public void processFiles(String dept, MultipartFile[] files, boolean customUsersNotification) throws IOException, FileParsingException {
-      MultiValuedMap<CSV_TYPES, FileContent> filesByType = parseFiles(files);
+   @Autowired
+   private ExpandEnrollmentProvisioning expandEnrollmentProvisioning;
+
+   @Autowired
+   private CanvasImportIdRepository canvasImportIdRepository;
+
+   @Autowired
+   private ImportApi importApi;
+
+   @Autowired
+   private EmailApi emailApi;
+
+   @Autowired
+   private CsvService csvService;
+
+   @Autowired
+   private LmsBatchEmailRepository batchEmailRepository;
+
+   @Autowired
+   private CanvasApi canvasApi;
+
+   public List<ProvisioningResult> processFiles(String dept, MultiValuedMap<CSV_TYPES, FileContent> filesByType, boolean customUsersNotification) throws FileProcessingException {
+//      MultiValuedMap<CSV_TYPES, FileContent> filesByType = parseFiles(files);
 
       Collection<FileContent> userFiles = filesByType.get(CSV_TYPES.USERS);
       Collection<FileContent> courseFiles = filesByType.get(CSV_TYPES.COURSES);
@@ -65,22 +101,29 @@ public class DeptRouter {
       Collection<FileContent> expandEnrollmentFiles = filesByType.get(CSV_TYPES.EXPAND_ENROLLMENTS);
 
 
-      PropertiesFileContent propFile = (PropertiesFileContent) filesByType.get(CSV_TYPES.PROPS).stream().findFirst().orElse(new PropertiesFileContent(PROP_FILE, InputStream.nullInputStream()));
+      InputStreamFileContent propFile = (InputStreamFileContent) filesByType.get(CSV_TYPES.PROPS).stream().findFirst().orElse(new InputStreamFileContent(PROP_FILE, InputStream.nullInputStream()));
 
       StringBuilder emailMessage = new StringBuilder();
 
-      //Create temp dir to store stuff
-      String guid = UUID.randomUUID().toString();
-      Path path = Files.createTempDirectory(guid);
-
       //Users first
       emailMessage.append(userProvisioning.processUsers(userFiles, new CustomNotificationBuilder(propFile.getContents()), dept));
-//      UserProvisioning.processUsers(userFiles)
 
-      List<ProvisioningResult> coursePrs = courseProvisioning.processCourses(courseFiles, path);
-      List<ProvisioningResult> enrollmentPrs = enrollmentProvisioning.processEnrollments(enrollmentFiles, path);
-      List<ProvisioningResult> expandPrs = expandEnrollmentProvisoning.processEnrollments(expandEnrollmentFiles);
+      List<ProvisioningResult> allPrs = new ArrayList<>();
+      allPrs.addAll(courseProvisioning.processCourses(courseFiles));
+      allPrs.addAll(enrollmentProvisioning.processEnrollments(enrollmentFiles));
+      allPrs.addAll(sectionProvisioning.processSections(sectionFiles));
+      allPrs.addAll(expandEnrollmentProvisioning.processEnrollments(expandEnrollmentFiles));
 
+      List<ProvisioningResult> fileErrors = allPrs.stream().filter(pr -> pr.isHasException()).collect(Collectors.toList());
+      if (!fileErrors.isEmpty()) {
+         List<String> errors = new ArrayList<>();
+         for (ProvisioningResult prError : fileErrors) {
+            errors.add(prError.getFileObject().getFileName());
+         }
+         throw new FileProcessingException("Error processing some uploaded files", errors);
+      }
+
+      return allPrs;
    }
 
    public MultiValuedMap<CSV_TYPES, FileContent> parseFiles(MultipartFile[] files) throws FileParsingException {
@@ -90,11 +133,11 @@ public class DeptRouter {
       for (MultipartFile file : files) {
          try {
             if (PROP_FILE.equalsIgnoreCase(file.getOriginalFilename())) {
-               FileContent fc = new PropertiesFileContent(file.getOriginalFilename(), file.getInputStream());
+               FileContent fc = new InputStreamFileContent(file.getOriginalFilename(), file.getInputStream());
                filesByType.put(CSV_TYPES.PROPS, fc);
             } else {
                List<String[]> fileContents = new CSVReader(new InputStreamReader(file.getInputStream())).readAll();
-               FileContent fc = new CsvFileContent(file.getOriginalFilename(), fileContents);
+               FileContent fc = new StringArrayFileContent(file.getOriginalFilename(), fileContents);
 
                //Git the first line, hopefully headers!
                String[] firstLine = fileContents.get(0);
@@ -117,7 +160,8 @@ public class DeptRouter {
                   case CsvService.SECTIONS_HEADER + CsvService.START_DATE:
                   case CsvService.SECTIONS_HEADER + CsvService.END_DATE:
                   case CsvService.SECTIONS_HEADER + CsvService.START_DATE + CsvService.END_DATE:
-                     filesByType.put(CSV_TYPES.SECTIONS, fc);
+                     FileContent fcOverride = new InputStreamFileContent(file.getOriginalFilename(), file.getInputStream());
+                     filesByType.put(CSV_TYPES.SECTIONS, fcOverride);
                      break;
                   case CsvService.USERS_HEADER_NO_SHORT_NAME:
                      filesByType.put(CSV_TYPES.USERS, fc);
@@ -140,6 +184,108 @@ public class DeptRouter {
          throw new FileParsingException("Error parsing some uploaded files", errors);
       }
       return filesByType;
+   }
+
+   public void sendToCanvas(List<ProvisioningResult.FileObject> allStreams, String dept, StringBuilder emailMessage) throws FileUploadException {
+//      String originalFileName = "originalFiles.zip";
+//      String originalFileNameFullPath = zipPath + originalFileName;
+      String canvasUploadFileName = dept + "-upload.zip";
+
+      String guid = UUID.randomUUID().toString();
+      String zipPath = null;
+      try {
+         zipPath = Files.createTempDirectory(guid).toString();
+      } catch (IOException e) {
+         log.error("Unable to create temp dir", e);
+         throw new FileUploadException("Unable to create temp directory for csv storage");
+      }
+
+      String canvasUploadFileNameFullPath = zipPath + "/" + canvasUploadFileName;
+
+      // Zip up the original file name
+//      csvService.zipCsv(fileList, originalFileNameFullPath);
+
+      // date stuff used for potential archive file naming
+      Date date = new Date();
+      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+
+      // Zip up csv files and send it to Canvas!
+      if (!allStreams.isEmpty()) {
+         File zipFile = csvService.zipCsv(allStreams, canvasUploadFileNameFullPath);
+         String importId = importApi.sendZipToCanvas(zipFile);
+
+         if (importId != null && !"".equals(importId)) {
+            // archive the original and generated files
+            List<File> combineZipsList = new ArrayList<>();
+            combineZipsList.add(new File(canvasUploadFileNameFullPath));
+//            combineZipsList.add(new File(originalFileNameFullPath));
+            String archiveName = zipPath + importId + "_" + canvasUploadFileName;
+//            csvService.zipCsv(combineZipsList, archiveName);
+
+            // store the Canvas importId and archive path
+            CanvasImportId canvasImportId = new CanvasImportId(importId, "N", dept, archiveName);
+            canvasImportIdRepository.save(canvasImportId);
+            zipFile.delete();
+         } else {
+            // This scenario is rare. File that should have been sent to Canvas but failed for whatever reason.
+            // archive both files using a timestamp
+            List<File> combineZipsList = new ArrayList<>();
+            combineZipsList.add(new File(canvasUploadFileNameFullPath));
+//            combineZipsList.add(new File(originalFileNameFullPath));
+
+            String archiveName = zipPath + dateFormat.format(date) + "_" + dept + "_failedAttempt.zip";
+//            csvService.zipCsv(combineZipsList, archiveName);
+         }
+//      } else {
+//         // no files were attempted to send to Canvas, so do an alternative style of archiving
+//         File oldFile = new File(originalFileNameFullPath);
+//         File newFile = new File(zipPath + dateFormat.format(date) + "_" + dept + "_" + originalFileName);
+//         oldFile.renameTo(newFile);
+      }
+
+      // clean up the files zipped and sent to Canvas to prevent a long-term storage issue
+//      for (File file : filesToZip) {
+//         file.delete();
+//      }
+
+//      // clean up the extraneous zip files
+//      File originalFile = new File(originalFileNameFullPath);
+//      originalFile.delete();
+//      File canvasUploadFile = new File(canvasUploadFileNameFullPath);
+//      canvasUploadFile.delete();
+
+      if (emailMessage.length() > 0) {
+         LmsBatchEmail emails = batchEmailRepository.getBatchEmailFromGroupCode(dept);
+         String[] emailAddresses = null;
+         if (emails != null) {
+            emailAddresses = emails.getEmails().split(",");
+         }
+         if (emailAddresses != null && emailAddresses.length > 0) {
+            // create the subject line of the email
+            String subject = emailApi.getStandardHeader() + " csv file upload(s) for " + dept;
+
+            // piece standard info, the errorMessages, and resultsMessages together
+            StringBuilder finalMessage = new StringBuilder();
+            finalMessage.append("The preprocessing stage of your Canvas provisioning job is complete and the results are provided below. " +
+                  "The final results from Canvas (" + canvasApi.getBaseUrl() + ") will be sent out at a later time and will inform you " +
+                  "of any issues that may have been encountered while importing the data. Guest account provisioning is the exception and will have final results in this email.\r\n\r\n");
+            if (emailMessage.length() > 0) {
+               finalMessage.append("Results from the uploads: \r\n\r\n");
+            }
+            finalMessage.append(emailMessage);
+
+            // email has been combined together, so send it!
+            EmailDetails details = new EmailDetails();
+            details.setRecipients(Arrays.asList(emailAddresses));
+            details.setSubject(subject);
+            details.setBody(finalMessage.toString());
+            emailApi.sendEmail(details);
+
+         } else {
+            log.warn("No email addresses specified for the group code: '" + dept + "' so no status email will be sent.");
+         }
+      }
+//    }
    }
 
 //    public static void main(String[] args) throws IOException {
