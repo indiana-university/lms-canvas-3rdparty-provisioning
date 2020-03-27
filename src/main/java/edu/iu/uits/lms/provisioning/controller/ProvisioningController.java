@@ -115,8 +115,7 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
 
     @PostMapping("/submit")
     @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
-    public ModelAndView submitNotification(@ModelAttribute NotificationForm notifForm,
-                               Model model) {
+    public ModelAndView submitNotification(@ModelAttribute NotificationForm notifForm, Model model) {
         LtiAuthenticationToken token = getTokenWithoutContext();
         SessionData storedData = (SessionData)token.getData().get(SESSION_KEY);
 
@@ -127,6 +126,14 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
         } catch (FileProcessingException | FileUploadException e) {
             model.addAttribute("fileErrors", e.getFileErrors());
         }
+        return index(model);
+    }
+
+    @PostMapping(value = "/submit", params = "action=cancel")
+    @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
+    public ModelAndView cancel(@ModelAttribute NotificationForm notifForm, Model model) {
+        LtiAuthenticationToken token = getTokenWithoutContext();
+        token.clearData(SESSION_KEY);
         return index(model);
     }
 

@@ -26,7 +26,7 @@
         <div class="rvt-box">
             <div class="rvt-box__body">
                 <p>Make sure the files being uploaded are in the correct format. Format details can be found at <a href="https://kb.iu.edu/d/bfqc" target="_blank">https://kb.iu.edu/d/bfqc</a>.</p>
-                <form action="/upload" method="post" enctype="multipart/form-data">
+                <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
                     <label for="deptDropdown">Associated department</label>
                     <div class="rvt-width-md">
                         <select id="deptDropdown" name="deptDropdown" class="rvt-m-bottom-md">
@@ -67,7 +67,9 @@
                         </fieldset>
                     </div>
                     <div class="rvt-button-group rvt-m-top-sm">
-                        <button type="submit" class="rvt-button">Submit</button>
+                        <button id="uploadSubmit" type="submit" class="rvt-button" disabled>
+                            <span class="rvt-button__content">Submit</span>
+                        </button>
                     </div>
                 </form>
             </div>

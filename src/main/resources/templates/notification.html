@@ -14,8 +14,8 @@
         <div class="rvt-box">
             <div class="rvt-box__body">
                 <h2 class="rvt-ts-26 rvt-m-bottom-sm">Send Custom Notification to New Guests</h2>
-                <form action="/submit" method="post" th:object="${notifForm}">
-                    <div class="rvt-width-sm">
+                <form id="notificationForm" action="/submit" method="post" th:object="${notifForm}">
+                    <div class="rvt-width-xl">
                         <label for="senderUsername">Sender's Username</label>
                         <select id="senderUsername" th:field="*{sender}">
                             <option value="" selected>Select...</option>
@@ -35,9 +35,11 @@
                     </div>
 
                     <div class="rvt-button-group rvt-m-top-md">
-                        <button type="submit" class="rvt-button">Submit</button>
-                        <button type="button" class="rvt-button rvt-button--secondary" data-modal-trigger="modal-preview">Preview</button>
-                        <button type="button" class="rvt-button rvt-button--secondary">Cancel</button>
+                        <button id="notificationSubmit" type="submit" name="action" value="submit" class="rvt-button" disabled>
+                            <span class="rvt-button__content">Submit</span>
+                        </button>
+                        <button id="notificationPreview" type="button" class="rvt-button rvt-button--secondary" data-modal-trigger="modal-preview">Preview</button>
+                        <button id="notificationCancel" type="submit" name="action" value="cancel" class="rvt-button rvt-button--secondary">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -56,11 +58,11 @@
                 <div class="rvt-modal__body">
                     <dl>
                         <dt>From</dt>
-                        <dd>octest1@iu.edu</dd>
+                        <dd id="modalFrom">octest1@iu.edu</dd>
                         <dt>Subject</dt>
-                        <dd>Custom notification subject</dd>
+                        <dd id="modalSubject">Custom notification subject</dd>
                         <dt>Body</dt>
-                        <dd>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor <a href="#">incididunt ut labore</a> et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</dd>
+                        <dd><pre id="modalBody" class="preformatted">Message body goes here...</pre></dd>
                     </dl>
                 </div>
                 <div class="rvt-modal__controls">
