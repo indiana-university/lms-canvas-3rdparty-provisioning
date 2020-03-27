@@ -1,7 +1,7 @@
 package edu.iu.uits.lms.provisioning.service;
 
 import com.opencsv.CSVWriter;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -22,7 +22,7 @@ import java.util.zip.ZipOutputStream;
  * Created by chmaurer on 4/29/15.
  */
 @Service
-@Log4j
+@Slf4j
 public class CsvServiceImpl implements CsvService {
 
     /**
@@ -82,7 +82,7 @@ public class CsvServiceImpl implements CsvService {
                 addFileToZip(zos, fileEntry);
             }
         } catch (FileNotFoundException e) {
-            log.error(e);
+            log.error("file not found", e);
         } finally {
             if (zos != null) {
                 try {
@@ -90,7 +90,7 @@ public class CsvServiceImpl implements CsvService {
                     zos.flush();
                     zos.close();
                 } catch (IOException e) {
-                    log.error(e);
+                    log.error("cannot cloes up zip stream", e);
                 }
             }
         }
@@ -111,12 +111,12 @@ public class CsvServiceImpl implements CsvService {
                 }
                 zos.closeEntry();
             } catch (IOException e) {
-                log.error(e);
+                log.error("error zipping file", e);
             } finally {
                 try {
                     fis.close();
                 } catch (IOException e) {
-                    log.error(e);
+                    log.error("cannot close up stream", e);
                 }
             }
         }

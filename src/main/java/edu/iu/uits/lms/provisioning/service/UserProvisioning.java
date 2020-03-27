@@ -13,7 +13,7 @@ import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
 import email.client.generated.api.EmailApi;
 import email.client.generated.model.EmailDetails;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Code for provisioning users into Canvas
  */
-@Log4j
+@Slf4j
 @Service
 public class UserProvisioning {
     private static final int EMAIL = 1;
@@ -55,25 +55,21 @@ public class UserProvisioning {
     /**
      * Pass in a path to a csv file and a department code and this validate the data, attempt to make IU Guest Accounts,
      * create new Canvas accounts, and update existing Canvas accounts
-     * @param fileToProcess
+     * @param filesToProcess
      */
-    public StringBuilder processUsers(Collection<FileContent> fileToProcess, CustomNotificationBuilder customNotificationBuilder,
+    public ProvisioningResult processUsers(Collection<FileContent> filesToProcess, CustomNotificationBuilder customNotificationBuilder,
                                       String dept) {
         StringBuilder emailMessage = new StringBuilder();
-
-//        List<File> fileList = new ArrayList<File>();
-//        fileList.add(fileToProcess);
 
         DeptAuthMessageSender messageSender = customNotificationService.getValidatedCustomMessageSender(customNotificationBuilder, dept);
 
         // Create guest accounts
-        List<User> canvasAccounts = createGuestAccounts(fileToProcess, emailMessage, messageSender, customNotificationBuilder);
+        List<User> canvasAccounts = createGuestAccounts(filesToProcess, emailMessage, messageSender, customNotificationBuilder);
 
         List<String[]> results = createUsersAndLogins(canvasAccounts);
 
         emailMessage = addCanvasResultsToEmail(emailMessage, results);
-
-        return emailMessage;
+        return new ProvisioningResult(emailMessage, null, false);
     }
 
     /**
@@ -275,7 +271,7 @@ public class UserProvisioning {
                 intendedNewLogin.setUserId(userId);
                 if (logins == null || !logins.contains(intendedNewLogin)) {
                     try {
-                        usersApi.createLogin(canvasAccountId, userId, canvasUser.getSisUserId(), null, canvasUser.getSisUserId());
+                        usersApi.createLogin(canvasAccountId, userId, canvasUser.getSisUserId(), canvasUser.getSisUserId(), null);
                     } catch (Exception e) {
                         failedUsers.add(new String[]{canvasUser.getEmail(), e.getMessage()});
                     }

@@ -49,7 +49,7 @@ logging:
       iu:
         uits:
           lms:
-            courselist: DEBUG
+            provisioning: DEBUG
             common: DEBUG
             email: DEBUG
 #    org:

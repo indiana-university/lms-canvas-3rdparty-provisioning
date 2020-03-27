@@ -6,6 +6,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import edu.iu.uits.lms.provisioning.model.CanvasImportId;
 import edu.iu.uits.lms.provisioning.model.LmsBatchEmail;
+import edu.iu.uits.lms.provisioning.model.NotificationForm;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.InputStreamFileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
@@ -16,7 +17,7 @@ import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
 import edu.iu.uits.lms.provisioning.service.exception.FileUploadException;
 import email.client.generated.api.EmailApi;
 import email.client.generated.model.EmailDetails;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 /**
  * Used to decide which classes get called
  */
-@Log4j
+@Slf4j
 @Service
 public class DeptRouter {
 
@@ -52,7 +52,6 @@ public class DeptRouter {
       SECTIONS,
       USERS,
       EXPAND_ENROLLMENTS,
-      PROPS,
       BAD
    }
 
@@ -91,7 +90,7 @@ public class DeptRouter {
    @Autowired
    private CanvasApi canvasApi;
 
-   public List<ProvisioningResult> processFiles(String dept, MultiValuedMap<CSV_TYPES, FileContent> filesByType, boolean customUsersNotification) throws FileProcessingException {
+   public List<ProvisioningResult> processFiles(String dept, MultiValuedMap<CSV_TYPES, FileContent> filesByType, NotificationForm notificationForm) throws FileProcessingException {
 //      MultiValuedMap<CSV_TYPES, FileContent> filesByType = parseFiles(files);
 
       Collection<FileContent> userFiles = filesByType.get(CSV_TYPES.USERS);
@@ -100,15 +99,11 @@ public class DeptRouter {
       Collection<FileContent> sectionFiles = filesByType.get(CSV_TYPES.SECTIONS);
       Collection<FileContent> expandEnrollmentFiles = filesByType.get(CSV_TYPES.EXPAND_ENROLLMENTS);
 
-
-      InputStreamFileContent propFile = (InputStreamFileContent) filesByType.get(CSV_TYPES.PROPS).stream().findFirst().orElse(new InputStreamFileContent(PROP_FILE, InputStream.nullInputStream()));
-
-      StringBuilder emailMessage = new StringBuilder();
+      List<ProvisioningResult> allPrs = new ArrayList<>();
 
       //Users first
-      emailMessage.append(userProvisioning.processUsers(userFiles, new CustomNotificationBuilder(propFile.getContents()), dept));
+      allPrs.add(userProvisioning.processUsers(userFiles, new CustomNotificationBuilder(notificationForm), dept));
 
-      List<ProvisioningResult> allPrs = new ArrayList<>();
       allPrs.addAll(courseProvisioning.processCourses(courseFiles));
       allPrs.addAll(enrollmentProvisioning.processEnrollments(enrollmentFiles));
       allPrs.addAll(sectionProvisioning.processSections(sectionFiles));
@@ -126,62 +121,60 @@ public class DeptRouter {
       return allPrs;
    }
 
-   public MultiValuedMap<CSV_TYPES, FileContent> parseFiles(MultipartFile[] files) throws FileParsingException {
+   public MultiValuedMap<CSV_TYPES, FileContent> parseFiles(MultipartFile[] files, boolean customUsersNotification) throws FileParsingException {
       MultiValuedMap<CSV_TYPES, FileContent> filesByType = new ArrayListValuedHashMap<>();
       List<String> errors = new ArrayList<>();
+      boolean foundUsersFile = false;
 
       for (MultipartFile file : files) {
          try {
-            if (PROP_FILE.equalsIgnoreCase(file.getOriginalFilename())) {
-               FileContent fc = new InputStreamFileContent(file.getOriginalFilename(), file.getInputStream());
-               filesByType.put(CSV_TYPES.PROPS, fc);
-            } else {
-               List<String[]> fileContents = new CSVReader(new InputStreamReader(file.getInputStream())).readAll();
-               FileContent fc = new StringArrayFileContent(file.getOriginalFilename(), fileContents);
+            List<String[]> fileContents = new CSVReader(new InputStreamReader(file.getInputStream())).readAll();
+            FileContent fc = new StringArrayFileContent(file.getOriginalFilename(), fileContents);
 
-               //Git the first line, hopefully headers!
-               String[] firstLine = fileContents.get(0);
-               switch (StringUtils.join(firstLine, ",")) {
-                  case CsvService.COURSES_HEADER:
-                  case CsvService.COURSES_HEADER + CsvService.START_DATE:
-                  case CsvService.COURSES_HEADER + CsvService.END_DATE:
-                  case CsvService.COURSES_HEADER + CsvService.START_DATE + CsvService.END_DATE:
-                  case CsvService.COURSES_HEADER_NO_TERM:
-                  case CsvService.COURSES_HEADER_NO_TERM + CsvService.START_DATE:
-                  case CsvService.COURSES_HEADER_NO_TERM + CsvService.END_DATE:
-                  case CsvService.COURSES_HEADER_NO_TERM + CsvService.START_DATE + CsvService.END_DATE:
-                     filesByType.put(CSV_TYPES.COURSES, fc);
-                     break;
-                  case CsvService.ENROLLMENTS_HEADER:
-                  case CsvService.ENROLLMENTS_HEADER_SECTION_LIMIT:
-                     filesByType.put(CSV_TYPES.ENROLLMENTS, fc);
-                     break;
-                  case CsvService.SECTIONS_HEADER:
-                  case CsvService.SECTIONS_HEADER + CsvService.START_DATE:
-                  case CsvService.SECTIONS_HEADER + CsvService.END_DATE:
-                  case CsvService.SECTIONS_HEADER + CsvService.START_DATE + CsvService.END_DATE:
-                     FileContent fcOverride = new InputStreamFileContent(file.getOriginalFilename(), file.getInputStream());
-                     filesByType.put(CSV_TYPES.SECTIONS, fcOverride);
-                     break;
-                  case CsvService.USERS_HEADER_NO_SHORT_NAME:
-                     filesByType.put(CSV_TYPES.USERS, fc);
-                     break;
-                  case CsvService.EXPAND_ENROLLMENT_HEADER:
-                     filesByType.put(CSV_TYPES.EXPAND_ENROLLMENTS, fc);
-                     break;
-                  default:
-                     filesByType.put(CSV_TYPES.BAD, fc);
-                     errors.add(fc.getFileName());
-                     break;
-               }
+            //Git the first line, hopefully headers!
+            String[] firstLine = fileContents.get(0);
+            switch (StringUtils.join(firstLine, ",")) {
+               case CsvService.COURSES_HEADER:
+               case CsvService.COURSES_HEADER + CsvService.START_DATE:
+               case CsvService.COURSES_HEADER + CsvService.END_DATE:
+               case CsvService.COURSES_HEADER + CsvService.START_DATE + CsvService.END_DATE:
+               case CsvService.COURSES_HEADER_NO_TERM:
+               case CsvService.COURSES_HEADER_NO_TERM + CsvService.START_DATE:
+               case CsvService.COURSES_HEADER_NO_TERM + CsvService.END_DATE:
+               case CsvService.COURSES_HEADER_NO_TERM + CsvService.START_DATE + CsvService.END_DATE:
+                  filesByType.put(CSV_TYPES.COURSES, fc);
+                  break;
+               case CsvService.ENROLLMENTS_HEADER:
+               case CsvService.ENROLLMENTS_HEADER_SECTION_LIMIT:
+                  filesByType.put(CSV_TYPES.ENROLLMENTS, fc);
+                  break;
+               case CsvService.SECTIONS_HEADER:
+               case CsvService.SECTIONS_HEADER + CsvService.START_DATE:
+               case CsvService.SECTIONS_HEADER + CsvService.END_DATE:
+               case CsvService.SECTIONS_HEADER + CsvService.START_DATE + CsvService.END_DATE:
+                  FileContent fcOverride = new InputStreamFileContent(file.getOriginalFilename(), file.getInputStream());
+                  filesByType.put(CSV_TYPES.SECTIONS, fcOverride);
+                  break;
+               case CsvService.USERS_HEADER_NO_SHORT_NAME:
+                  filesByType.put(CSV_TYPES.USERS, fc);
+                  foundUsersFile = true;
+                  break;
+               case CsvService.EXPAND_ENROLLMENT_HEADER:
+                  filesByType.put(CSV_TYPES.EXPAND_ENROLLMENTS, fc);
+                  break;
+               default:
+                  filesByType.put(CSV_TYPES.BAD, fc);
+                  errors.add(fc.getFileName());
+                  break;
             }
          } catch (IOException | CsvException e) {
             log.error("Error processing " + file.getOriginalFilename(), e);
             errors.add(file.getOriginalFilename());
          }
       }
-      if (!errors.isEmpty()) {
-         throw new FileParsingException("Error parsing some uploaded files", errors);
+      boolean wantedButMissing = customUsersNotification && !foundUsersFile;
+      if (!errors.isEmpty() || wantedButMissing) {
+         throw new FileParsingException("Error parsing some uploaded files", errors, wantedButMissing);
       }
       return filesByType;
    }

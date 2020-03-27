@@ -17,7 +17,8 @@ import org.springframework.context.annotation.PropertySource;
 @Getter
 @Setter
 public class AmsConfig {
-   private String url;
+   private String baseUrl;
+   private String serviceUrl;
    private String user;
    private String password;
 }

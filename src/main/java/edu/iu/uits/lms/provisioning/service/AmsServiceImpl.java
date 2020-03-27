@@ -7,7 +7,7 @@ import Services.ams.Service;
 import Services.ams.ServiceLocator;
 import Services.ams.ServiceSoap;
 import edu.iu.uits.lms.provisioning.config.AmsConfig;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.axis.client.Stub;
 import org.apache.axis.message.SOAPHeaderElement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import java.rmi.RemoteException;
  * Created by jonrcook on 12/5/14.
  */
 @org.springframework.stereotype.Service
-@Log4j
+@Slf4j
 public class AmsServiceImpl {
 
     @Autowired
@@ -92,7 +92,7 @@ public class AmsServiceImpl {
         try {
             String user = amsConfig.getUser();
             String password = amsConfig.getPassword();
-            String amsServiceUrl = amsConfig.getUrl();
+            String amsServiceUrl = amsConfig.getServiceUrl();
 
             if(user == null || password == null || amsServiceUrl == null) {
                 log.error("user, password, amsServiceUrl cannot be null");

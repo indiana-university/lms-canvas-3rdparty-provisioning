@@ -8,7 +8,7 @@ import edu.iu.uits.lms.provisioning.model.ImsUser;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
 import edu.iu.uits.lms.provisioning.repository.ImsUserRepository;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Code for provisioning users into a Canvas enrollment
  */
-@Log4j
+@Slf4j
 @Service
 public class EnrollmentProvisioning {
 
@@ -70,7 +70,7 @@ public class EnrollmentProvisioning {
                 fileException = true;
             }
 
-            prs.add(new ProvisioningResult(emailMessage, new ProvisioningResult.FileObject(file.getFileName(), inputStream), fileException));
+            prs.add(new ProvisioningResult(finalMessage, new ProvisioningResult.FileObject(file.getFileName(), inputStream), fileException));
         }
         return prs;
     }

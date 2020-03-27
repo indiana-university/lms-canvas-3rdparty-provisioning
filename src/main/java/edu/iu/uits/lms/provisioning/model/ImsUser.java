@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "IMS.IMS_CANVAS_USERS_30_V")
+@Table(schema = "IMS", name = "IMS_CANVAS_USERS_30_V")
 @Getter
 @NoArgsConstructor
 public class ImsUser {

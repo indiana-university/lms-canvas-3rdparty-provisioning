@@ -5,7 +5,7 @@ import edu.iu.uits.lms.lti.security.LtiAuthenticationToken;
 import edu.iu.uits.lms.provisioning.model.User;
 import edu.iu.uits.lms.provisioning.repository.UserRepository;
 import io.jsonwebtoken.Claims;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +21,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping({"/lti"})
-@Log4j
+@Slf4j
 public class LtiController extends edu.iu.uits.lms.lti.controller.LtiController {
 
     @Autowired

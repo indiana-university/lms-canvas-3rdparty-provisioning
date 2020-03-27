@@ -1,7 +1,8 @@
 package edu.iu.uits.lms.provisioning.service;
 
+import edu.iu.uits.lms.provisioning.model.NotificationForm;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -10,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-@Log4j
+@Slf4j
 public class CustomNotificationBuilder {
 
    private static final String SENDER_KEY = "sender";
@@ -42,6 +43,17 @@ public class CustomNotificationBuilder {
          fileValid = validateFile();
       } catch (IOException e) {
          log.info("Unable to read input stream");
+      }
+   }
+
+   public CustomNotificationBuilder(NotificationForm notificationForm) {
+      if (notificationForm != null) {
+         properties = new Properties();
+         properties.setProperty(SENDER_KEY, notificationForm.getSender());
+         properties.setProperty(SUBJECT_KEY, notificationForm.getSubject());
+         properties.setProperty(BODY_KEY, notificationForm.getBody());
+         fileExists = true;
+         fileValid = validateFile();
       }
    }
 
