@@ -14,7 +14,7 @@ public class SecurityConfig {
 
     @Configuration
     @Order(1)
-    public static class CourseListLtiSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+    public static class DeptProvisioningLtiSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
         public static final String PATH_TO_OPEN = "/lti";
 
         @Override
@@ -60,7 +60,7 @@ public class SecurityConfig {
 
     @Configuration
     @Order(2)
-    public static class CourseListWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+    public static class DeptProvisioningWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
         public static final String PATH_TO_SECURE = "/**";
 
         @Override
