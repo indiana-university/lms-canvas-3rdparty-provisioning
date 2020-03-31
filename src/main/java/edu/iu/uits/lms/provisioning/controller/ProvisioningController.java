@@ -13,6 +13,7 @@ import edu.iu.uits.lms.provisioning.service.ProvisioningResult;
 import edu.iu.uits.lms.provisioning.service.exception.FileParsingException;
 import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
 import edu.iu.uits.lms.provisioning.service.exception.FileUploadException;
+import edu.iu.uits.lms.provisioning.service.exception.ZipException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -81,16 +82,19 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
         try {
             MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> filesByType = deptRouter.parseFiles(files, customUsersNotification);
 
+            Long archiveId = deptRouter.zipOriginals(filesByType.get(DeptRouter.CSV_TYPES.ORIGINALS), deptDropdown, (String)token.getPrincipal());
+
             if (customUsersNotification) {
-                token.setData(SESSION_KEY, new SessionData(filesByType, deptDropdown, customUsersNotification, null));
+                token.setData(SESSION_KEY, new SessionData(filesByType, deptDropdown, customUsersNotification,
+                      null, archiveId));
                 return notify(deptDropdown, model);
             }
 
-            processFiles(filesByType, deptDropdown, null);
+            processFiles(filesByType, deptDropdown, null, archiveId, (String)token.getPrincipal());
 
             model.addAttribute("uploadSuccess", true);
 
-        } catch (FileParsingException | FileProcessingException | FileUploadException e) {
+        } catch (FileParsingException | FileProcessingException | FileUploadException | ZipException e) {
             model.addAttribute("fileErrors", e.getFileErrors());
         }
 
@@ -120,10 +124,11 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
         SessionData storedData = (SessionData)token.getData().get(SESSION_KEY);
 
         try {
-            processFiles(storedData.getFilesByType(), storedData.getDepartment(), notifForm);
+            processFiles(storedData.getFilesByType(), storedData.getDepartment(), notifForm, storedData.getArchiveId(),
+                  (String)token.getPrincipal());
             token.clearData(SESSION_KEY);
             model.addAttribute("uploadSuccess", true);
-        } catch (FileProcessingException | FileUploadException e) {
+        } catch (FileProcessingException | FileUploadException | ZipException e) {
             model.addAttribute("fileErrors", e.getFileErrors());
         }
         return index(model);
@@ -138,7 +143,7 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
     }
 
     private void processFiles(MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> filesByType, String department,
-                              NotificationForm notificationForm) throws FileUploadException, FileProcessingException {
+                              NotificationForm notificationForm, Long archiveId, String username) throws FileUploadException, FileProcessingException, ZipException {
         List<ProvisioningResult> provisioningResults = deptRouter.processFiles(department, filesByType, notificationForm);
 
         List<ProvisioningResult.FileObject> allFiles = new ArrayList<>();
@@ -151,7 +156,7 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
             fullEmail.append(provisioningResult.getEmailMessage() + "\r\n");
         }
 
-        deptRouter.sendToCanvas(allFiles, department, fullEmail);
+        deptRouter.sendToCanvas(allFiles, department, fullEmail, archiveId, username);
     }
 
     @Data
@@ -161,6 +166,7 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
         private String department;
         private boolean customUsersNotification;
         private NotificationForm notificationForm;
+        private Long archiveId;
     }
 
 }

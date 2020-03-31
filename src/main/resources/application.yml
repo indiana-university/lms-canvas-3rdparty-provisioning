@@ -52,6 +52,8 @@ logging:
             provisioning: DEBUG
             common: DEBUG
             email: DEBUG
+    lms:
+      instructure: DEBUG
 #    org:
 #      springframework:
 #        security: DEBUG
