@@ -21,11 +21,10 @@ public class CustomNotificationService {
       details.addRecipientsItem(email);
       details.setSubject(customNotificationBuilder.getSubject());
       details.setBody(customNotificationBuilder.getBody());
-      details.setDigitallySign(false);
       details.setEnableHtml(false);
       details.setPriority(EmailDetails.PriorityEnum.NORMAL);
       details.setFrom(customNotificationBuilder.getSender());
-      emailApi.sendEmail(details);
+      emailApi.sendEmail(details, false);
    }
 
    public DeptAuthMessageSender getValidatedCustomMessageSender(CustomNotificationBuilder customNotificationBuilder, String dept) {

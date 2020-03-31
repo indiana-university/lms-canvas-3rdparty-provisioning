@@ -264,7 +264,7 @@ public class DeptRouter {
             details.setRecipients(Arrays.asList(emailAddresses));
             details.setSubject(subject);
             details.setBody(finalMessage.toString());
-            emailApi.sendEmail(details);
+            emailApi.sendEmail(details, true);
 
          } else {
             log.warn("No email addresses specified for the group code: '" + dept + "' so no status email will be sent.");

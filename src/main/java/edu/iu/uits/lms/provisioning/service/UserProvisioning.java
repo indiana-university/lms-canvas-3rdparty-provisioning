@@ -221,7 +221,7 @@ public class UserProvisioning {
             details.addRecipientsItem(cu.getEmail());
             details.setSubject(subject);
             details.setBody(body);
-            emailApi.sendEmail(details);
+            emailApi.sendEmail(details, true);
         } catch (RestClientException e) {
             // since this isn't using an attachment this exception should never be thrown
             log.error("Error sending email", e);
