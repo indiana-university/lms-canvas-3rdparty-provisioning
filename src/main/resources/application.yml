@@ -43,20 +43,6 @@ security:
     resource:
       jwt:
         keyUri: ${oauth.tokenprovider.url}/oauth/token_key
-logging:
-  level:
-    edu:
-      iu:
-        uits:
-          lms:
-            provisioning: DEBUG
-            common: DEBUG
-            email: DEBUG
-    lms:
-      instructure: DEBUG
-#    org:
-#      springframework:
-#        security: DEBUG
 
 deptprov:
   version: ${app.version}
