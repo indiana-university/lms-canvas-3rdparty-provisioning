@@ -1,0 +1,10 @@
+/* sets the size of rivet icons */
+.rvt-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.preformatted {
+    font-family: BentonSans;
+    margin: 0;
+}
