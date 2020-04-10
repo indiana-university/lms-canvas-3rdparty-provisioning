@@ -55,6 +55,7 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
     @RequestMapping("/index")
     @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
     public ModelAndView index(Model model) {
+        log.debug("/index");
         LtiAuthenticationToken token = getTokenWithoutContext();
         String name = (String)token.getPrincipal();
 
@@ -76,6 +77,7 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
                                @RequestParam("deptFileUpload") MultipartFile[] files,
                                @RequestParam(value = "customUsersNotification", required = false) boolean customUsersNotification,
                                Model model) {
+        log.debug("/upload");
         LtiAuthenticationToken token = getTokenWithoutContext();
         model.addAttribute("selectedGroup", deptDropdown);
 
@@ -103,7 +105,7 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
 
     @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
     private ModelAndView notify(String dept, Model model) {
-
+        log.debug("notify");
         List<DeptAuthMessageSender> senders = deptAuthMessageSenderRepository.findByGroupCodeIgnoreCase(dept);
         String pattern = "{0} ({1})";
 
@@ -120,6 +122,7 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
     @PostMapping("/submit")
     @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
     public ModelAndView submitNotification(@ModelAttribute NotificationForm notifForm, Model model) {
+        log.debug("/submit");
         LtiAuthenticationToken token = getTokenWithoutContext();
         SessionData storedData = (SessionData)token.getData().get(SESSION_KEY);
 
