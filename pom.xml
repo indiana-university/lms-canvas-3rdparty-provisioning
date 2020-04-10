@@ -10,7 +10,7 @@
         <groupId>edu.iu.uits.lms</groupId>
         <version>4.0.2</version>
     </parent>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
 
     <properties>
         <app.version>${project.version}</app.version>
@@ -60,7 +60,7 @@
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>common-configuration</artifactId>
-            <version>4.0.0</version>
+            <version>4.0.1</version>
         </dependency>
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
@@ -70,7 +70,7 @@
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>redis-config</artifactId>
-            <version>4.0.0</version>
+            <version>4.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
