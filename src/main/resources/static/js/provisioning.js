@@ -50,7 +50,7 @@ $(document).ready(function(){
         $('#uploadSubmit').prop('disabled', disabled);
     });
 
-    $('#notificationForm').change(function(){
+    $('#notificationForm').on('input change selectionchange', function(){
         //Make sure a sender option is selected
         var senderVal = $('#senderUsername option:selected').val();
         //This should evaluate to true if it's undefined or blank

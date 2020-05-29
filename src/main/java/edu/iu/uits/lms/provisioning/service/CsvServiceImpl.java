@@ -49,6 +49,15 @@ public class CsvServiceImpl implements CsvService {
 
     @Override
     public InputStream writeCsvToStream(List<String[]> stringArrayList, String[] headerArray) throws IOException {
+        byte[] bytes = writeCsvToBytes(stringArrayList, headerArray);
+
+        //use ByteArrayInputStream to get the bytes of the String and convert them to InputStream.
+        InputStream inputStream = new ByteArrayInputStream(bytes);
+        return inputStream;
+    }
+
+    @Override
+    public byte[] writeCsvToBytes(List<String[]> stringArrayList, String[] headerArray) throws IOException {
         StringWriter stringWriter = new StringWriter();
         CSVWriter csvWriter = new CSVWriter(stringWriter);
         if (headerArray!=null && headerArray.length>0) {
@@ -61,8 +70,7 @@ public class CsvServiceImpl implements CsvService {
         csvWriter.close();
 
         //use ByteArrayInputStream to get the bytes of the String and convert them to InputStream.
-        InputStream inputStream = new ByteArrayInputStream(stringWriter.toString().getBytes(StandardCharsets.UTF_8));
-        return inputStream;
+        return stringWriter.toString().getBytes(StandardCharsets.UTF_8);
     }
 
     /**
@@ -99,25 +107,15 @@ public class CsvServiceImpl implements CsvService {
     }
 
     private void addFileToZip(ZipOutputStream zos, ProvisioningResult.FileObject fileObject) {
-        InputStream fis = fileObject.getInputStream();
-        if (fis != null) {
+        byte[] fileBytes = fileObject.getFileBytes();
+        if (fileBytes != null) {
             try {
                 log.info("Adding " + fileObject.getFileName() + " to the zip file");
                 zos.putNextEntry(new ZipEntry(fileObject.getFileName()));
-                byte[] buf = new byte[1024];
-                int len;
-                while ((len = fis.read(buf)) > 0) {
-                    zos.write(buf, 0, len);
-                }
+                zos.write(fileBytes);
                 zos.closeEntry();
             } catch (IOException e) {
                 log.error("error zipping file", e);
-            } finally {
-                try {
-                    fis.close();
-                } catch (IOException e) {
-                    log.error("cannot close up stream", e);
-                }
             }
         }
     }

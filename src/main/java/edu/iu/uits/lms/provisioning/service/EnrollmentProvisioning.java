@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -59,10 +58,10 @@ public class EnrollmentProvisioning {
             // Create csv file to send to Canvas
             String[] enrollmentsHeader = CsvService.ENROLLMENTS_HEADER_SECTION_LIMIT.split(",");
 
-            InputStream inputStream = null;
+            byte[] fileBytes = null;
             boolean fileException = false;
             try {
-                inputStream = csvService.writeCsvToStream(outputData, enrollmentsHeader);
+                fileBytes = csvService.writeCsvToBytes(outputData, enrollmentsHeader);
                 finalMessage.append(emailMessage);
             } catch (IOException e) {
                 log.error("Error generating csv", e);
@@ -70,7 +69,7 @@ public class EnrollmentProvisioning {
                 fileException = true;
             }
 
-            prs.add(new ProvisioningResult(finalMessage, new ProvisioningResult.FileObject(file.getFileName(), inputStream), fileException));
+            prs.add(new ProvisioningResult(finalMessage, new ProvisioningResult.FileObject(file.getFileName(), fileBytes), fileException));
         }
         return prs;
     }

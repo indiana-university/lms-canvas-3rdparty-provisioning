@@ -3,7 +3,6 @@ package edu.iu.uits.lms.provisioning.service;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.io.InputStream;
 import java.io.Serializable;
 
 /**
@@ -12,7 +11,6 @@ import java.io.Serializable;
  */
 @Data
 @AllArgsConstructor
-//@NoArgsConstructor
 public class ProvisioningResult {
     private StringBuilder emailMessage;
     private FileObject fileObject;
@@ -22,7 +20,7 @@ public class ProvisioningResult {
     @AllArgsConstructor
     public static class FileObject implements Serializable {
         private String fileName;
-        private InputStream inputStream;
+        private byte[] fileBytes;
     }
 
 }
