@@ -52,13 +52,12 @@ public class LtiController extends edu.iu.uits.lms.lti.controller.LtiController 
         String userId = launchParams.get(CUSTOM_CANVAS_USER_LOGIN_ID);
 
         String rolesString = "NotAuthorized";
-        Map<String, Object> dataMap = new HashMap<>();
 
         User user = userRepository.findByUsername(userId);
 
         if (user != null) {
             rolesString = "Instructor";
-            dataMap.put(Constants.AVAILABLE_GROUPS_KEY, user.getGroupCode());
+            request.getSession().setAttribute(Constants.AVAILABLE_GROUPS_KEY, user.getGroupCode());
         }
 
         String[] userRoles = rolesString.split(",");
@@ -69,7 +68,7 @@ public class LtiController extends edu.iu.uits.lms.lti.controller.LtiController 
         String courseId = launchParams.get(CUSTOM_CANVAS_COURSE_ID);
 
         LtiAuthenticationToken token = new LtiAuthenticationToken(userId, courseId, systemId,
-              AuthorityUtils.createAuthorityList(LtiAuthenticationProvider.LTI_USER_ROLE, authority), dataMap, getToolContext());
+              AuthorityUtils.createAuthorityList(LtiAuthenticationProvider.LTI_USER_ROLE, authority), getToolContext());
         SecurityContextHolder.getContext().setAuthentication(token);
     }
 

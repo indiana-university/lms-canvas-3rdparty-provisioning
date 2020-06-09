@@ -8,8 +8,8 @@ import edu.iu.uits.lms.provisioning.model.CanvasImportId;
 import edu.iu.uits.lms.provisioning.model.DeptProvArchive;
 import edu.iu.uits.lms.provisioning.model.LmsBatchEmail;
 import edu.iu.uits.lms.provisioning.model.NotificationForm;
+import edu.iu.uits.lms.provisioning.model.content.ByteArrayFileContent;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
-import edu.iu.uits.lms.provisioning.model.content.InputStreamFileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
 import edu.iu.uits.lms.provisioning.repository.ArchiveRepository;
 import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
@@ -29,10 +29,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -136,11 +136,11 @@ public class DeptRouter {
 
       for (MultipartFile file : files) {
          try {
-            InputStream inputStream = file.getInputStream();
-            List<String[]> fileContents = new CSVReader(new InputStreamReader(inputStream)).readAll();
+            byte[] fileBytes = file.getBytes();
+            List<String[]> fileContents = new CSVReader(new InputStreamReader(new ByteArrayInputStream(fileBytes))).readAll();
             FileContent fc = new StringArrayFileContent(file.getOriginalFilename(), fileContents);
-            InputStreamFileContent isfc = new InputStreamFileContent(file.getOriginalFilename(), inputStream);
-            filesByType.put(CSV_TYPES.ORIGINALS, isfc);
+            ByteArrayFileContent bafc = new ByteArrayFileContent(file.getOriginalFilename(), fileBytes);
+            filesByType.put(CSV_TYPES.ORIGINALS, bafc);
 
             //Git the first line, hopefully headers!
             String[] firstLine = fileContents.get(0);
@@ -163,7 +163,7 @@ public class DeptRouter {
                case CsvService.SECTIONS_HEADER + CsvService.START_DATE:
                case CsvService.SECTIONS_HEADER + CsvService.END_DATE:
                case CsvService.SECTIONS_HEADER + CsvService.START_DATE + CsvService.END_DATE:
-                  FileContent fcOverride = new InputStreamFileContent(file.getOriginalFilename(), file.getInputStream());
+                  FileContent fcOverride = new ByteArrayFileContent(file.getOriginalFilename(), fileBytes);
                   filesByType.put(CSV_TYPES.SECTIONS, fcOverride);
                   break;
                case CsvService.USERS_HEADER_NO_SHORT_NAME:
@@ -283,7 +283,7 @@ public class DeptRouter {
          String originalFileNameFullPath = zipPath + "/originalFiles.zip";
 
          List<FileObject> fileObjects = files.stream()
-               .map((FileContent file) -> new FileObject(file.getFileName(), ((InputStreamFileContent)file).getContents()))
+               .map((FileContent file) -> new FileObject(file.getFileName(), ((ByteArrayFileContent)file).getContents()))
                .collect(Collectors.toList());
 
          File originalsZip = csvService.zipCsv(fileObjects, originalFileNameFullPath);

@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -57,11 +56,11 @@ public class CourseProvisioning {
             }
 
             StringBuilder finalMessage = new StringBuilder(emailMessage);
-            InputStream inputStream = null;
+            byte[] fileBytes = null;
             boolean fileException = false;
             try {
                 // Create csv file to send to Canvas
-                inputStream = csvService.writeCsvToStream(stringArrayList, null);
+                fileBytes = csvService.writeCsvToBytes(stringArrayList, null);
 
                 if (errorMessage.length() > 0) {
                     finalMessage.append(errorMessage);
@@ -76,7 +75,7 @@ public class CourseProvisioning {
             }
 
             ProvisioningResult pr = new ProvisioningResult(finalMessage,
-                  new ProvisioningResult.FileObject(file.getFileName(), inputStream), fileException);
+                  new ProvisioningResult.FileObject(file.getFileName(), fileBytes), fileException);
             prs.add(pr);
         }
 

@@ -46,6 +46,7 @@ public interface CsvService {
 
    void writeCsv(List<String[]> stringArrayList, String[] headerArray, String filePath) throws IOException;
    InputStream writeCsvToStream(List<String[]> stringArrayList, String[] headerArray) throws IOException;
+   byte[] writeCsvToBytes(List<String[]> stringArrayList, String[] headerArray) throws IOException;
 
    File zipCsv(List<ProvisioningResult.FileObject> fileList, String filePath);
 
