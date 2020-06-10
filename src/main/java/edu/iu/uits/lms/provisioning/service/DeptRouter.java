@@ -167,6 +167,7 @@ public class DeptRouter {
                   filesByType.put(CSV_TYPES.SECTIONS, fcOverride);
                   break;
                case CsvService.USERS_HEADER_NO_SHORT_NAME:
+               case CsvService.USERS_HEADER_NO_SHORT_NAME_ADD_SERVICE:
                   filesByType.put(CSV_TYPES.USERS, fc);
                   foundUsersFile = true;
                   break;

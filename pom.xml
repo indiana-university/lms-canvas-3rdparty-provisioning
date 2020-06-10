@@ -76,10 +76,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-data-rest</artifactId>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
@@ -93,16 +89,6 @@
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>lms-email-client</artifactId>
             <version>4.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.iu.uits.lms.ams</groupId>
-            <artifactId>ams-wsdl</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis</artifactId>
-            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>

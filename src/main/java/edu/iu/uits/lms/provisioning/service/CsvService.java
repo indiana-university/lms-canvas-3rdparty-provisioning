@@ -37,6 +37,8 @@ public interface CsvService {
     * USERS_HEADER_NO_SHORT_NAME is the same as USERS_HEADER, but does not contain the short_name field
     */
    String USERS_HEADER_NO_SHORT_NAME = "user_id,login_id,first_name,last_name,email,status";
+   String USERS_HEADER_NO_SHORT_NAME_ADD_SERVICE = "user_id,login_id,first_name,last_name,email,status,service";
+
 
    String START_DATE = ",start_date";
    String END_DATE = ",end_date";
