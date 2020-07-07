@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-@RequestMapping({"/lti"})
+@RequestMapping("/lti")
 @Slf4j
 public class LtiController extends edu.iu.uits.lms.lti.controller.LtiController {
 
@@ -31,7 +31,7 @@ public class LtiController extends edu.iu.uits.lms.lti.controller.LtiController 
 
     @Override
     protected String getLaunchUrl(Map<String, String> launchParams) {
-        return "index";
+        return "/app/index";
     }
 
     @Override

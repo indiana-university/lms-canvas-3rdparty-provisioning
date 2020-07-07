@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
+@RequestMapping("/app")
 @Slf4j
 public class ProvisioningController extends LtiAuthenticationTokenAwareController {
 
