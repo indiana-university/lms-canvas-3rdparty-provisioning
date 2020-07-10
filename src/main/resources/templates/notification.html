@@ -14,7 +14,7 @@
         <div class="rvt-box">
             <div class="rvt-box__body">
                 <h2 class="rvt-ts-26 rvt-m-bottom-sm">Send Custom Notification to New Guests</h2>
-                <form id="notificationForm" action="/submit" method="post" th:object="${notifForm}">
+                <form id="notificationForm" action="/app/submit" method="post" th:object="${notifForm}">
                     <div class="rvt-width-xl">
                         <label for="senderUsername">Sender's Username</label>
                         <select id="senderUsername" th:field="*{sender}">

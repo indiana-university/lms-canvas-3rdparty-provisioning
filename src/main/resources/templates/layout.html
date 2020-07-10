@@ -7,8 +7,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta charset="utf-8" />
-    <link rel="stylesheet" type="text/css" th:href="@{/jsrivet/rivet-bundle.min.css}" />
-    <link rel="stylesheet" type="text/css" th:href="@{/css/provisioning.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/app/jsrivet/rivet-bundle.min.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/app/css/provisioning.css}"/>
 </head>
 <body>
 
@@ -34,9 +34,9 @@
     <div id="footer" th:text="${@serverInfo}"></div>
 </footer>
 
-<script type="text/javascript" th:src="@{/jsrivet/rivet-bundle.min.js}"></script>
-<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
-<script type="text/javascript" th:src="@{/js/provisioning.js}"></script>
+<script type="text/javascript" th:src="@{/app/jsrivet/rivet-bundle.min.js}"></script>
+<script type="text/javascript" th:src="@{/app/webjars/jquery/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/app/js/provisioning.js}"></script>
 
 <th:block layout:fragment="script">
     <!--

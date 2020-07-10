@@ -1,9 +1,9 @@
 package edu.iu.uits.lms.provisioning.service;
 
-import Services.ams.GuestInfo;
 import canvas.client.generated.api.UsersApi;
 import canvas.client.generated.model.CanvasLogin;
 import canvas.client.generated.model.User;
+import edu.iu.uits.lms.provisioning.model.GuestAccount;
 import edu.iu.uits.lms.provisioning.model.ImsUser;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
@@ -33,7 +33,7 @@ public class EnrollmentProvisioning {
     private UsersApi usersApi = null;
 
     @Autowired
-    private AmsServiceImpl amsService = null;
+    private GuestAccountService guestAccountService = null;
 
     @Autowired
     private CsvService csvService = null;
@@ -140,10 +140,10 @@ public class EnrollmentProvisioning {
                                     // see if this is an Add before attempting to lookup in AMS, since a delete and AMS
                                     // would be the same data that we already know doesn't exist in Canvas
                                     if (ACTIVE.equals(status)) {
-                                        GuestInfo guestInfo = amsService.lookupGuestByEmail(email);
+                                        GuestAccount guestInfo = guestAccountService.lookupGuestByEmail(email);
                                         // Account exists, so add to our list to send to Canvas. It's likely a new user
-                                        if (guestInfo != null && guestInfo.getStringError().isEmpty()) {
-                                            String sequenceNumber = guestInfo.getStringSequenceNumber();
+                                        if (guestInfo != null) {
+                                            String sequenceNumber = guestInfo.getExternalAccountId();
                                             String[] lineToRewrite = {courseId,sequenceNumber,role,sectionId,status,sectionLimit};
                                             // add the object to our list of users to send to Canvas
                                             stringArray.add(lineToRewrite);
@@ -161,10 +161,10 @@ public class EnrollmentProvisioning {
                                 }
                             } else {
                                 if (ACTIVE.equals(status)) {
-                                    GuestInfo guestInfo = amsService.lookupGuestByEmail(email);
+                                    GuestAccount guestInfo = guestAccountService.lookupGuestByEmail(email);
                                     // Account exists, so add to our list to send to Canvas. It's likely a new user
-                                    if (guestInfo != null && guestInfo.getStringError().isEmpty()) {
-                                        String sequenceNumber = guestInfo.getStringSequenceNumber();
+                                    if (guestInfo != null) {
+                                        String sequenceNumber = guestInfo.getExternalAccountId();
                                         String[] lineToRewrite = {courseId,sequenceNumber,role,sectionId,status,sectionLimit};
 
                                         // add the object to our list of users to send to Canvas

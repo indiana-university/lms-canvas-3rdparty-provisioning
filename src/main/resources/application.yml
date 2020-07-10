@@ -27,22 +27,41 @@ spring:
     url: ${lti.db.url}
     username: ${lti.db.user}
     password: ${lti.db.password}
-security:
-  oauth2:
-    client:
-      userAuthorizationUri: ${oauth.tokenprovider.url}/oauth/authorize
-      accessTokenUri: ${oauth.tokenprovider.url}/oauth/token
-      clientId: ${oauth.tokenprovider.clientId}
-      clientSecret: ${oauth.tokenprovider.clientSecret}
-      username: ${oauth.tokenprovider.clientId}
-      password: ${oauth.tokenprovider.clientPassword}
-      clientAuthenticationScheme: form
-    resource:
-      jwt:
-        keyUri: ${oauth.tokenprovider.url}/oauth/token_key
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${oauth.tokenprovider.url}/.well-known/jwks.json
 
 deptprov:
   version: ${app.version}
+  prd:
+    guestAccountCreationUrl: https://eaa.apps.iu.edu
+    canvasServiceName: CanvasProd
+    expandServiceName: ExpandProd
+  stg:
+    guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
+    canvasServiceName: CanvasTest
+    expandServiceName: ExpandBeta
+  reg:
+    guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
+    canvasServiceName: CanvasBeta
+    expandServiceName: ExpandBeta
+  snd:
+    guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
+    canvasServiceName: CanvasSand
+    expandServiceName: ExpandBeta
+  dev:
+    guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
+    canvasServiceName: CanvasBeta
+    expandServiceName: ExpandBeta
+  ci:
+    guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
+    canvasServiceName: CanvasBeta
+    expandServiceName: ExpandBeta
+  guestAccountCreationUrl: ${deptprov.${app.env}.guestAccountCreationUrl}
+  canvasServiceName: ${deptprov.${app.env}.canvasServiceName}
+  expandServiceName: ${deptprov.${app.env}.expandServiceName}
 
 ---
 

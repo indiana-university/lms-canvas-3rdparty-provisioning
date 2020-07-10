@@ -1,6 +1,6 @@
 package edu.iu.uits.lms.provisioning;
 
-import edu.iu.uits.lms.common.samesite.CookieFilterConfig;
+import edu.iu.uits.lms.common.samesite.EnableCookieFilter;
 import edu.iu.uits.lms.common.server.GitRepositoryState;
 import edu.iu.uits.lms.common.server.ServerInfo;
 import edu.iu.uits.lms.common.server.ServerUtils;
@@ -13,7 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 
 import java.util.Date;
 
@@ -23,9 +22,9 @@ import java.util.Date;
       "${app.fullFilePath}/lms.properties",
       "${app.fullFilePath}/protected.properties",
       "${app.fullFilePath}/security.properties"}, ignoreResourceNotFound = true)
-@EnableResourceServer
 @Slf4j
-@Import({GitRepositoryState.class, RedisConfiguration.class, CookieFilterConfig.class})
+@Import({GitRepositoryState.class, RedisConfiguration.class})
+@EnableCookieFilter(ignoredRequestPatterns = {"/rest/**"})
 public class WebApplication {
 
     @Autowired
