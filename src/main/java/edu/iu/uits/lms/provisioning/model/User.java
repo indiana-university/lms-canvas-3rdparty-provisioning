@@ -25,8 +25,6 @@ import java.util.List;
 @Table(name = "DEPT_PROV_USERS")
 @NamedQueries({
         @NamedQuery(name = "User.findByCanvasUserId", query = "from User where canvas_user_id = :canvasUserId"),
-        @NamedQuery(name = "User.findAllAuthorizedSenders", query = "from User where authorizedSender = true order by username asc"),
-        @NamedQuery(name = "User.findAllAuthorizedUsers", query = "from User where authorizedUser = true order by username asc")
 })
 @SequenceGenerator(name = "DEPT_PROV_USERS_ID_SEQ", sequenceName = "DEPT_PROV_USERS_ID_SEQ", allocationSize = 1)
 @Data
