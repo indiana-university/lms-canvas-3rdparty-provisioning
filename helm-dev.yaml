@@ -3,7 +3,7 @@ bootstrapSecret: "protected-properties-2020-07-10"
 
 image:
   repository: localhost:5000/lti_3rdpartyprovisioning
-  pullPolicy: Always
+  pullPolicy: Never
 
 replicaCount: 1
 
