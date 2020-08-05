@@ -9,9 +9,9 @@
         <artifactId>lms2Wow</artifactId>
         <groupId>edu.iu.uits.lms</groupId>
         <version>4.0.5</version>
-        <relativePath/>
+        <relativePath />
     </parent>
-    <version>4.0.2-SNAPSHOT</version>
+    <version>4.0.3-SNAPSHOT</version>
 
     <properties>
         <app.version>${project.version}</app.version>
