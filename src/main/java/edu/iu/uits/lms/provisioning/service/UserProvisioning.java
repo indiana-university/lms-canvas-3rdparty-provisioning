@@ -1,23 +1,20 @@
 package edu.iu.uits.lms.provisioning.service;
 
-import Services.ams.Guest;
-import Services.ams.GuestInfo;
-import Services.ams.GuestResponse;
 import canvas.client.generated.api.CanvasApi;
 import canvas.client.generated.api.UsersApi;
 import canvas.client.generated.model.CanvasLogin;
 import canvas.client.generated.model.User;
 import canvas.helpers.UserHelper;
+import edu.iu.uits.lms.provisioning.config.ToolConfig;
 import edu.iu.uits.lms.provisioning.model.DeptAuthMessageSender;
+import edu.iu.uits.lms.provisioning.model.GuestAccount;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
 import email.client.generated.api.EmailApi;
-import email.client.generated.model.EmailDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +30,9 @@ public class UserProvisioning {
     private static final int EMAIL = 1;
     private static final int FIRST_NAME = 2;
     private static final int LAST_NAME = 3;
+    private static final int SERVICE = 6;
+    private static final String SERVICE_VALUE_C = "c";
+    private static final String SERVICE_VALUE_E = "e";
 
     @Autowired
     protected CustomNotificationService customNotificationService;
@@ -47,10 +47,10 @@ public class UserProvisioning {
     private UsersApi usersApi = null;
 
     @Autowired
-    private AmsServiceImpl amsService = null;
+    private GuestAccountService guestAccountService = null;
 
     @Autowired
-    private PasswordGeneratorImpl passwordGenerator = null;
+    private ToolConfig toolConfig = null;
 
     /**
      * Pass in a path to a csv file and a department code and this validate the data, attempt to make IU Guest Accounts,
@@ -99,6 +99,9 @@ public class UserProvisioning {
         // Build the legit list to pass on to Canvas
         List<User> canvasGuestAccountList = new ArrayList<User>();
 
+        String[] usersHeader = CsvService.USERS_HEADER_NO_SHORT_NAME.split(",");
+        String[] usersHeaderWithService = CsvService.USERS_HEADER_NO_SHORT_NAME_ADD_SERVICE.split(",");
+
         for (FileContent file : fileList) {
             int successCount = 0;
             int updateCount = 0;
@@ -112,39 +115,51 @@ public class UserProvisioning {
             // read individual files line by line
             List <String[]> fileContents = ((StringArrayFileContent)file).getContents();
 
+            boolean usersCsvHasService = false;
+
             for (String[] lineContentArray : fileContents) {
                 int lineLength = lineContentArray.length;
-                if (lineLength == 6) {
+                if (lineLength == 6 || lineLength == 7) {
+                    // Assume sending to Canvas until proven otherwise
+                    String serviceValue = SERVICE_VALUE_C;
                     // check to see if this is a header line
                     // if it's a header row, we want to ignore it and move on
-                    String[] usersHeader = CsvService.USERS_HEADER_NO_SHORT_NAME.split(",");
                     if (Arrays.equals(lineContentArray,usersHeader)) {
+                        continue;
+                    } else if (Arrays.equals(lineContentArray, usersHeaderWithService)) {
+                        usersCsvHasService = true;
                         continue;
                     }
                     // make sure the first object is an email address
                     log.info("Check for a valid email address");
                     if (EmailValidator.getInstance().isValid(lineContentArray[EMAIL])) {
-                        Guest ga = new Guest();
-                        ga.setStringEmail(lineContentArray[EMAIL]);
-                        ga.setStringFirstName(lineContentArray[FIRST_NAME]);
-                        ga.setStringLastName(lineContentArray[LAST_NAME]);
+                        GuestAccount ga = new GuestAccount();
+                        ga.setRegistrationEmail(lineContentArray[EMAIL]);
+                        ga.setFirstName(lineContentArray[FIRST_NAME]);
+                        ga.setLastName(lineContentArray[LAST_NAME]);
+                        if (usersCsvHasService) {
+                            if (SERVICE_VALUE_E.equalsIgnoreCase(lineContentArray[SERVICE])) {
+                                serviceValue = SERVICE_VALUE_E;
+                            }
+                        }
+                        ga.setServiceName(serviceNameHelper(serviceValue));
 
                         // check to see if this email is in use
                         try {
-                            GuestInfo guestInfo = amsService.lookupGuestByEmail(ga.getStringEmail());
-                            if (guestInfo != null && "".equals(guestInfo.getStringError())) {
+                            GuestAccount guestInfo = guestAccountService.lookupGuestByEmail(ga.getRegistrationEmail());
+                            if (guestInfo != null) {
                                 // Account already exists, but add to our list to send to Canvas
                                 User cu = new User();
 
                                 // Even though we have info provided from the csv file, let's use what's officially registered with AMS
-                                String sequenceNumber = guestInfo.getStringSequenceNumber();
-                                String email = guestInfo.getStringEmail();
-                                String firstName = guestInfo.getStringFirstName();
-                                String lastName = guestInfo.getStringLastName();
+                                String sequenceNumber = guestInfo.getExternalAccountId();
+                                String email = guestInfo.getRegistrationEmail();
+                                String firstName = guestInfo.getFirstName();
+                                String lastName = guestInfo.getLastName();
 
-                                // The userId in this case is the "sequence id" from the guest account
-                                cu.setSisUserId(sequenceNumber);
-                                cu.setLoginId(email);
+                                // sis_user_id = email, login/unique login = cirrusId
+                                cu.setSisUserId(email);
+                                cu.setLoginId(sequenceNumber);
                                 UserHelper.setAllNameFields(cu, firstName, lastName);
                                 cu.setEmail(email);
 
@@ -152,27 +167,41 @@ public class UserProvisioning {
                                 canvasGuestAccountList.add(cu);
                                 updateCount++;
                             } else {
-                                ga.setStringPassword(passwordGenerator.generatePassword(14));
-                                GuestResponse gr = amsService.createGuest(ga);
-                                User cu = new User();
-                                // The userId in this case is the "sequence id" from the guest account
-                                cu.setSisUserId(gr.getStringSequenceNumber());
-                                cu.setLoginId(ga.getStringEmail());
-                                UserHelper.setAllNameFields(cu, ga.getStringFirstName(), ga.getStringLastName());
-                                cu.setEmail(ga.getStringEmail());
-                                canvasGuestAccountList.add(cu);
-                                successCount++;
-                                // Since we have the information for the new account, send the activation email to the newly created user
-                                sendActivationEmail(cu, gr.getStringActivationCode());
-                                if (messageSender != null) {
-                                    customNotificationService.sendCustomWelcomeMessage(ga.getStringEmail(), customNotificationBuilder);
-                                    emailSuccessCount++;
-                                } else if (customNotificationBuilder.isFileExists() && (!customNotificationBuilder.isFileValid() || messageSender == null)) {
-                                    emailFailures.add(ga.getStringEmail());
+                                GuestAccount gr = guestAccountService.createGuest(ga);
+
+                                if (gr==null) {
+                                    log.error("GuestAccountService error: returned null");
+                                    failureCount++;
+                                    emailMessage.append("\t" + lineContentArray[EMAIL] + " - GuestAccountService error: returned null\r\n");
+                                } else if (!gr.getErrorMessages().isEmpty()) {
+                                    StringBuilder errorMessageBuilder = new StringBuilder();
+                                    for (String errorMessage : gr.getErrorMessages()) {
+                                        errorMessageBuilder.append(errorMessage + "\r");
+                                    }
+                                    log.error("Guest Account creation error: " + errorMessageBuilder);
+                                    failureCount++;
+                                    emailMessage.append("\t" + lineContentArray[EMAIL] + " - Guest Account creation error: " + errorMessageBuilder + "\r\n");
+                                } else {
+                                    // send custom message of a successful guest account before attempting anything else in the code
+                                    if (messageSender != null) {
+                                        customNotificationService.sendCustomWelcomeMessage(ga.getRegistrationEmail(), customNotificationBuilder);
+                                        emailSuccessCount++;
+                                    } else if (customNotificationBuilder.isFileExists() && (!customNotificationBuilder.isFileValid() || messageSender == null)) {
+                                        emailFailures.add(ga.getRegistrationEmail());
+                                    }
+
+                                    User cu = new User();
+                                    // sis_user_id = email, login/unique login = cirrusId
+                                    cu.setSisUserId(ga.getRegistrationEmail());
+                                    cu.setLoginId(gr.getExternalAccountId());
+                                    UserHelper.setAllNameFields(cu, ga.getFirstName(), ga.getLastName());
+                                    cu.setEmail(ga.getRegistrationEmail());
+                                    canvasGuestAccountList.add(cu);
+                                    successCount++;
                                 }
                             }
-                        } catch (IllegalStateException e) {
-                            log.error("GuestAccountSOAPService error", e);
+                        } catch (Exception e) {
+                            log.error("GuestAccountService error", e);
                             failureCount++;
                             emailMessage.append("\t" + lineContentArray[EMAIL] + " - " + e.getMessage() + "\r\n");
                         }
@@ -200,34 +229,6 @@ public class UserProvisioning {
         return canvasGuestAccountList;
     }
 
-    private void sendActivationEmail(User cu, String activationCode) {
-        String body = "An Indiana University Guest Account has been created for you with this email address as your username. The account was created on your behalf at the request of an IU school or department so you can participate in an educational offering in Canvas. You must activate the account and set your password before you can access Canvas and other IU services.\r\n\r\n";
-
-        body += "To activate your account go to https://ams.iu.edu/guests/ActivateGuest.aspx and enter the username and confirmation code below.  You must activate the account within 10 days.\r\n\r\n";
-
-        body += "Your IU Guest username is: " + cu.getLoginId() + "\r\n";
-        body += "Your confirmation code is: " + activationCode + "\r\n\r\n";
-
-        body += "To set your password, go to https://ams.iu.edu/guests/ForgotGuestPassword.aspx, enter your email address and submit the form.  You will receive another email message with instructions and a confirmation code for resetting your password.  Choose a new password that is easy for you to remember, but difficult for others to guess.\r\n\r\n";
-
-        body += "Once you have activated your account and set your password, you can log in to Canvas at: https://canvas.iu.edu.\r\n\r\n";
-
-        body += "If you do not need or did not request this account, no further action is needed. The account will remain inactive and expire automatically in 30 days. If you have any questions about this account please send e-mail to ithelp@indiana.edu.";
-
-        String subject = "Activate Your Indiana University Guest Account ASAP";
-
-        try {
-            EmailDetails details = new EmailDetails();
-            details.addRecipientsItem(cu.getEmail());
-            details.setSubject(subject);
-            details.setBody(body);
-            emailApi.sendEmail(details, true);
-        } catch (RestClientException e) {
-            // since this isn't using an attachment this exception should never be thrown
-            log.error("Error sending email", e);
-        }
-    }
-
     /**
      * Create users and logins in canvas, using the input list
      *
@@ -243,12 +244,12 @@ public class UserProvisioning {
 
             CanvasLogin intendedNewLogin = new CanvasLogin();
             intendedNewLogin.setAccountId(canvasAccountId);
-            intendedNewLogin.setUniqueId(canvasUser.getSisUserId());
+            // the login_id/cirrusId will be Canvas's unique_id
+            intendedNewLogin.setUniqueId(canvasUser.getLoginId());
 
             List<CanvasLogin> logins = null;
             try {
                 logins = usersApi.getGuestUserLogins(canvasUser.getEmail());
-//                logins = userService.getGuestUserLogins(canvasUser.getEmail());
             } catch (Exception e) {
                 failedUsers.add(new String[]{canvasUser.getEmail(), e.getMessage()});
                 continue;
@@ -258,7 +259,6 @@ public class UserProvisioning {
             if (logins == null || logins.isEmpty()) {
                 try {
                     userId = usersApi.createUserWithUser(canvasAccountId, canvasUser);
-//                    userId = userService.createUser(canvasAccountId, canvasUser);
                 } catch (Exception e) {
                     failedUsers.add(new String[]{canvasUser.getEmail(), e.getMessage()});
                 }
@@ -281,5 +281,18 @@ public class UserProvisioning {
             }
         }
         return failedUsers;
+    }
+
+    private String serviceNameHelper(String serviceValue) {
+        String fullServiceValueName = "";
+        if (SERVICE_VALUE_C.equals(serviceValue)) {
+            fullServiceValueName = toolConfig.getCanvasServiceName();
+        } else if (SERVICE_VALUE_E.equals(serviceValue)) {
+            fullServiceValueName = toolConfig.getExpandServiceName();
+        }
+
+        // just return an empty string if we don't have a proper service value, although the code prior to this forces
+        // a default of SERVICE_VALUE_C
+        return fullServiceValueName;
     }
 }

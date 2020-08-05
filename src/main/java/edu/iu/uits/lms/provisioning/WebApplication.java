@@ -1,19 +1,21 @@
 package edu.iu.uits.lms.provisioning;
 
-import edu.iu.uits.lms.common.samesite.CookieFilterConfig;
+import canvas.config.EnableCanvasClient;
+import edu.iu.uits.lms.common.samesite.EnableCookieFilter;
 import edu.iu.uits.lms.common.server.GitRepositoryState;
 import edu.iu.uits.lms.common.server.ServerInfo;
 import edu.iu.uits.lms.common.server.ServerUtils;
+import edu.iu.uits.lms.email.EnableEmailClient;
+import edu.iu.uits.lms.lti.config.EnableLtiClient;
 import edu.iu.uits.lms.provisioning.config.ToolConfig;
-import edu.iu.uits.lms.redis.config.RedisConfiguration;
+import edu.iu.uits.lms.redis.config.EnableRedisConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 
 import java.util.Date;
 
@@ -23,9 +25,13 @@ import java.util.Date;
       "${app.fullFilePath}/lms.properties",
       "${app.fullFilePath}/protected.properties",
       "${app.fullFilePath}/security.properties"}, ignoreResourceNotFound = true)
-@EnableResourceServer
 @Slf4j
-@Import({GitRepositoryState.class, RedisConfiguration.class, CookieFilterConfig.class})
+@EnableRedisConfiguration
+@EnableCookieFilter(ignoredRequestPatterns = {"/rest/**"})
+@EnableLtiClient
+@EnableCanvasClient
+@EnableEmailClient
+@EnableConfigurationProperties(GitRepositoryState.class)
 public class WebApplication {
 
     @Autowired
@@ -40,13 +46,12 @@ public class WebApplication {
 
     @Bean(name = ServerInfo.BEAN_NAME)
     ServerInfo serverInfo() {
-        ServerInfo serverInfo = new ServerInfo();
-//        serverInfo.setServerUrl(filePropertiesService.getLmsHost());
-        serverInfo.setServerName(ServerUtils.getServerHostName());
-        serverInfo.setBuildDate(new Date());
-        serverInfo.setGitInfo(gitRepositoryState.getBranch() + "@" + gitRepositoryState.getCommitIdAbbrev());
-        serverInfo.setArtifactVersion(toolConfig.getVersion());
-        return serverInfo;
+        return ServerInfo.builder()
+              .serverName(ServerUtils.getServerHostName())
+              .environment(toolConfig.getEnv())
+              .buildDate(new Date())
+              .gitInfo(gitRepositoryState.getBranch() + "@" + gitRepositoryState.getCommitIdAbbrev())
+              .artifactVersion(toolConfig.getVersion()).build();
     }
 
 }

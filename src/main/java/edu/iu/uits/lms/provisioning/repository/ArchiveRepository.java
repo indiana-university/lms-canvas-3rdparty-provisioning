@@ -13,6 +13,8 @@ import java.util.Date;
 @Component
 public interface ArchiveRepository extends PagingAndSortingRepository<DeptProvArchive, Long> {
 
+   DeptProvArchive findByCanvasImportId(String canvasImportId);
+
    @Modifying
    @Query("DELETE FROM DeptProvArchive a where a.department = :dept and a.createdOn < :date")
    @Transactional

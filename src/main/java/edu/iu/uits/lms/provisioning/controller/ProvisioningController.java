@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
+@RequestMapping("/app")
 @Slf4j
 public class ProvisioningController extends LtiAuthenticationTokenAwareController {
 
@@ -54,12 +56,12 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
 
     @RequestMapping("/index")
     @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
-    public ModelAndView index(Model model) {
+    public ModelAndView index(Model model, HttpSession session) {
         log.debug("/index");
         LtiAuthenticationToken token = getTokenWithoutContext();
         String name = (String)token.getPrincipal();
 
-        List<String> groups = (List<String>)token.getData().get(Constants.AVAILABLE_GROUPS_KEY);
+        List<String> groups = (List<String>)session.getAttribute(Constants.AVAILABLE_GROUPS_KEY);
 
         model.addAttribute("groups", groups);
         model.addAttribute("name", name);
@@ -76,7 +78,7 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
     public ModelAndView upload(@RequestParam("deptDropdown") String deptDropdown,
                                @RequestParam("deptFileUpload") MultipartFile[] files,
                                @RequestParam(value = "customUsersNotification", required = false) boolean customUsersNotification,
-                               Model model) {
+                               Model model, HttpSession session) {
         log.debug("/upload");
         LtiAuthenticationToken token = getTokenWithoutContext();
         model.addAttribute("selectedGroup", deptDropdown);
@@ -87,7 +89,7 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
             Long archiveId = deptRouter.zipOriginals(filesByType.get(DeptRouter.CSV_TYPES.ORIGINALS), deptDropdown, (String)token.getPrincipal());
 
             if (customUsersNotification) {
-                token.setData(SESSION_KEY, new SessionData(filesByType, deptDropdown, customUsersNotification,
+                session.setAttribute(SESSION_KEY, new SessionData(filesByType, deptDropdown, customUsersNotification,
                       null, archiveId));
                 return notify(deptDropdown, model);
             }
@@ -98,9 +100,10 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
 
         } catch (FileParsingException | FileProcessingException | FileUploadException | ZipException e) {
             model.addAttribute("fileErrors", e.getFileErrors());
+            model.addAttribute("checkedNotification", customUsersNotification);
         }
 
-        return index(model);
+        return index(model, session);
     }
 
     @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
@@ -121,28 +124,27 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
 
     @PostMapping("/submit")
     @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
-    public ModelAndView submitNotification(@ModelAttribute NotificationForm notifForm, Model model) {
+    public ModelAndView submitNotification(@ModelAttribute NotificationForm notifForm, Model model, HttpSession session) {
         log.debug("/submit");
         LtiAuthenticationToken token = getTokenWithoutContext();
-        SessionData storedData = (SessionData)token.getData().get(SESSION_KEY);
-
+        SessionData storedData = (SessionData)session.getAttribute(SESSION_KEY);
         try {
             processFiles(storedData.getFilesByType(), storedData.getDepartment(), notifForm, storedData.getArchiveId(),
                   (String)token.getPrincipal());
-            token.clearData(SESSION_KEY);
+            session.removeAttribute(SESSION_KEY);
             model.addAttribute("uploadSuccess", true);
         } catch (FileProcessingException | FileUploadException | ZipException e) {
             model.addAttribute("fileErrors", e.getFileErrors());
         }
-        return index(model);
+        return index(model, session);
     }
 
     @PostMapping(value = "/submit", params = "action=cancel")
     @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
-    public ModelAndView cancel(@ModelAttribute NotificationForm notifForm, Model model) {
+    public ModelAndView cancel(@ModelAttribute NotificationForm notifForm, Model model, HttpSession session) {
         LtiAuthenticationToken token = getTokenWithoutContext();
-        token.clearData(SESSION_KEY);
-        return index(model);
+        session.removeAttribute(SESSION_KEY);
+        return index(model, session);
     }
 
     private void processFiles(MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> filesByType, String department,
