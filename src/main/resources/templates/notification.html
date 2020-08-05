@@ -16,7 +16,7 @@
                 <h2 class="rvt-ts-26 rvt-m-bottom-sm">Send Custom Notification to New Guests</h2>
                 <form id="notificationForm" action="/app/submit" method="post" th:object="${notifForm}">
                     <div class="rvt-width-xl">
-                        <label for="senderUsername">Sender's Username</label>
+                        <label for="senderUsername">Sender's Name</label>
                         <select id="senderUsername" th:field="*{sender}">
                             <option value="" selected>Select...</option>
                             <option th:each="sender : ${senders}" th:value="${sender.key}" th:text="${sender.value}"></option>

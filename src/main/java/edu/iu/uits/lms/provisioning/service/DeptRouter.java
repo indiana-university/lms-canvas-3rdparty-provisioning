@@ -142,7 +142,7 @@ public class DeptRouter {
             ByteArrayFileContent bafc = new ByteArrayFileContent(file.getOriginalFilename(), fileBytes);
             filesByType.put(CSV_TYPES.ORIGINALS, bafc);
 
-            //Git the first line, hopefully headers!
+            //Get the first line, hopefully headers!
             String[] firstLine = fileContents.get(0);
             switch (StringUtils.join(firstLine, ",")) {
                case CsvService.COURSES_HEADER:
@@ -179,7 +179,7 @@ public class DeptRouter {
                   errors.add(fc.getFileName());
                   break;
             }
-         } catch (IOException | CsvException e) {
+         } catch (IOException | CsvException | IndexOutOfBoundsException e) {
             log.error("Error processing " + file.getOriginalFilename(), e);
             errors.add(file.getOriginalFilename());
          }

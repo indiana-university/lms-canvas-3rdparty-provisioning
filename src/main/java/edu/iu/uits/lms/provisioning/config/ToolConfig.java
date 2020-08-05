@@ -18,6 +18,7 @@ import org.springframework.context.annotation.PropertySource;
 @Setter
 public class ToolConfig {
    private String version;
+   private String env;
    private String guestAccountCreationUrl;
    private String canvasServiceName;
    private String expandServiceName;

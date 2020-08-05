@@ -1,14 +1,11 @@
 package edu.iu.uits.lms.provisioning.config;
 
-import canvas.config.CanvasClientConfig;
 import edu.iu.uits.lms.common.oauth.OAuthConfig;
-import edu.iu.uits.lms.email.EmailClientConfig;
-import edu.iu.uits.lms.lti.config.LtiClientConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.oauth2.client.DefaultOAuth2ClientContext;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
@@ -23,8 +20,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @EnableWebMvc
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+@EnableConfigurationProperties(OAuthConfig.class)
 @Slf4j
-@Import({LtiClientConfig.class, CanvasClientConfig.class, EmailClientConfig.class})
 public class ApplicationConfig implements WebMvcConfigurer {
 
    @Autowired
@@ -41,11 +38,6 @@ public class ApplicationConfig implements WebMvcConfigurer {
       registry.addResourceHandler("/app/js/**").addResourceLocations("classpath:/static/js/");
       registry.addResourceHandler("/app/webjars/**").addResourceLocations("/webjars/").resourceChain(true);
       registry.addResourceHandler("/app/jsrivet/**").addResourceLocations("classpath:/META-INF/resources/jsrivet/").resourceChain(true);
-
-
-//      //Swagger API documentation
-//      registry.addResourceHandler("swagger-ui.html")
-//            .addResourceLocations("classpath:/META-INF/resources/");
    }
 
    @Bean(name = "uaaRestTemplate")

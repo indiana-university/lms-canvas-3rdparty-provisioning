@@ -33,7 +33,7 @@ public class SecurityConfig {
             //Need to disable the frame options so we can embed this in another tool
             http.headers().frameOptions().disable();
 
-            http.exceptionHandling().accessDeniedPage("/accessDenied");
+            http.exceptionHandling().accessDeniedPage("/app/accessDenied");
         }
 
         @Override
