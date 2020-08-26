@@ -21,9 +21,8 @@ import java.util.Date;
 
 @SpringBootApplication
 @PropertySource(value = {"classpath:env.properties",
-      "classpath:default.properties",
-      "${app.fullFilePath}/lms.properties",
-      "${app.fullFilePath}/protected.properties",
+      "${app.fullFilePath}/database.properties",
+      "${app.fullFilePath}/oauth.properties",
       "${app.fullFilePath}/security.properties"}, ignoreResourceNotFound = true)
 @Slf4j
 @EnableRedisConfiguration
