@@ -16,7 +16,7 @@
     <properties>
         <app.version>${project.version}</app.version>
         <docker_repository_name>lti_3rdpartyprovisioning</docker_repository_name>
-        <docker_tag>latest</docker_tag>
+        <docker_tag>stable</docker_tag>
     </properties>
 
     <dependencies>
@@ -148,7 +148,7 @@
                             <goal>push</goal>
                         </goals>
                         <configuration>
-                            <tag>latest</tag>
+                            <tag>unstable</tag>
                         </configuration>
                     </execution>
                 </executions>
@@ -219,7 +219,7 @@
                         </configuration>
                         <executions>
                             <execution>
-                                <id>push-latest</id>
+                                <id>build-latest</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>build</goal>
