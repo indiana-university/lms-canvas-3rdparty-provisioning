@@ -16,6 +16,7 @@
     <properties>
         <app.version>${project.version}</app.version>
         <docker_repository_name>lti_3rdpartyprovisioning</docker_repository_name>
+        <docker_tag>latest</docker_tag>
     </properties>
 
     <dependencies>
@@ -226,7 +227,7 @@
                                     <goal>push</goal>
                                 </goals>
                                 <configuration>
-                                    <tag>latest</tag>
+                                    <tag>${docker_tag}</tag>
                                 </configuration>
                             </execution>
                             <execution>
