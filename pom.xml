@@ -53,12 +53,12 @@
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>lms-lti-web</artifactId>
-            <version>4.0.7</version>
+            <version>4.0.8</version>
         </dependency>
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>lms-canvas-client</artifactId>
-            <version>4.0.7</version>
+            <version>4.0.8</version>
         </dependency>
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
@@ -91,7 +91,7 @@
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>lms-email-client</artifactId>
-            <version>4.0.5</version>
+            <version>4.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
@@ -121,6 +121,10 @@
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
             <version>8.19</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
         </dependency>
     </dependencies>
 
