@@ -21,10 +21,10 @@ public class SecurityConfig {
         protected void configure(HttpSecurity http) throws Exception {
             http.authenticationProvider(new LtiAuthenticationProvider());
             http
-                  .requestMatchers().antMatchers("/lti", "/app/**", "/remote/**")
+                  .requestMatchers().antMatchers("/lti", "/app/**")
                   .and()
                   .authorizeRequests()
-                  .antMatchers("/lti", "/remote/**").permitAll()
+                  .antMatchers("/lti").permitAll()
                   .antMatchers("/app/**").hasRole(LtiAuthenticationProvider.LTI_USER);
 
             //Need to disable csrf so that we can use POST via REST

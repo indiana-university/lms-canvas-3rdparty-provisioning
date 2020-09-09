@@ -13,16 +13,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.cloud.security.oauth2.proxy.OAuth2ProxyAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 
 import java.util.Date;
 
-@SpringBootApplication(exclude = { OAuth2ProxyAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class })
+@SpringBootApplication
 @PropertySource(value = {"classpath:env.properties",
       "${app.fullFilePath}/database.properties",
       "${app.fullFilePath}/oauth.properties",
@@ -34,7 +31,6 @@ import java.util.Date;
 @EnableLtiClient
 @EnableCanvasClient
 @EnableEmailClient
-@EnableZuulProxy
 @EnableConfigurationProperties(GitRepositoryState.class)
 public class WebApplication {
 

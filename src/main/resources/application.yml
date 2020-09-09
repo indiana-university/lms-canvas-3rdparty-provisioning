@@ -32,18 +32,6 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: ${oauth.tokenprovider.url}/.well-known/jwks.json
-zuul:
-  routes:
-    canvas:
-      path: /remote/canvas-services/**
-      url: ${lms.service.canvas.url.${app.env}}
-    email:
-      path: /remote/email-services/**
-      url: ${lms.service.email.url.${app.env}}
-    lti:
-      path: /remote/lti-services/**
-      url: ${lms.service.lti.url.${app.env}}
-  sensitive-headers: ~
 deptprov:
   version: @app.version@
   env: ${app.env}
