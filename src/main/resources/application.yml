@@ -32,7 +32,6 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: ${oauth.tokenprovider.url}/.well-known/jwks.json
-
 deptprov:
   version: @app.version@
   env: ${app.env}

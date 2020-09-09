@@ -23,6 +23,7 @@ import java.util.Date;
 @PropertySource(value = {"classpath:env.properties",
       "${app.fullFilePath}/database.properties",
       "${app.fullFilePath}/oauth.properties",
+      "${app.fullFilePath}/services.properties",
       "${app.fullFilePath}/security.properties"}, ignoreResourceNotFound = true)
 @Slf4j
 @EnableRedisConfiguration
