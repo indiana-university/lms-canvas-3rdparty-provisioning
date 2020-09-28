@@ -19,9 +19,9 @@ spring:
       jadira:
         usertype:
           autoRegisterUserTypes: true
-  output:
-    ansi:
-      enabled: ALWAYS
+#  output:
+#    ansi:
+#      enabled: ALWAYS
   datasource:
     driverClassName: ${lms.db.driverClass}
     url: ${lms.db.url}
