@@ -271,7 +271,7 @@ public class UserProvisioning {
                 intendedNewLogin.setUserId(userId);
                 if (logins == null || !logins.contains(intendedNewLogin)) {
                     try {
-                        usersApi.createLogin(canvasAccountId, userId, canvasUser.getSisUserId(), canvasUser.getSisUserId(), null);
+                        usersApi.createLogin(canvasAccountId, userId, canvasUser.getSisUserId(), null, canvasUser.getSisUserId());
                     } catch (Exception e) {
                         failedUsers.add(new String[]{canvasUser.getEmail(), e.getMessage()});
                     }
