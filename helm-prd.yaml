@@ -1,0 +1,18 @@
+
+projectedSecret:
+  - secret:
+      name: "properties-2020-11-30"
+  - secret:
+      name: "lms-security-properties-20201014"
+
+image:
+  tag: stable
+
+env:
+  APP_ENV: prd
+
+ingress:
+  enabled: true
+  hosts:
+    - host: "lms-lti-3rdpartyprovisioning.apps.iu.edu"
+      paths: []

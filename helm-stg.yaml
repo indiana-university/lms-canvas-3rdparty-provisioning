@@ -4,13 +4,13 @@ projectedSecret:
       name: "properties-2020-11-30"
 
 image:
-  tag: unstable-snd
+  tag: unstable-stg
 
 env:
-  APP_ENV: snd
+  APP_ENV: stg
 
 ingress:
   enabled: true
   hosts:
-    - host: "lms-lti-3rdpartyprovisioning-snd.apps-snd.iu.edu"
+    - host: "lms-lti-3rdpartyprovisioning-stg.apps-test.iu.edu"
       paths: []
