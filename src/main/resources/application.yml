@@ -63,6 +63,14 @@ deptprov:
   canvasServiceName: ${deptprov.${app.env}.canvasServiceName}
   expandServiceName: ${deptprov.${app.env}.expandServiceName}
 
+server:
+  error:
+    whitelabel:
+      enabled: false
+  servlet:
+    session:
+      timeout: 30m
+
 ---
 
 spring:
