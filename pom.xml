@@ -8,25 +8,25 @@
     <parent>
         <artifactId>lms2Wow</artifactId>
         <groupId>edu.iu.uits.lms</groupId>
-        <version>4.0.10-SNAPSHOT</version>
+        <version>4.0.10</version>
         <relativePath />
     </parent>
     <version>4.0.5-SNAPSHOT</version>
 
     <properties>
         <app.version>${project.version}</app.version>
-        <common-configuration.version>4.0.12-SNAPSHOT</common-configuration.version>
+        <common-configuration.version>4.0.12</common-configuration.version>
         <commons-validator.version>1.7</commons-validator.version>
         <docker_repository_name>lti_3rdpartyprovisioning</docker_repository_name>
         <docker_tag>stable</docker_tag>
         <helm_service_name>lmslti3rdpartyprovisioning</helm_service_name>
         <jquery.version>3.5.1</jquery.version>
-        <lms-canvas-client.version>4.0.20-SNAPSHOT</lms-canvas-client.version>
-        <lms-email-client.version>4.0.11-SNAPSHOT</lms-email-client.version>
-        <lms-lti-web.version>4.0.18-SNAPSHOT</lms-lti-web.version>
-        <lms-rivet.version>4.1.7.3-SNAPSHOT</lms-rivet.version>
+        <lms-canvas-client.version>4.0.20</lms-canvas-client.version>
+        <lms-email-client.version>4.0.11</lms-email-client.version>
+        <lms-lti-web.version>4.0.18</lms-lti-web.version>
+        <lms-rivet.version>4.1.7.2_2</lms-rivet.version>
         <nimbus-jose-jwt.version>9.4.2</nimbus-jose-jwt.version>
-        <redis-config.version>4.0.4-SNAPSHOT</redis-config.version>
+        <redis-config.version>4.0.4</redis-config.version>
         <spring-security-oauth2-autoconfigure.version>2.3.8.RELEASE</spring-security-oauth2-autoconfigure.version>
         <springfox-swagger-ui.version>2.9.2</springfox-swagger-ui.version>
         <springfox-swagger2.version>2.9.2</springfox-swagger2.version>
