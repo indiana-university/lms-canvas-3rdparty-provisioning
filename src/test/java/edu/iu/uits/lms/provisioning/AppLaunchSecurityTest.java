@@ -3,6 +3,7 @@ package edu.iu.uits.lms.provisioning;
 import edu.iu.uits.lms.lti.LTIConstants;
 import edu.iu.uits.lms.lti.security.LtiAuthenticationProvider;
 import edu.iu.uits.lms.lti.security.LtiAuthenticationToken;
+import edu.iu.uits.lms.provisioning.config.BackgroundMessageSender;
 import edu.iu.uits.lms.provisioning.config.ToolConfig;
 import edu.iu.uits.lms.provisioning.controller.ProvisioningController;
 import edu.iu.uits.lms.provisioning.repository.DeptAuthMessageSenderRepository;
@@ -46,6 +47,9 @@ public class AppLaunchSecurityTest {
 
    @MockBean
    private DeptRouter deptRouter;
+
+   @MockBean
+   private BackgroundMessageSender backgroundMessageSender;
 
 
    @Test

@@ -15,10 +15,11 @@ import java.util.List;
  */
 public interface CanvasImportIdRepository extends PagingAndSortingRepository<CanvasImportId, String> {
 
+   @Transactional
    List<CanvasImportId> findByProcessedOrderByGroupCodeAscImportIdAsc(@Param("processed") String processed);
 
    @Modifying
    @Query("update CanvasImportId set processed = :processed, modifiedOn = :modifiedOn where importId = :importId")
-   @Transactional("servicesTransactionManager")
+   @Transactional
    int setProcessedByImportId(@Param("processed") String processed, @Param("importId") String importId, @Param("modifiedOn") Date date);
 }

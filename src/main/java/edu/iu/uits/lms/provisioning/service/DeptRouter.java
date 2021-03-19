@@ -110,12 +110,14 @@ public class DeptRouter {
       List<ProvisioningResult> allPrs = new ArrayList<>();
 
       //Users first
-      allPrs.add(userProvisioning.processUsers(userFiles, new CustomNotificationBuilder(notificationForm), dept));
+      allPrs.addAll(userProvisioning.processUsers(userFiles, new CustomNotificationBuilder(notificationForm), dept));
 
       allPrs.addAll(courseProvisioning.processCourses(courseFiles));
       allPrs.addAll(enrollmentProvisioning.processEnrollments(enrollmentFiles));
       allPrs.addAll(sectionProvisioning.processSections(sectionFiles));
-      allPrs.addAll(expandEnrollmentProvisioning.processEnrollments(expandEnrollmentFiles));
+
+      //Defer processing of expand enrollments if there were user files provided
+      allPrs.addAll(expandEnrollmentProvisioning.processEnrollments(expandEnrollmentFiles, !userFiles.isEmpty()));
 
       List<ProvisioningResult> fileErrors = allPrs.stream().filter(ProvisioningResult::isHasException).collect(Collectors.toList());
       if (!fileErrors.isEmpty()) {
@@ -191,8 +193,9 @@ public class DeptRouter {
       return filesByType;
    }
 
-   public void sendToCanvas(List<FileObject> allStreams, String dept, StringBuilder emailMessage, Long archiveId,
+   public String sendToCanvas(List<FileObject> allStreams, String dept, StringBuilder emailMessage, Long archiveId,
                             String username) throws FileUploadException, ZipException {
+      String importId = null;
       String canvasUploadFileName = dept + "-upload.zip";
       boolean zipException = false;
 
@@ -210,7 +213,7 @@ public class DeptRouter {
       // Zip up csv files and send it to Canvas!
       if (!allStreams.isEmpty()) {
          File zipFile = csvService.zipCsv(allStreams, canvasUploadFileNameFullPath);
-         String importId = importApi.sendZipToCanvas(zipFile);
+         importId = importApi.sendZipToCanvas(zipFile);
 
          if (archiveId != null) {
             DeptProvArchive archive = archiveRepository.findById(archiveId).orElse(null);
@@ -231,10 +234,8 @@ public class DeptRouter {
          }
 
          if (importId != null && !"".equals(importId)) {
-            String archiveName = zipPath + importId + "_" + canvasUploadFileName;
-
-            // store the Canvas importId and archive path
-            CanvasImportId canvasImportId = new CanvasImportId(importId, "N", dept, archiveName);
+            // store the Canvas importId
+            CanvasImportId canvasImportId = new CanvasImportId(importId, "N", dept);
             canvasImportIdRepository.save(canvasImportId);
             zipFile.delete();
          }
@@ -274,6 +275,7 @@ public class DeptRouter {
       if (zipException) {
          throw new ZipException(ZipException.CANVAS_ZIP, false, "Failed to archive canvas zip file");
       }
+      return importId;
    }
 
    public Long zipOriginals(Collection<FileContent> files, String dept, String username) throws ZipException {

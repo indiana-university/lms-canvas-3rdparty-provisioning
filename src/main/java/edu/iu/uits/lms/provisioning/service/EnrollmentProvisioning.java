@@ -1,9 +1,7 @@
 package edu.iu.uits.lms.provisioning.service;
 
 import canvas.client.generated.api.UsersApi;
-import canvas.client.generated.model.CanvasLogin;
 import canvas.client.generated.model.User;
-import edu.iu.uits.lms.provisioning.model.GuestAccount;
 import edu.iu.uits.lms.provisioning.model.ImsUser;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
@@ -118,74 +116,10 @@ public class EnrollmentProvisioning {
                             sectionLimit = "false";
                         }
 
-                        // check to see if this email is in use
-                        try {
-                            List<CanvasLogin> canvasLoginsList =  usersApi.getGuestUserLogins(email);
-
-                            // if there's results, find the one with the sis_user_id in it to write in the csv
-                            if (!canvasLoginsList.isEmpty()) {
-                                String sisUserId = "";
-                                for (CanvasLogin canvasLogin : canvasLoginsList) {
-                                    if (canvasLogin.getSisUserId() != null) {
-                                        sisUserId = canvasLogin.getSisUserId();
-                                        break;
-                                    }
-                                }
-                                if (!sisUserId.isEmpty()) {
-                                    String[] lineToRewrite = {courseId,sisUserId,role,sectionId,status,sectionLimit};
-                                    // add the object to our list of users to send to Canvas
-                                    stringArray.add(lineToRewrite);
-                                    successCount++;
-                                } else {
-                                    // see if this is an Add before attempting to lookup in AMS, since a delete and AMS
-                                    // would be the same data that we already know doesn't exist in Canvas
-                                    if (ACTIVE.equals(status)) {
-                                        GuestAccount guestInfo = guestAccountService.lookupGuestByEmail(email);
-                                        // Account exists, so add to our list to send to Canvas. It's likely a new user
-                                        if (guestInfo != null) {
-                                            String sequenceNumber = guestInfo.getExternalAccountId();
-                                            String[] lineToRewrite = {courseId,sequenceNumber,role,sectionId,status,sectionLimit};
-                                            // add the object to our list of users to send to Canvas
-                                            stringArray.add(lineToRewrite);
-                                            successCount++;
-                                        } else {
-                                            log.warn("No guest account found for '" + email + "' and no sis_user_id found in Canvas");
-                                            failureCount++;
-                                            emailMessage.append("\tNo guest account found for '" + email + "' and no sis_user_id found in Canvas\r\n");
-                                        }
-                                    } else {
-                                        log.warn("No sis_user_id found in Canvas for " + email);
-                                        failureCount++;
-                                        emailMessage.append("\tNo sis_user_id found in Canvas for '" + email + "'\r\n");
-                                    }
-                                }
-                            } else {
-                                if (ACTIVE.equals(status)) {
-                                    GuestAccount guestInfo = guestAccountService.lookupGuestByEmail(email);
-                                    // Account exists, so add to our list to send to Canvas. It's likely a new user
-                                    if (guestInfo != null) {
-                                        String sequenceNumber = guestInfo.getExternalAccountId();
-                                        String[] lineToRewrite = {courseId,sequenceNumber,role,sectionId,status,sectionLimit};
-
-                                        // add the object to our list of users to send to Canvas
-                                        stringArray.add(lineToRewrite);
-                                        successCount++;
-                                    } else {
-                                        log.warn("No guest account found for '" + email + "' and no sis_user_id found in Canvas");
-                                        failureCount++;
-                                        emailMessage.append("\tNo guest account found for '" + email + "' and no sis_user_id found in Canvas\r\n");
-                                    }
-                                } else {
-                                    log.warn("No sis_user_id found in Canvas for " + email);
-                                    failureCount++;
-                                    emailMessage.append("\tNo sis_user_id found in Canvas for '" + email + "'\r\n");
-                                }
-                            }
-                        } catch (IllegalStateException e) {
-                            log.error("GuestAccountSOAPService error", e);
-                            failureCount++;
-                            emailMessage.append("\tNo sis_user_id found in Canvas for '" + email + "' and could not contact AMS service - " + e.getMessage() + "\r\n");
-                        }
+                        String[] lineToRewrite = {courseId,email,role,sectionId,status,sectionLimit};
+                        // add the object to our list of users to send to Canvas
+                        stringArray.add(lineToRewrite);
+                        successCount++;
                     } else {
                         // Not a valid email address, so treat it as a normal IU account or emplId
                         String courseId = lineContentArray[0];
