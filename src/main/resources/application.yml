@@ -27,11 +27,24 @@ spring:
     url: ${lms.db.url}
     username: ${lms.db.user}
     password: ${lms.db.password}
+#    type: org.springframework.jdbc.datasource.DriverManagerDataSource
   security:
     oauth2:
       resourceserver:
         jwt:
           jwk-set-uri: ${oauth.tokenprovider.url}/.well-known/jwks.json
+  rabbitmq:
+    host: ${lms.rabbitmq.host.${app.env}}
+    port: ${lms.rabbitmq.port.${app.env}}
+    username: ${lms.rabbitmq.username.${app.env}}
+    password: ${lms.rabbitmq.password.${app.env}}
+    virtualHost: ${lms.rabbitmq.virtualHost.${app.env}}
+    listener.simple.retry:
+      enabled: true
+      initial-interval: 3s
+      max-attempts: 3
+      max-interval: 10s
+      multiplier: 2
 deptprov:
   version: @app.version@
   env: ${app.env}
@@ -62,6 +75,7 @@ deptprov:
   guestAccountCreationUrl: ${deptprov.${app.env}.guestAccountCreationUrl}
   canvasServiceName: ${deptprov.${app.env}.canvasServiceName}
   expandServiceName: ${deptprov.${app.env}.expandServiceName}
+  backgroundQueueName: deptprov_queue_${app.env}
 
 server:
   error:

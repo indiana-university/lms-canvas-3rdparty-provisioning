@@ -1,21 +1,19 @@
 package edu.iu.uits.lms.provisioning.controller;
 
+import edu.iu.uits.lms.common.session.CourseSessionService;
 import edu.iu.uits.lms.lti.LTIConstants;
 import edu.iu.uits.lms.lti.controller.LtiAuthenticationTokenAwareController;
 import edu.iu.uits.lms.lti.security.LtiAuthenticationToken;
+import edu.iu.uits.lms.provisioning.config.BackgroundMessage;
+import edu.iu.uits.lms.provisioning.config.BackgroundMessageSender;
 import edu.iu.uits.lms.provisioning.model.DeptAuthMessageSender;
 import edu.iu.uits.lms.provisioning.model.NotificationForm;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.repository.DeptAuthMessageSenderRepository;
 import edu.iu.uits.lms.provisioning.repository.UserRepository;
 import edu.iu.uits.lms.provisioning.service.DeptRouter;
-import edu.iu.uits.lms.provisioning.service.ProvisioningResult;
 import edu.iu.uits.lms.provisioning.service.exception.FileParsingException;
-import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
-import edu.iu.uits.lms.provisioning.service.exception.FileUploadException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.KeyValue;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -32,9 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
-import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,7 +48,13 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
     private DeptAuthMessageSenderRepository deptAuthMessageSenderRepository;
 
     @Autowired
+    private BackgroundMessageSender backgroundMessageSender;
+
+    @Autowired
     private DeptRouter deptRouter;
+
+    @Autowired
+    private CourseSessionService courseSessionService;
 
     @RequestMapping("/index")
     @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
@@ -87,18 +89,18 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
             MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> filesByType = deptRouter.parseFiles(files, customUsersNotification);
 
             Long archiveId = deptRouter.zipOriginals(filesByType.get(DeptRouter.CSV_TYPES.ORIGINALS), deptDropdown, (String)token.getPrincipal());
-
+            String username = (String)token.getPrincipal();
             if (customUsersNotification) {
-                session.setAttribute(SESSION_KEY, new SessionData(filesByType, deptDropdown, customUsersNotification,
-                      null, archiveId));
+                courseSessionService.addAttributeToSession(session, token.getContext(), SESSION_KEY,
+                      new BackgroundMessage(filesByType, deptDropdown, null, archiveId, username));
                 return notify(deptDropdown, model);
             }
 
-            processFiles(filesByType, deptDropdown, null, archiveId, (String)token.getPrincipal());
+            processFiles(filesByType, deptDropdown, null, archiveId, username);
 
             model.addAttribute("uploadSuccess", true);
 
-        } catch (FileParsingException | FileProcessingException | FileUploadException | ZipException e) {
+        } catch (FileParsingException | ZipException e) {
             model.addAttribute("fileErrors", e.getFileErrors());
             model.addAttribute("checkedNotification", customUsersNotification);
         }
@@ -127,15 +129,13 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
     public ModelAndView submitNotification(@ModelAttribute NotificationForm notifForm, Model model, HttpSession session) {
         log.debug("/submit");
         LtiAuthenticationToken token = getTokenWithoutContext();
-        SessionData storedData = (SessionData)session.getAttribute(SESSION_KEY);
-        try {
-            processFiles(storedData.getFilesByType(), storedData.getDepartment(), notifForm, storedData.getArchiveId(),
-                  (String)token.getPrincipal());
-            session.removeAttribute(SESSION_KEY);
-            model.addAttribute("uploadSuccess", true);
-        } catch (FileProcessingException | FileUploadException | ZipException e) {
-            model.addAttribute("fileErrors", e.getFileErrors());
-        }
+        BackgroundMessage storedData = courseSessionService.getAttributeFromSession(session, token.getContext(), SESSION_KEY, BackgroundMessage.class);
+
+        processFiles(storedData.getFilesByType(), storedData.getDepartment(), notifForm, storedData.getArchiveId(),
+              (String)token.getPrincipal());
+        courseSessionService.removeAttributeFromSession(session, token.getContext(), SESSION_KEY);
+        model.addAttribute("uploadSuccess", true);
+
         return index(model, session);
     }
 
@@ -148,30 +148,10 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
     }
 
     private void processFiles(MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> filesByType, String department,
-                              NotificationForm notificationForm, Long archiveId, String username) throws FileUploadException, FileProcessingException, ZipException {
-        List<ProvisioningResult> provisioningResults = deptRouter.processFiles(department, filesByType, notificationForm);
+                              NotificationForm notificationForm, Long archiveId, String username) {
 
-        List<ProvisioningResult.FileObject> allFiles = new ArrayList<>();
-        StringBuilder fullEmail = new StringBuilder();
-        for (ProvisioningResult provisioningResult : provisioningResults) {
-            ProvisioningResult.FileObject fileObject = provisioningResult.getFileObject();
-            if (fileObject != null) {
-                allFiles.add(fileObject);
-            }
-            fullEmail.append(provisioningResult.getEmailMessage() + "\r\n");
-        }
-
-        deptRouter.sendToCanvas(allFiles, department, fullEmail, archiveId, username);
-    }
-
-    @Data
-    @AllArgsConstructor
-    private static class SessionData implements Serializable {
-        private MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> filesByType;
-        private String department;
-        private boolean customUsersNotification;
-        private NotificationForm notificationForm;
-        private Long archiveId;
+        //Chuck a message into the queue so that the user doesn't have to wait for results
+        backgroundMessageSender.send(new BackgroundMessage(filesByType, department, notificationForm, archiveId, username));
     }
 
 }

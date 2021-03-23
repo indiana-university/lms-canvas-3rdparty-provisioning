@@ -2,6 +2,7 @@ package edu.iu.uits.lms.provisioning.config;
 
 import edu.iu.uits.lms.common.oauth.OAuthConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.Queue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,9 @@ public class ApplicationConfig implements WebMvcConfigurer {
 
    @Autowired
    private OAuthConfig oAuthConfig;
+
+   @Autowired
+   private ToolConfig toolConfig;
 
    public ApplicationConfig() {
       log.debug("ApplicationConfig()");
@@ -55,5 +59,10 @@ public class ApplicationConfig implements WebMvcConfigurer {
 
       OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resourceDetails, clientContext);
       return restTemplate;
+   }
+
+   @Bean(name = "backgroundQueue")
+   Queue backgroundQueue() {
+      return new Queue(toolConfig.getBackgroundQueueName());
    }
 }
