@@ -28,6 +28,7 @@ public class UserProvisioning {
     private static final int SERVICE = 6;
     private static final String SERVICE_VALUE_C = "c";
     private static final String SERVICE_VALUE_E = "e";
+    private static final String ACTIVE_VALUE = "active";
 
     @Autowired
     protected CustomNotificationService customNotificationService;
@@ -130,7 +131,7 @@ public class UserProvisioning {
                         if (guestInfo != null) {
                             // Account already exists, but add to our list to send to Canvas
 //                                "user_id,login_id,first_name,last_name,email,status";
-                            String[] lineToRewrite = {guestInfo.getRegistrationEmail(), guestInfo.getExternalAccountId(), guestInfo.getFirstName(), guestInfo.getLastName(), guestInfo.getRegistrationEmail(), ""};
+                            String[] lineToRewrite = {guestInfo.getRegistrationEmail(), guestInfo.getExternalAccountId(), guestInfo.getFirstName(), guestInfo.getLastName(), guestInfo.getRegistrationEmail(), ACTIVE_VALUE};
                             stringArray.add(lineToRewrite);
                             updateCount++;
                         } else {
@@ -158,7 +159,7 @@ public class UserProvisioning {
                                 }
 
 //                                    "user_id,login_id,first_name,last_name,email,status";
-                                String[] lineToRewrite = {ga.getRegistrationEmail(), gr.getExternalAccountId(), ga.getFirstName(), ga.getLastName(), ga.getRegistrationEmail(), ""};
+                                String[] lineToRewrite = {ga.getRegistrationEmail(), gr.getExternalAccountId(), ga.getFirstName(), ga.getLastName(), ga.getRegistrationEmail(), ACTIVE_VALUE};
                                 stringArray.add(lineToRewrite);
                                 successCount++;
                             }
