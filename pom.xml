@@ -21,7 +21,7 @@
         <docker_tag>stable</docker_tag>
         <helm_service_name>lmslti3rdpartyprovisioning</helm_service_name>
         <jquery.version>3.5.1</jquery.version>
-        <lms-bom.version>4.0.9-SNAPSHOT</lms-bom.version>
+        <lms-bom.version>4.0.9</lms-bom.version>
         <springfox-swagger-ui.version>2.9.2</springfox-swagger-ui.version>
         <springfox-swagger2.version>2.9.2</springfox-swagger2.version>
     </properties>
