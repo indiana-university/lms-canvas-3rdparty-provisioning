@@ -1,6 +1,7 @@
 package edu.iu.uits.lms.provisioning;
 
 import canvas.config.EnableCanvasClient;
+import edu.iu.uits.lms.common.batch.EnableBatch;
 import edu.iu.uits.lms.common.samesite.EnableCookieFilter;
 import edu.iu.uits.lms.common.server.GitRepositoryState;
 import edu.iu.uits.lms.common.server.ServerInfo;
@@ -37,6 +38,7 @@ import java.util.Date;
 @EnableEmailClient
 @EnableCourseSessionService(sessionKey = "deptprov_course_session")
 @EnableConfigurationProperties(GitRepositoryState.class)
+@EnableBatch
 public class WebApplication {
 
     @Autowired
