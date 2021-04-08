@@ -10,3 +10,8 @@ helm upgrade lmslti3rdpartyprovisioning harbor-prd/k8s-boot -f helm-common.yaml 
 ```
 helm upgrade lmslti3rdpartyprovisioning harbor-prd/k8s-boot -f helm-common.yaml -f helm-snd.yaml --install
 ```
+
+Install the batch job
+```
+helm upgrade resultsemail ../k8s --values helm-common.yaml,helm-dev.yaml,helm-batch-resultsemail.yaml --install
+```

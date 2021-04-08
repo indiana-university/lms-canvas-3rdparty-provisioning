@@ -15,4 +15,5 @@ public class ToolConfig {
    private String guestAccountCreationUrl;
    private String canvasServiceName;
    private String expandServiceName;
+   private String backgroundQueueName;
 }

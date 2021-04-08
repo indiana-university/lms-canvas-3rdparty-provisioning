@@ -1,4 +1,5 @@
 namespace: default
+#bootstrapSecret: "properties-2021-03-18"
 bootstrapSecret: "properties-2020-11-30"
 
 image:

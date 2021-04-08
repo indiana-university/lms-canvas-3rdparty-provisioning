@@ -30,11 +30,20 @@ public class ExpandEnrollmentProvisioning {
      * Pass in a path to a csv file and this will validate the data and send enrollments to Expand
      * @param fileToProcess
      */
-    public List<ProvisioningResult> processEnrollments(Collection<FileContent> fileToProcess) {
+    public List<ProvisioningResult> processEnrollments(Collection<FileContent> fileToProcess, boolean deferredProcessing) {
         List<ProvisioningResult> prs = new ArrayList<>();
-        for (FileContent file : fileToProcess) {
-            StringBuilder emailMessage = processInputFiles((StringArrayFileContent) file);
-            prs.add(new ProvisioningResult(emailMessage, null, false));
+        if (deferredProcessing) {
+            log.debug("Deferring expand enrollment provisioning");
+            StringBuilder emailMessage = new StringBuilder("Processing of the following files has been deferred until after all other files have been imported into Canvas:\r\n");
+            for (FileContent file : fileToProcess) {
+                emailMessage.append("\t").append(file.getFileName()).append("\r\n");
+                prs.add(new ProvisioningResult(emailMessage, null, false, file, DeptRouter.CSV_TYPES.EXPAND_ENROLLMENTS));
+            }
+        } else {
+            for (FileContent file : fileToProcess) {
+                StringBuilder emailMessage = processInputFiles((StringArrayFileContent) file);
+                prs.add(new ProvisioningResult(emailMessage, null, false));
+            }
         }
         return prs;
     }
@@ -45,8 +54,6 @@ public class ExpandEnrollmentProvisioning {
      */
     private StringBuilder processInputFiles(StringArrayFileContent fileToProcess) {
         StringBuilder emailMessage = new StringBuilder(fileToProcess.getFileName() + ":\r\n");
-
-//        List<ExpandEnrollment> enrollmentList = new ArrayList<>();
 
         // read individual files line by line
         List<String[]> fileContents = fileToProcess.getContents();
@@ -66,7 +73,6 @@ public class ExpandEnrollmentProvisioning {
                     String listingId = lineContentArray[1];
 
                     processEnrollment(userId, listingId, emailMessage, processCounts);
-//                    enrollmentList.add(ee);
                 }
             }
         }
@@ -75,13 +81,11 @@ public class ExpandEnrollmentProvisioning {
         emailMessage.append("\tUsers successfully added to expand's enrollment: " + processCounts.getSuccessCount() + "\r\n");
         emailMessage.append("\tTotal records processed: " + processCounts.getTotalCount() + "\r\n");
 
-//        EnrollmentMessage enrollmentMessage = new EnrollmentMessage(fileToProcess.getName(), dept, enrollmentList);
-//        jmsService.objectSend(enrollmentMessage);
         return emailMessage;
     }
 
     private void processEnrollment(String canvasUserId, String listingId, StringBuilder emailMessage, ProcessCounts processCounts) {
-        // from the message population from csv we dont know what the user id is.
+        // from the message population from csv we don't know what the user id is.
         // what comes in right now is either a sis_id or a login_id.  This model object
         // is reused from the actual expand create REST call hence why this field is called
         // canvas_user_id as at that point this is what this is
