@@ -16,4 +16,5 @@ public class ToolConfig {
    private String canvasServiceName;
    private String expandServiceName;
    private String backgroundQueueName;
+   private String defaultBatchNotificationEmail;
 }

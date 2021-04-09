@@ -3,6 +3,7 @@ package edu.iu.uits.lms.provisioning.service;
 import canvas.client.generated.api.CanvasApi;
 import canvas.client.generated.api.ImportApi;
 import canvas.client.generated.model.CanvasUploadStatus;
+import edu.iu.uits.lms.provisioning.config.ToolConfig;
 import edu.iu.uits.lms.provisioning.model.CanvasImportId;
 import edu.iu.uits.lms.provisioning.model.LmsBatchEmail;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +48,9 @@ public class EmailSummaryService {
 
    @Autowired
    private DeptRouter deptRouter;
+
+   @Autowired
+   private ToolConfig toolConfig;
 
    public void processResults() {
       Map<String, CanvasImportObject> importTrackerMap = new HashMap<>();
@@ -83,27 +88,15 @@ public class EmailSummaryService {
       List<String> processedImportIds = new ArrayList<String>();
       // parse out the warnings
       for (CanvasImportObject cio : importTrackerMap.values()) {
-         if (cio.getHasEmail() == null) {
-            // Check to see if this department code even has an entry in the database! If it doesn't, then don't
-            // waste any processing time on looking up importIds in Canvas when there's no email to send it to!
-            LmsBatchEmail batchEmail = batchEmailRepository.getBatchEmailFromGroupCode(cio.getGroupCode());
-            if (batchEmail != null && batchEmail.getEmails() != null) {
-               String[] emailAddresses = batchEmail.getEmails().split(",");
-               if (emailAddresses.length == 0) {
-                  cio.setHasEmail(false);
-               } else {
-                  cio.setHasEmail(true);
-                  cio.setEmailList(Arrays.asList(emailAddresses));
-               }
+         //Setting a default email
+         cio.setEmailList(Collections.singletonList(toolConfig.getDefaultBatchNotificationEmail()));
+         LmsBatchEmail batchEmail = batchEmailRepository.getBatchEmailFromGroupCode(cio.getGroupCode());
+         if (batchEmail != null && batchEmail.getEmails() != null) {
+            String[] emailAddresses = batchEmail.getEmails().split(",");
+            if (emailAddresses.length > 0) {
+               //Set the actual email addresses, if any
+               cio.setEmailList(Arrays.asList(emailAddresses));
             }
-         }
-
-         if (!cio.getHasEmail()) {
-            // There's no email specified so don't bother with the lookups!
-            // Still include the list of importIds for the "processed list" later
-            log.info("There's no emails defined for " + cio.getGroupCode() + ". Still mark importIds as processed but skip doing lookups and sending an email");
-            processedImportIds.addAll(cio.getImportIdsList());
-            continue;
          }
 
          // if we made it here, then we got some ids to look up in Canvas!
@@ -197,13 +190,6 @@ public class EmailSummaryService {
       private List<String> emailList;
       private StringBuilder emailMessage;
       private String groupCode;
-
-      /**
-       * if this is null, that means the look up in the database has not occurred
-       * @return
-       */
-      private Boolean hasEmail;
-
       private List<String> importIdsList;
 
       /**
