@@ -76,6 +76,7 @@ deptprov:
   canvasServiceName: ${deptprov.${app.env}.canvasServiceName}
   expandServiceName: ${deptprov.${app.env}.expandServiceName}
   backgroundQueueName: deptprov_queue_${app.env}
+  defaultBatchNotificationEmail: iu-uits-es-ess-lms-notify@exchange.iu.edu
 
 server:
   error:
