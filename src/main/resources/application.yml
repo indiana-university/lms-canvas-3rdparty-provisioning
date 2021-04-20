@@ -27,7 +27,7 @@ spring:
     url: ${lms.db.url}
     username: ${lms.db.user}
     password: ${lms.db.password}
-#    type: org.springframework.jdbc.datasource.DriverManagerDataSource
+    type: org.springframework.jdbc.datasource.DriverManagerDataSource
   security:
     oauth2:
       resourceserver:
