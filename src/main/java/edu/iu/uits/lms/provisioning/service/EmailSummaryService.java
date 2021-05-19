@@ -5,13 +5,13 @@ import canvas.client.generated.api.ImportApi;
 import canvas.client.generated.model.CanvasUploadStatus;
 import edu.iu.uits.lms.provisioning.config.ToolConfig;
 import edu.iu.uits.lms.provisioning.model.CanvasImportId;
-import edu.iu.uits.lms.provisioning.model.LmsBatchEmail;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
-import edu.iu.uits.lms.provisioning.repository.LmsBatchEmailRepository;
 import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
 import email.client.generated.api.EmailApi;
 import email.client.generated.model.EmailDetails;
+import iuonly.client.generated.api.BatchEmailApi;
+import iuonly.client.generated.model.LmsBatchEmail;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class EmailSummaryService {
    private EmailApi emailApi;
 
    @Autowired
-   private LmsBatchEmailRepository batchEmailRepository;
+   private BatchEmailApi batchEmailApi;
 
    @Autowired
    private ImportApi importApi;
@@ -90,7 +90,7 @@ public class EmailSummaryService {
       for (CanvasImportObject cio : importTrackerMap.values()) {
          //Setting a default email
          cio.setEmailList(Collections.singletonList(toolConfig.getDefaultBatchNotificationEmail()));
-         LmsBatchEmail batchEmail = batchEmailRepository.getBatchEmailFromGroupCode(cio.getGroupCode());
+         LmsBatchEmail batchEmail = batchEmailApi.getBatchEmailFromGroupCode(cio.getGroupCode());
          if (batchEmail != null && batchEmail.getEmails() != null) {
             String[] emailAddresses = batchEmail.getEmails().split(",");
             if (emailAddresses.length > 0) {
@@ -103,7 +103,7 @@ public class EmailSummaryService {
          List<String> importIdList = cio.getImportIdsList();
          StringBuilder emailMessage = cio.getEmailMessage();
 
-         log.debug("Import IDs: {}", importIdList);
+         log.debug("Import IDs for {}: {}", cio.getGroupCode(), importIdList);
 
          for (String importId : importIdList) {
             CanvasUploadStatus importStatus = importApi.getImportStatus(importId);

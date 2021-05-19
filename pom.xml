@@ -21,7 +21,7 @@
         <docker_tag>stable</docker_tag>
         <helm_service_name>lmslti3rdpartyprovisioning</helm_service_name>
         <jquery.version>3.5.1</jquery.version>
-        <lms-bom.version>4.0.10</lms-bom.version>
+        <lms-bom.version>4.0.16-SNAPSHOT</lms-bom.version>
         <springfox-swagger-ui.version>2.9.2</springfox-swagger-ui.version>
         <springfox-swagger2.version>2.9.2</springfox-swagger2.version>
     </properties>
@@ -78,6 +78,10 @@
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>lms-canvas-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>edu.iu.uits.lms</groupId>
+            <artifactId>lms-iuonly-client</artifactId>
         </dependency>
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
