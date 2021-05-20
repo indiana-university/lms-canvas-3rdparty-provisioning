@@ -12,6 +12,7 @@ import edu.iu.uits.lms.lti.config.EnableGlobalErrorHandler;
 import edu.iu.uits.lms.lti.config.EnableLtiClient;
 import edu.iu.uits.lms.provisioning.config.ToolConfig;
 import edu.iu.uits.lms.redis.config.EnableRedisConfiguration;
+import iuonly.config.EnableIuOnlyClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -36,6 +37,7 @@ import java.util.Date;
 @EnableLtiClient
 @EnableCanvasClient
 @EnableEmailClient
+@EnableIuOnlyClient
 @EnableCourseSessionService(sessionKey = "deptprov_course_session")
 @EnableConfigurationProperties(GitRepositoryState.class)
 @EnableBatch

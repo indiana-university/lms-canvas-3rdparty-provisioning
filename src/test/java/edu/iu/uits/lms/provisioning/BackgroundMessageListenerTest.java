@@ -2,14 +2,14 @@ package edu.iu.uits.lms.provisioning;
 
 import edu.iu.uits.lms.provisioning.config.BackgroundMessage;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessageListener;
-import edu.iu.uits.lms.provisioning.model.LmsBatchEmail;
 import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
-import edu.iu.uits.lms.provisioning.repository.LmsBatchEmailRepository;
 import edu.iu.uits.lms.provisioning.service.DeptRouter;
 import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
 import edu.iu.uits.lms.provisioning.service.exception.FileUploadException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
 import email.client.generated.api.EmailApi;
+import iuonly.client.generated.api.BatchEmailApi;
+import iuonly.client.generated.model.LmsBatchEmail;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class BackgroundMessageListenerTest {
    private EmailApi emailApi;
 
    @MockBean
-   private LmsBatchEmailRepository batchEmailRepository;
+   private BatchEmailApi batchEmailApi;
 
    @Test
    public void testListenWithFileProcessingException() throws Exception {
@@ -55,7 +55,7 @@ public class BackgroundMessageListenerTest {
       LmsBatchEmail lbe = new LmsBatchEmail();
       lbe.setGroupCode("cwm");
       lbe.setEmails("chmaurer@iu.edu");
-      Mockito.when(batchEmailRepository.getBatchEmailFromGroupCode(any())).thenReturn(lbe);
+      Mockito.when(batchEmailApi.getBatchEmailFromGroupCode(any())).thenReturn(lbe);
 
       backgroundMessageListener.receive(bm);
    }
@@ -70,7 +70,7 @@ public class BackgroundMessageListenerTest {
       LmsBatchEmail lbe = new LmsBatchEmail();
       lbe.setGroupCode("cwm");
       lbe.setEmails("chmaurer@iu.edu");
-      Mockito.when(batchEmailRepository.getBatchEmailFromGroupCode(any())).thenReturn(lbe);
+      Mockito.when(batchEmailApi.getBatchEmailFromGroupCode(any())).thenReturn(lbe);
 
       backgroundMessageListener.receive(bm);
    }
@@ -85,7 +85,7 @@ public class BackgroundMessageListenerTest {
       LmsBatchEmail lbe = new LmsBatchEmail();
       lbe.setGroupCode("cwm");
       lbe.setEmails("chmaurer@iu.edu");
-      Mockito.when(batchEmailRepository.getBatchEmailFromGroupCode(any())).thenReturn(lbe);
+      Mockito.when(batchEmailApi.getBatchEmailFromGroupCode(any())).thenReturn(lbe);
 
       backgroundMessageListener.receive(bm);
    }
