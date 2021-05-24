@@ -4,7 +4,6 @@ import canvas.client.generated.api.CanvasApi;
 import canvas.client.generated.api.ImportApi;
 import edu.iu.uits.lms.provisioning.model.CanvasImportId;
 import edu.iu.uits.lms.provisioning.model.DeptProvArchive;
-import edu.iu.uits.lms.provisioning.model.LmsBatchEmail;
 import edu.iu.uits.lms.provisioning.model.NotificationForm;
 import edu.iu.uits.lms.provisioning.model.content.ByteArrayFileContent;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
@@ -16,6 +15,8 @@ import edu.iu.uits.lms.provisioning.service.exception.FileUploadException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
 import email.client.generated.api.EmailApi;
 import email.client.generated.model.EmailDetails;
+import iuonly.client.generated.api.BatchEmailApi;
+import iuonly.client.generated.model.LmsBatchEmail;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.io.IOUtils;
@@ -82,7 +83,7 @@ public class DeptRouter {
    private CsvService csvService;
 
    @Autowired
-   private LmsBatchEmailRepository batchEmailRepository;
+   private BatchEmailApi batchEmailApi;
 
    @Autowired
    private CanvasApi canvasApi;
@@ -170,7 +171,7 @@ public class DeptRouter {
       }
 
       if (emailMessage.length() > 0) {
-         LmsBatchEmail emails = batchEmailRepository.getBatchEmailFromGroupCode(dept);
+         LmsBatchEmail emails = batchEmailApi.getBatchEmailFromGroupCode(dept);
          String[] emailAddresses = null;
          if (emails != null) {
             emailAddresses = emails.getEmails().split(",");

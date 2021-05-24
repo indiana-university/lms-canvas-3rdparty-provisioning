@@ -1,11 +1,9 @@
 package edu.iu.uits.lms.provisioning.config;
 
 import edu.iu.uits.lms.provisioning.model.CanvasImportId;
-import edu.iu.uits.lms.provisioning.model.LmsBatchEmail;
 import edu.iu.uits.lms.provisioning.model.PostProcessingData;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
-import edu.iu.uits.lms.provisioning.repository.LmsBatchEmailRepository;
 import edu.iu.uits.lms.provisioning.service.DeptRouter;
 import edu.iu.uits.lms.provisioning.service.ProvisioningResult;
 import edu.iu.uits.lms.provisioning.service.exception.FileError;
@@ -15,6 +13,8 @@ import edu.iu.uits.lms.provisioning.service.exception.ProvisioningException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
 import email.client.generated.api.EmailApi;
 import email.client.generated.model.EmailDetails;
+import iuonly.client.generated.api.BatchEmailApi;
+import iuonly.client.generated.model.LmsBatchEmail;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
@@ -44,7 +44,7 @@ public class BackgroundMessageListener {
    private EmailApi emailApi;
 
    @Autowired
-   private LmsBatchEmailRepository batchEmailRepository;
+   private BatchEmailApi batchEmailApi;
 
    @RabbitHandler
    public void receive(BackgroundMessage message) {
@@ -90,7 +90,7 @@ public class BackgroundMessageListener {
     * @param pe
     */
    private void sendEmail(String dept, ProvisioningException pe) {
-      LmsBatchEmail emails = batchEmailRepository.getBatchEmailFromGroupCode(dept);
+      LmsBatchEmail emails = batchEmailApi.getBatchEmailFromGroupCode(dept);
       String[] emailAddresses = null;
       if (emails != null) {
          emailAddresses = emails.getEmails().split(",");
