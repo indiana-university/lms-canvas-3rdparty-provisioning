@@ -54,6 +54,8 @@ public class SecurityConfig {
             http.requestMatchers().antMatchers("/rest/**")
                   .and()
                   .authorizeRequests()
+                  .antMatchers("/rest/upload/**")
+                  .access("hasAuthority('SCOPE_lms:prov:upload') or (hasAuthority('SCOPE_lms:rest') and hasAuthority('ROLE_LMS_REST_ADMINS'))")
                   .antMatchers("/rest/**")
                   .access("hasAuthority('SCOPE_lms:rest') and hasAuthority('ROLE_LMS_REST_ADMINS')")
                   .and()
@@ -61,6 +63,7 @@ public class SecurityConfig {
                   .and()
                   .oauth2ResourceServer()
                   .jwt().jwtAuthenticationConverter(new CustomJwtAuthenticationConverter());
+            http.csrf().disable();
         }
     }
 
