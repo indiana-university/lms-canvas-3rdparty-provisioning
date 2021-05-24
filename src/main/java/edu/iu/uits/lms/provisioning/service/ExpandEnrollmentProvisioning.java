@@ -33,11 +33,13 @@ public class ExpandEnrollmentProvisioning {
     public List<ProvisioningResult> processEnrollments(Collection<FileContent> fileToProcess, boolean deferredProcessing) {
         List<ProvisioningResult> prs = new ArrayList<>();
         if (deferredProcessing) {
-            log.debug("Deferring expand enrollment provisioning");
-            StringBuilder emailMessage = new StringBuilder("Processing of the following files has been deferred until after all other files have been imported into Canvas:\r\n");
-            for (FileContent file : fileToProcess) {
-                emailMessage.append("\t").append(file.getFileName()).append("\r\n");
-                prs.add(new ProvisioningResult(emailMessage, null, false, file, DeptRouter.CSV_TYPES.EXPAND_ENROLLMENTS));
+            if (fileToProcess.size() > 0) {
+                log.debug("Deferring expand enrollment provisioning");
+                StringBuilder emailMessage = new StringBuilder("Processing of the following files has been deferred until after all other files have been imported into Canvas:\r\n");
+                for (FileContent file : fileToProcess) {
+                    emailMessage.append("\t").append(file.getFileName()).append("\r\n");
+                    prs.add(new ProvisioningResult(emailMessage, null, false, file, DeptRouter.CSV_TYPES.EXPAND_ENROLLMENTS));
+                }
             }
         } else {
             for (FileContent file : fileToProcess) {
