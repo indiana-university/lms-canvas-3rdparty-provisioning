@@ -9,7 +9,6 @@ import edu.iu.uits.lms.provisioning.model.content.ByteArrayFileContent;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.repository.ArchiveRepository;
 import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
-import edu.iu.uits.lms.provisioning.repository.LmsBatchEmailRepository;
 import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
 import edu.iu.uits.lms.provisioning.service.exception.FileUploadException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
