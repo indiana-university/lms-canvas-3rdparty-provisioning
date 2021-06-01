@@ -43,10 +43,18 @@ public class FileParsingUtil {
                case CsvService.COURSES_HEADER + CsvService.START_DATE:
                case CsvService.COURSES_HEADER + CsvService.END_DATE:
                case CsvService.COURSES_HEADER + CsvService.START_DATE + CsvService.END_DATE:
+               case CsvService.COURSES_HEADER + CsvService.BLUEPRINT_COURSE_ID:
+               case CsvService.COURSES_HEADER + CsvService.START_DATE + CsvService.BLUEPRINT_COURSE_ID:
+               case CsvService.COURSES_HEADER + CsvService.END_DATE + CsvService.BLUEPRINT_COURSE_ID:
+               case CsvService.COURSES_HEADER + CsvService.START_DATE + CsvService.END_DATE + CsvService.BLUEPRINT_COURSE_ID:
                case CsvService.COURSES_HEADER_NO_TERM:
                case CsvService.COURSES_HEADER_NO_TERM + CsvService.START_DATE:
                case CsvService.COURSES_HEADER_NO_TERM + CsvService.END_DATE:
                case CsvService.COURSES_HEADER_NO_TERM + CsvService.START_DATE + CsvService.END_DATE:
+               case CsvService.COURSES_HEADER_NO_TERM + CsvService.BLUEPRINT_COURSE_ID:
+               case CsvService.COURSES_HEADER_NO_TERM + CsvService.START_DATE + CsvService.BLUEPRINT_COURSE_ID:
+               case CsvService.COURSES_HEADER_NO_TERM + CsvService.END_DATE + CsvService.BLUEPRINT_COURSE_ID:
+               case CsvService.COURSES_HEADER_NO_TERM + CsvService.START_DATE + CsvService.END_DATE + CsvService.BLUEPRINT_COURSE_ID:
                   filesByType.put(DeptRouter.CSV_TYPES.COURSES, fc);
                   break;
                case CsvService.ENROLLMENTS_HEADER:
