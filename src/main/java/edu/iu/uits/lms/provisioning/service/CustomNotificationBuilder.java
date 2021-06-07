@@ -18,6 +18,7 @@ public class CustomNotificationBuilder {
    private static final String SUBJECT_KEY = "subject";
    private static final String BODY_KEY = "body";
 
+   @Getter
    private Properties properties;
 
    @Getter

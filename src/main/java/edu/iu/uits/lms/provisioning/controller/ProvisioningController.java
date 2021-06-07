@@ -12,6 +12,7 @@ import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.repository.DeptAuthMessageSenderRepository;
 import edu.iu.uits.lms.provisioning.repository.UserRepository;
 import edu.iu.uits.lms.provisioning.service.DeptRouter;
+import edu.iu.uits.lms.provisioning.service.FileParsingUtil;
 import edu.iu.uits.lms.provisioning.service.exception.FileParsingException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
 import lombok.extern.slf4j.Slf4j;
@@ -86,7 +87,7 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
         model.addAttribute("selectedGroup", deptDropdown);
 
         try {
-            MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> filesByType = deptRouter.parseFiles(files, customUsersNotification);
+            MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> filesByType = FileParsingUtil.parseFiles(files, customUsersNotification);
 
             Long archiveId = deptRouter.zipOriginals(filesByType.get(DeptRouter.CSV_TYPES.ORIGINALS), deptDropdown, (String)token.getPrincipal());
             String username = (String)token.getPrincipal();

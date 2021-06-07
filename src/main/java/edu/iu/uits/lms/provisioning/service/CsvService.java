@@ -45,6 +45,8 @@ public interface CsvService {
 
    String EXPAND_ENROLLMENT_HEADER = "user_id,listing_id";
 
+   String BLUEPRINT_COURSE_ID = ",blueprint_course_id";
+
 
    void writeCsv(List<String[]> stringArrayList, String[] headerArray, String filePath) throws IOException;
    InputStream writeCsvToStream(List<String[]> stringArrayList, String[] headerArray) throws IOException;
