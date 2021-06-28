@@ -12,15 +12,19 @@ public class TestUtils {
       return "foobar";
    }
 
-   public static Jwt createJwtToken(String username) {
+   public static Jwt createJwtToken(String client) {
+      return createJwtToken(client, client);
+   }
+
+   public static Jwt createJwtToken(String client, String username) {
       Jwt jwt = Jwt.withTokenValue("fake-token")
             .header("typ", "JWT")
             .header("alg", SignatureAlgorithm.RS256.getValue())
             .claim("user_name", username)
-            .claim("client_id", username)
+            .claim("client_id", client)
             .notBefore(Instant.now())
             .expiresAt(Instant.now().plus(1, ChronoUnit.HOURS))
-            .subject(username)
+            .subject(client)
             .build();
 
       return jwt;
