@@ -157,8 +157,14 @@ public class FileUploadService {
    protected String getValidatedUsername(Object principal) throws UserAuthException {
       log.debug("Principal: {}", principal);
       if (principal instanceof Jwt) {
-         String username = ((Jwt) principal).getClaimAsString("user_name");
+         Jwt jwt = ((Jwt) principal);
+         String username = jwt.getClaimAsString("user_name");
          log.debug("Username from Jwt: {}", username);
+         if (username == null) {
+            //Fall back to the client id
+            username = jwt.getClaimAsString("client_id");
+            log.debug("client id from Jwt: {}", username);
+         }
          User user = userRepository.findByUsername(username);
          log.debug("User: {}", user);
          if (user != null) {

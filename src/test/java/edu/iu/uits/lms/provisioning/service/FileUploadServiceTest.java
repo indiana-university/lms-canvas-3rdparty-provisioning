@@ -65,6 +65,20 @@ public class FileUploadServiceTest {
    }
 
    @Test
+   public void testGetValidatedUsernameWithNullUsername() throws Exception {
+      Jwt jwt = TestUtils.createJwtToken("asdf", null);
+      FileUploadService.UserAuthException t = Assert.assertThrows(FileUploadService.UserAuthException.class, () -> fileUploadService.getValidatedUsername(jwt));
+      Assert.assertEquals("User (asdf) is not authorized to upload files", t.getMessage());
+   }
+
+   @Test
+   public void testGetValidatedUsernameWithClientAndUsername() throws Exception {
+      Jwt jwt = TestUtils.createJwtToken("asdf", "foo");
+      FileUploadService.UserAuthException t = Assert.assertThrows(FileUploadService.UserAuthException.class, () -> fileUploadService.getValidatedUsername(jwt));
+      Assert.assertEquals("User (foo) is not authorized to upload files", t.getMessage());
+   }
+
+   @Test
    public void testGetValidatedUsernameWithBad() throws Exception {
       Jwt jwt = TestUtils.createJwtToken("asdf");
       FileUploadService.UserAuthException t = Assert.assertThrows(FileUploadService.UserAuthException.class, () -> fileUploadService.getValidatedUsername(jwt));
