@@ -2,11 +2,12 @@ package edu.iu.uits.lms.provisioning.controller;
 
 import edu.iu.uits.lms.lti.security.LtiAuthenticationProvider;
 import edu.iu.uits.lms.lti.security.LtiAuthenticationToken;
-import edu.iu.uits.lms.provisioning.model.User;
-import edu.iu.uits.lms.provisioning.repository.UserRepository;
 import io.jsonwebtoken.Claims;
+import iuonly.client.generated.api.DeptProvisioningUserApi;
+import iuonly.client.generated.model.DeptProvisioningUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -25,7 +26,8 @@ import java.util.Map;
 public class LtiController extends edu.iu.uits.lms.lti.controller.LtiController {
 
     @Autowired
-    private UserRepository userRepository;
+    @Qualifier("deptProvisioningUserApiViaAnonymous")
+    private DeptProvisioningUserApi deptProvisioningUserApi;
 
     private boolean openLaunchUrlInNewWindow = false;
 
@@ -53,7 +55,7 @@ public class LtiController extends edu.iu.uits.lms.lti.controller.LtiController 
 
         String rolesString = "NotAuthorized";
 
-        User user = userRepository.findByUsername(userId);
+        DeptProvisioningUser user = deptProvisioningUserApi.findByUsername(userId);
 
         if (user != null) {
             rolesString = "Instructor";

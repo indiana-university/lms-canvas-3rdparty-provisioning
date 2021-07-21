@@ -2,7 +2,7 @@ package edu.iu.uits.lms.provisioning;
 
 import edu.iu.uits.lms.provisioning.config.ToolConfig;
 import edu.iu.uits.lms.provisioning.controller.LtiController;
-import edu.iu.uits.lms.provisioning.repository.UserRepository;
+import iuonly.client.generated.api.DeptProvisioningUserApi;
 import lti.client.generated.api.LtiAuthApi;
 import lti.client.generated.api.LtiPropsApi;
 import lti.client.generated.model.LmsLtiAuthz;
@@ -17,6 +17,7 @@ import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -50,7 +51,8 @@ public class LtiLaunchSecurityTest {
    private MockMvc mvc;
 
    @MockBean
-   private UserRepository userRepository;
+   @Qualifier("deptProvisioningUserApiViaAnonymous")
+   private DeptProvisioningUserApi deptProvisioningUserApi;
 
    @MockBean
    private LtiAuthApi ltiAuthApi;
