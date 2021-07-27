@@ -11,17 +11,18 @@
         <version>4.0.11</version>
         <relativePath />
     </parent>
-    <version>4.0.8</version>
+    <version>4.0.10</version>
 
     <properties>
         <app.version>${project.version}</app.version>
+        <commons-fileupload.version>1.4</commons-fileupload.version>
         <commons-io.version>2.8.0</commons-io.version>
         <commons-validator.version>1.7</commons-validator.version>
         <docker_repository_name>lti_3rdpartyprovisioning</docker_repository_name>
         <docker_tag>stable</docker_tag>
         <helm_service_name>lmslti3rdpartyprovisioning</helm_service_name>
         <jquery.version>3.5.1</jquery.version>
-        <lms-bom.version>4.0.10</lms-bom.version>
+        <lms-bom.version>4.0.16</lms-bom.version>
         <springfox-swagger-ui.version>2.9.2</springfox-swagger-ui.version>
         <springfox-swagger2.version>2.9.2</springfox-swagger2.version>
     </properties>
@@ -78,6 +79,10 @@
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>lms-canvas-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>edu.iu.uits.lms</groupId>
+            <artifactId>lms-iuonly-client</artifactId>
         </dependency>
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
@@ -140,6 +145,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>${commons-fileupload.version}</version>
         </dependency>
     </dependencies>
 
