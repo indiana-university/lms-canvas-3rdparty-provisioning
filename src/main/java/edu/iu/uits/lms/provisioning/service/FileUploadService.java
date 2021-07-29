@@ -4,12 +4,12 @@ import edu.iu.uits.lms.provisioning.config.BackgroundMessage;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessageSender;
 import edu.iu.uits.lms.provisioning.model.FileUploadResult;
 import edu.iu.uits.lms.provisioning.model.NotificationForm;
-import edu.iu.uits.lms.provisioning.model.User;
 import edu.iu.uits.lms.provisioning.model.content.ByteArrayFileContent;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
-import edu.iu.uits.lms.provisioning.repository.UserRepository;
 import edu.iu.uits.lms.provisioning.service.exception.FileParsingException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
+import iuonly.client.generated.api.DeptProvisioningUserApi;
+import iuonly.client.generated.model.DeptProvisioningUser;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -48,7 +48,7 @@ public class FileUploadService {
    private BackgroundMessageSender backgroundMessageSender;
 
    @Autowired
-   private UserRepository userRepository;
+   private DeptProvisioningUserApi deptProvisioningUserApi;
 
    /**
     *
@@ -165,7 +165,7 @@ public class FileUploadService {
             username = jwt.getClaimAsString("client_id");
             log.debug("client id from Jwt: {}", username);
          }
-         User user = userRepository.findByUsername(username);
+         DeptProvisioningUser user = deptProvisioningUserApi.findByUsername(username);
          log.debug("User: {}", user);
          if (user != null) {
             return user.getUsername();

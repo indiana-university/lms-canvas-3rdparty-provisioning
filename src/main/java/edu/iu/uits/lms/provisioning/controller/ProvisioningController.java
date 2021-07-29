@@ -10,11 +10,11 @@ import edu.iu.uits.lms.provisioning.model.DeptAuthMessageSender;
 import edu.iu.uits.lms.provisioning.model.NotificationForm;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.repository.DeptAuthMessageSenderRepository;
-import edu.iu.uits.lms.provisioning.repository.UserRepository;
 import edu.iu.uits.lms.provisioning.service.DeptRouter;
 import edu.iu.uits.lms.provisioning.service.FileParsingUtil;
 import edu.iu.uits.lms.provisioning.service.exception.FileParsingException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
+import iuonly.client.generated.api.DeptProvisioningUserApi;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.KeyValue;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -43,7 +43,7 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
     private static final String SESSION_KEY = "uploadedInfo";
 
     @Autowired
-    private UserRepository userRepository;
+    private DeptProvisioningUserApi deptProvisioningUserApi;
 
     @Autowired
     private DeptAuthMessageSenderRepository deptAuthMessageSenderRepository;

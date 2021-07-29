@@ -7,8 +7,8 @@ import edu.iu.uits.lms.provisioning.config.BackgroundMessageSender;
 import edu.iu.uits.lms.provisioning.config.ToolConfig;
 import edu.iu.uits.lms.provisioning.controller.ProvisioningController;
 import edu.iu.uits.lms.provisioning.repository.DeptAuthMessageSenderRepository;
-import edu.iu.uits.lms.provisioning.repository.UserRepository;
 import edu.iu.uits.lms.provisioning.service.DeptRouter;
+import iuonly.client.generated.api.DeptProvisioningUserApi;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class AppLaunchSecurityTest {
    private WebApplicationContext context;
 
    @MockBean
-   private UserRepository userRepository;
+   private DeptProvisioningUserApi deptProvisioningUserApi;
 
    @MockBean
    private DeptAuthMessageSenderRepository deptAuthMessageSenderRepository;
