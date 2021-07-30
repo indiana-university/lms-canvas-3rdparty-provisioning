@@ -41,8 +41,7 @@ public class ResultsEmailJob implements BatchJob {
     public void run() {
 
         try {
-//            job.resultsEmail();
-            throw new Exception("Boom2");
+            job.resultsEmail();
         } catch (Exception e) {
             log.error("Caught exception performing results email", e);
 
