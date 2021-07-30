@@ -2,6 +2,8 @@ package edu.iu.uits.lms.provisioning.job;
 
 import edu.iu.uits.lms.common.batch.BatchJob;
 import edu.iu.uits.lms.provisioning.service.EmailSummaryService;
+import iuonly.client.generated.api.ErrorContactApi;
+import iuonly.client.generated.model.ErrorContactPostForm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -22,6 +24,9 @@ public class ResultsEmailJob implements BatchJob {
     @Autowired
     private ResultsEmailJob job;
 
+    @Autowired
+    private ErrorContactApi errorContactApi;
+
     public ResultsEmailJob(EmailSummaryService emailSummaryService, ConfigurableApplicationContext ctx) {
         this.emailSummaryService = emailSummaryService;
         this.ctx = ctx;
@@ -36,11 +41,22 @@ public class ResultsEmailJob implements BatchJob {
     public void run() {
 
         try {
-            job.resultsEmail();
+//            job.resultsEmail();
+            throw new Exception("Boom2");
         } catch (Exception e) {
             log.error("Caught exception performing results email", e);
+
+            ErrorContactPostForm errorContactPostForm = new ErrorContactPostForm();
+            errorContactPostForm.setJobCode(getJobCode());
+            errorContactPostForm.setMessage("The Department Results Email job has unexpectedly failed");
+
+            errorContactApi.postEvent(errorContactPostForm);
         }
 
         ctx.close();
+    }
+
+    public String getJobCode() {
+        return "DeptProvResultsEmailJob";
     }
 }
