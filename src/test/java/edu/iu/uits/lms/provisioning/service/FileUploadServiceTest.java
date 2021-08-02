@@ -3,8 +3,8 @@ package edu.iu.uits.lms.provisioning.service;
 import edu.iu.uits.lms.provisioning.TestUtils;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessageSender;
 import edu.iu.uits.lms.provisioning.model.FileUploadResult;
-import edu.iu.uits.lms.provisioning.model.User;
-import edu.iu.uits.lms.provisioning.repository.UserRepository;
+import iuonly.client.generated.api.DeptProvisioningUserApi;
+import iuonly.client.generated.model.DeptProvisioningUser;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class FileUploadServiceTest {
    private BackgroundMessageSender backgroundMessageSender;
 
    @MockBean
-   private UserRepository userRepository;
+   private DeptProvisioningUserApi deptProvisioningUserApi;
 
    @Test
    public void testUnzip() throws Exception {
@@ -177,9 +177,9 @@ public class FileUploadServiceTest {
    }
 
    private void mockUser(String username) {
-      User user = new User();
+      DeptProvisioningUser user = new DeptProvisioningUser();
       user.setUsername(username);
-      when(userRepository.findByUsername(anyString())).thenReturn(user);
+      when(deptProvisioningUserApi.findByUsername(anyString())).thenReturn(user);
    }
 
    private MultipartFile mockFile(String fileName) throws IOException {
