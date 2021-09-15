@@ -1,7 +1,7 @@
 
 projectedSecret:
   - secret:
-      name: "properties-2021-06-03"
+      name: "properties-2021-06-07"
   - secret:
       name: "lms-security-properties-20201014"
 
@@ -16,3 +16,9 @@ ingress:
   hosts:
     - host: "lms-lti-3rdpartyprovisioning.apps.iu.edu"
       paths: []
+
+activeProfiles: "redis,prd"
+
+serviceAccountName: lms-lti-3rdpartyprovisioning-prd
+
+cluster: es-prod
