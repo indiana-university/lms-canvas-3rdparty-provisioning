@@ -17,6 +17,6 @@ ingress:
 
 activeProfiles: "redis,stg"
 
-serviceAccountName: lms-lti-3rdpartyprovisioning-stg
+serviceAccountName: lmslti3rdpartyprovisioning-stg
 
 cluster: es-test

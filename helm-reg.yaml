@@ -17,6 +17,6 @@ ingress:
 
 activeProfiles: "redis,reg"
 
-serviceAccountName: lms-lti-3rdpartyprovisioning-reg
+serviceAccountName: lmslti3rdpartyprovisioning-reg
 
 cluster: es-test

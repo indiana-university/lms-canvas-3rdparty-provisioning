@@ -5,4 +5,4 @@ spring.cloud.vault:
   kv:
     enabled: true
     backend: ua-vpit/enterprise-systems/lms/kv
-    application-name: lms-lti-3rdpartyprovisioning
+    application-name: lmslti3rdpartyprovisioning
