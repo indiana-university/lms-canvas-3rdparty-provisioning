@@ -21,7 +21,7 @@ Endpoint is `/rest/upload/<DEPT_CODE>`
 To Debug w/ Intellij, forward 5005 (in kube-forwarder, or k9s) to any desired port and then hook intellij up to that
 
 ```
-helm upgrade lmslti3rdpartyprovisioning harbor-prd/k8s-boot -f helm-common.yaml -f helm-dev.yaml -f ../helm-vault-local.yaml --install
+helm upgrade lmslti3rdpartyprovisioning harbor-prd/k8s-boot -f helm-common.yaml -f helm-dev.yaml --install
 ```
 
 ```
