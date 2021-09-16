@@ -19,6 +19,6 @@ ingress:
 
 activeProfiles: "redis,prd"
 
-serviceAccountName: lms-lti-3rdpartyprovisioning-prd
+serviceAccountName: lmslti3rdpartyprovisioning-prd
 
 cluster: es-prod
