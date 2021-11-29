@@ -64,7 +64,6 @@ public class EmailSummaryServiceTest {
       public EmailSummaryService emailSummaryService() {
          return new EmailSummaryService();
       }
-
    }
 
    @Before
@@ -73,23 +72,27 @@ public class EmailSummaryServiceTest {
    }
 
    @Test
-   public void testProcessImport() throws Exception {
-      testProcessImport("1_import.json", "1_email.txt");
+   public void testProcessImportNoErrorsWarnings() throws Exception {
+      // Test with no errors or warnings
+      testProcessImport("good_import.json", "good_email.txt");
    }
 
    @Test
-   public void testProcessImport2() throws Exception {
-      testProcessImport("2_import.json", "2_email.txt");
+   public void testProcessImportWarnings() throws Exception {
+      // Test with only warnings
+      testProcessImport("warnings_import.json", "warnings_email.txt");
    }
 
    @Test
-   public void testProcessImport3() throws Exception {
-      testProcessImport("3_import.json", "3_email.txt");
+   public void testProcessImportErrors() throws Exception {
+      // Test with only errors
+      testProcessImport("errors_import.json", "errors_email.txt");
    }
 
    @Test
-   public void testProcessImport4() throws Exception {
-      testProcessImport("4_import.json", "4_email.txt");
+   public void testProcessImportWarningsAndErrors() throws Exception {
+      // Test with both errors and warnings
+      testProcessImport("bothbad_import.json", "bothbad_email.txt");
    }
 
 
