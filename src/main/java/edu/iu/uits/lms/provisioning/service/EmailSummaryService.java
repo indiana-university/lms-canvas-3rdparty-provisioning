@@ -106,57 +106,7 @@ public class EmailSummaryService {
          log.debug("Import IDs for {}: {}", cio.getGroupCode(), importIdList);
 
          for (String importId : importIdList) {
-            CanvasUploadStatus importStatus = importApi.getImportStatus(importId);
-            // a call to see if the import for this id is finished
-            boolean canvasFinished = false;
-            String endedAt = importStatus.getEndedAt();
-            if (endedAt != null && !"".equals(endedAt) && !"null".equals(endedAt)) {
-               // this import is done, so set the boolean to true
-               canvasFinished = true;
-            }
-
-            // if Canvas is done processing, check for errors
-            if (canvasFinished) {
-               List<List<String>> canvasWarningsList = importStatus.getProcessingWarnings();
-
-               if (emailMessage.length() == 0) {
-                  emailMessage.append("Here is a report of errors from Canvas (" + canvasApi.getBaseUrl() + "):\r\n\r\n");
-               }
-
-               emailMessage.append("From importId: " + importId + "\r\n\r\n");
-               if (canvasWarningsList != null) {
-                  for (List<String> canvasWarnings : canvasWarningsList) {
-                     for (String canvasWarning : canvasWarnings) {
-                        if (canvasWarning.contains(".csv")) {
-                           emailMessage.append(canvasWarning + " - ");
-                        } else {
-                           emailMessage.append(canvasWarning + "\r\n");
-                        }
-                     }
-                  }
-               } else {
-                  emailMessage.append("No errors/warnings\r\n");
-               }
-
-               // Do post processing stuff
-               MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> postProcessingData = postProcessingMap.get(importId);
-               if (postProcessingData != null) {
-                  emailMessage.append("\r\nPost processing results:\r\n");
-                  try {
-                     List<ProvisioningResult> provisioningResults = deptRouter.processFiles(cio.getGroupCode(), postProcessingData, null);
-                     for (ProvisioningResult provisioningResult : provisioningResults) {
-                        emailMessage.append(provisioningResult.getEmailMessage() + "\r\n");
-                     }
-                  } catch (FileProcessingException e) {
-                     log.error("Error trying to post process", e);
-                     emailMessage.append("\tThere were errors with the post processing:\r\n");
-                     emailMessage.append("\t\t" + e.getFileErrors() + "\r\n");
-                  }
-               }
-               emailMessage.append("\r\n");
-
-               processedImportIds.add(importId);
-            }
+            processImport(importId, emailMessage, postProcessingMap, cio, processedImportIds);
          }
 
          // check if there are warnings, if so, send an email
@@ -179,6 +129,78 @@ public class EmailSummaryService {
       }
    }
 
+   protected void processImport(String importId, StringBuilder emailMessage, Map<String,
+         MultiValuedMap<DeptRouter.CSV_TYPES, FileContent>> postProcessingMap, CanvasImportObject cio,
+                                  List<String> processedImportIds) {
+      CanvasUploadStatus importStatus = importApi.getImportStatus(importId);
+      // a call to see if the import for this id is finished
+      boolean canvasFinished = false;
+      String endedAt = importStatus.getEndedAt();
+      if (endedAt != null && !"".equals(endedAt) && !"null".equals(endedAt)) {
+         // this import is done, so set the boolean to true
+         canvasFinished = true;
+      }
+
+      // if Canvas is done processing, check for errors
+      if (canvasFinished) {
+         List<List<String>> canvasWarningsList = importStatus.getProcessingWarnings();
+         List<List<String>> canvasErrorsList = importStatus.getProcessingErrors();
+
+         if (emailMessage.length() == 0) {
+            emailMessage.append("Here is a report of errors from Canvas (" + canvasApi.getBaseUrl() + "):\r\n\r\n");
+         }
+
+         emailMessage.append("From importId: " + importId + "\r\n\r\n");
+         if (canvasErrorsList != null || canvasWarningsList != null) {
+            if (canvasErrorsList != null) {
+               for (List<String> canvasErrors : canvasErrorsList) {
+                  for (String canvasError : canvasErrors) {
+                     if (canvasError != null) {
+                        if (canvasError.contains(".csv")) {
+                           emailMessage.append(canvasError + " - ");
+                        } else {
+                           emailMessage.append(canvasError + "\r\n");
+                        }
+                     }
+                  }
+               }
+            }
+            if (canvasWarningsList != null) {
+               for (List<String> canvasWarnings : canvasWarningsList) {
+                  for (String canvasWarning : canvasWarnings) {
+                     if (canvasWarning.contains(".csv")) {
+                        emailMessage.append(canvasWarning + " - ");
+                     } else {
+                        emailMessage.append(canvasWarning + "\r\n");
+                     }
+                  }
+               }
+            }
+         } else {
+            emailMessage.append("No errors/warnings\r\n");
+         }
+
+         // Do post processing stuff
+         MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> postProcessingData = postProcessingMap.get(importId);
+         if (postProcessingData != null) {
+            emailMessage.append("\r\nPost processing results:\r\n");
+            try {
+               List<ProvisioningResult> provisioningResults = deptRouter.processFiles(cio.getGroupCode(), postProcessingData, null);
+               for (ProvisioningResult provisioningResult : provisioningResults) {
+                  emailMessage.append(provisioningResult.getEmailMessage() + "\r\n");
+               }
+            } catch (FileProcessingException e) {
+               log.error("Error trying to post process", e);
+               emailMessage.append("\tThere were errors with the post processing:\r\n");
+               emailMessage.append("\t\t" + e.getFileErrors() + "\r\n");
+            }
+         }
+         emailMessage.append("\r\n");
+
+         processedImportIds.add(importId);
+      }
+   }
+
    private void updateImportIdRecords(String importId) {
       canvasImportIdRepository.setProcessedByImportId("Y", importId, new Date());
       log.info("Updated the record as 'processed' for importId: " + importId);
@@ -186,7 +208,7 @@ public class EmailSummaryService {
 
    @Setter
    @Getter
-   private static class CanvasImportObject {
+   protected static class CanvasImportObject {
       private List<String> emailList;
       private StringBuilder emailMessage;
       private String groupCode;
