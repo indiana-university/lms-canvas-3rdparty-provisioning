@@ -1,0 +1,6 @@
+Here is a report of errors from Canvas (foo.bar):
+
+From importId: 7413704
+
+Error while importing CSV. Please contact support. (Error report 290000281860471)
+

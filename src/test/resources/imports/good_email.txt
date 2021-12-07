@@ -1,0 +1,6 @@
+Here is a report of errors from Canvas (foo.bar):
+
+From importId: 7413704
+
+No errors/warnings
+

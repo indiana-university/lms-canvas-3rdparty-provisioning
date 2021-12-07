@@ -1,0 +1,6 @@
+Here is a report of errors from Canvas (foo.bar):
+
+From importId: 7413704
+
+foo.csv - Neither course nor section existed for user enrollment (Course ID: FA21-BL-BUEX-ACCT-99999, Section ID: FA21-BL-BUEX-ACCT-99999, User ID: 123456789)
+
