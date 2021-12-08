@@ -1,5 +1,6 @@
 package edu.iu.uits.lms.provisioning.model;
 
+import edu.iu.uits.lms.provisioning.controller.Constants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -8,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -38,6 +41,11 @@ public class CanvasImportId {
     @Column(name = "GROUP_CODE")
     @NonNull
     private String groupCode;
+
+    @Column(name = "SOURCE")
+    @Enumerated(EnumType.STRING)
+    @NonNull
+    private Constants.SOURCE source;
 
     @Column(name = "CREATEDON")
     private Date createdOn;

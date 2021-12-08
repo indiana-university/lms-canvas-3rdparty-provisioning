@@ -1,5 +1,6 @@
 package edu.iu.uits.lms.provisioning.controller.rest;
 
+import edu.iu.uits.lms.provisioning.controller.Constants;
 import edu.iu.uits.lms.provisioning.model.FileUploadResult;
 import edu.iu.uits.lms.provisioning.service.FileUploadService;
 import io.swagger.annotations.Api;
@@ -32,7 +33,7 @@ public class UploadRestController {
       Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
       try {
          List<MultipartFile> files = fileUploadService.unzip(file);
-         return fileUploadService.parseFiles(files.toArray(new MultipartFile[0]), customUsersNotification, dept, principal);
+         return fileUploadService.parseFiles(files.toArray(new MultipartFile[0]), customUsersNotification, dept, principal, Constants.SOURCE.API);
       } catch (IOException e) {
          log.error("Unable to unzip uploaded file");
          FileUploadResult results = new FileUploadResult("Unable to unzip uploaded file");
@@ -44,7 +45,7 @@ public class UploadRestController {
    public ResponseEntity<FileUploadResult> upload(@PathVariable("dept") String dept, @RequestParam("deptFileUpload") MultipartFile[] files,
                                                   @RequestParam(value = "customUsersNotification", required = false, defaultValue = "false") boolean customUsersNotification) {
       Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-      return fileUploadService.parseFiles(files, customUsersNotification, dept, principal);
+      return fileUploadService.parseFiles(files, customUsersNotification, dept, principal, Constants.SOURCE.API);
    }
 
 }

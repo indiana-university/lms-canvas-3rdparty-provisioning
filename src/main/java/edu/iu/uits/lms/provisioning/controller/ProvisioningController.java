@@ -93,7 +93,7 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
             String username = (String)token.getPrincipal();
             if (customUsersNotification) {
                 courseSessionService.addAttributeToSession(session, token.getContext(), SESSION_KEY,
-                      new BackgroundMessage(filesByType, deptDropdown, null, archiveId, username));
+                      new BackgroundMessage(filesByType, deptDropdown, null, archiveId, username, Constants.SOURCE.APP));
                 return notify(deptDropdown, model);
             }
 
@@ -152,7 +152,7 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
                               NotificationForm notificationForm, Long archiveId, String username) {
 
         //Chuck a message into the queue so that the user doesn't have to wait for results
-        backgroundMessageSender.send(new BackgroundMessage(filesByType, department, notificationForm, archiveId, username));
+        backgroundMessageSender.send(new BackgroundMessage(filesByType, department, notificationForm, archiveId, username, Constants.SOURCE.APP));
     }
 
 }
