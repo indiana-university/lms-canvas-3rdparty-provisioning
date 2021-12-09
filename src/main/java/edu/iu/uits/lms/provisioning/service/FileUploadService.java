@@ -2,6 +2,7 @@ package edu.iu.uits.lms.provisioning.service;
 
 import edu.iu.uits.lms.provisioning.config.BackgroundMessage;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessageSender;
+import edu.iu.uits.lms.provisioning.controller.Constants;
 import edu.iu.uits.lms.provisioning.model.FileUploadResult;
 import edu.iu.uits.lms.provisioning.model.NotificationForm;
 import edu.iu.uits.lms.provisioning.model.content.ByteArrayFileContent;
@@ -122,7 +123,7 @@ public class FileUploadService {
     * @return
     */
    public ResponseEntity<FileUploadResult> parseFiles(MultipartFile[] files, boolean customUsersNotification,
-                                                      String department, Object principal) {
+                                                      String department, Object principal, Constants.SOURCE source) {
       if (files == null || files.length == 0) {
          return ResponseEntity.badRequest().body(new FileUploadResult("No files to process"));
       }
@@ -136,7 +137,7 @@ public class FileUploadService {
             return ResponseEntity.badRequest().body(results);
          }
 
-         backgroundMessageSender.send(new BackgroundMessage(filesByType, department, notificationForm, archiveId, validUsername));
+         backgroundMessageSender.send(new BackgroundMessage(filesByType, department, notificationForm, archiveId, validUsername, source));
       } catch (FileParsingException | ZipException e) {
          log.error("error parsing uploaded files", e);
          FileUploadResult results = new FileUploadResult("Error parsing uploaded files", e.getFileErrors());

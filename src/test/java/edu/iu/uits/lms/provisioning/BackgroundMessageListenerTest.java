@@ -2,6 +2,7 @@ package edu.iu.uits.lms.provisioning;
 
 import edu.iu.uits.lms.provisioning.config.BackgroundMessage;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessageListener;
+import edu.iu.uits.lms.provisioning.controller.Constants;
 import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
 import edu.iu.uits.lms.provisioning.service.DeptRouter;
 import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
@@ -47,7 +48,7 @@ public class BackgroundMessageListenerTest {
 
    @Test
    public void testListenWithFileProcessingException() throws Exception {
-      BackgroundMessage bm = new BackgroundMessage(null, "cwm", null, null, "chmaurer");
+      BackgroundMessage bm = new BackgroundMessage(null, "cwm", null, null, "chmaurer", Constants.SOURCE.APP);
 
       FileProcessingException fpe = new FileProcessingException("uh oh", Collections.singletonList("file.txt"));
       Mockito.when(deptRouter.processFiles(any(), any(), any())).thenThrow(fpe);
@@ -62,10 +63,10 @@ public class BackgroundMessageListenerTest {
 
    @Test
    public void testListenWithFileUploadException() throws Exception {
-      BackgroundMessage bm = new BackgroundMessage(null, "cwm", null, null, "chmaurer");
+      BackgroundMessage bm = new BackgroundMessage(null, "cwm", null, null, "chmaurer", Constants.SOURCE.APP);
 
       FileUploadException fue = new FileUploadException("uh oh");
-      Mockito.when(deptRouter.sendToCanvas(any(), any(), any(), any(), any())).thenThrow(fue);
+      Mockito.when(deptRouter.sendToCanvas(any(), any(), any(), any(), any(), any())).thenThrow(fue);
 
       LmsBatchEmail lbe = new LmsBatchEmail();
       lbe.setGroupCode("cwm");
@@ -77,10 +78,10 @@ public class BackgroundMessageListenerTest {
 
    @Test
    public void testListenWithZipException() throws Exception {
-      BackgroundMessage bm = new BackgroundMessage(null, "cwm", null, null, "chmaurer");
+      BackgroundMessage bm = new BackgroundMessage(null, "cwm", null, null, "chmaurer", Constants.SOURCE.APP);
 
       ZipException ze = new ZipException("foo.zip", false, "uh oh");
-      Mockito.when(deptRouter.sendToCanvas(any(), any(), any(), any(), any())).thenThrow(ze);
+      Mockito.when(deptRouter.sendToCanvas(any(), any(), any(), any(), any(), any())).thenThrow(ze);
 
       LmsBatchEmail lbe = new LmsBatchEmail();
       lbe.setGroupCode("cwm");
