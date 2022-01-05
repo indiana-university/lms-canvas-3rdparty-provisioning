@@ -67,7 +67,7 @@ public class BackgroundMessageListener {
             fullEmail.append(provisioningResult.getEmailMessage() + "\r\n");
          }
 
-         String importId = deptRouter.sendToCanvas(allFiles, message.getDepartment(), fullEmail, message.getArchiveId(), message.getUsername());
+         String importId = deptRouter.sendToCanvas(allFiles, message.getDepartment(), fullEmail, message.getArchiveId(), message.getUsername(), message.getSource());
          if (importId != null && !"".equals(importId)) {
             if (!postProcessingDataMap.isEmpty()) {
                log.debug("{}", postProcessingDataMap);

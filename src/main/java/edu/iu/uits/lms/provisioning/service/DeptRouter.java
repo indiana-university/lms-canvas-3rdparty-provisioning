@@ -2,6 +2,7 @@ package edu.iu.uits.lms.provisioning.service;
 
 import canvas.client.generated.api.CanvasApi;
 import canvas.client.generated.api.ImportApi;
+import edu.iu.uits.lms.provisioning.controller.Constants;
 import edu.iu.uits.lms.provisioning.model.CanvasImportId;
 import edu.iu.uits.lms.provisioning.model.DeptProvArchive;
 import edu.iu.uits.lms.provisioning.model.NotificationForm;
@@ -122,7 +123,7 @@ public class DeptRouter {
    }
 
    public String sendToCanvas(List<FileObject> allStreams, String dept, StringBuilder emailMessage, Long archiveId,
-                            String username) throws FileUploadException, ZipException {
+                            String username, Constants.SOURCE source) throws FileUploadException, ZipException {
       String importId = null;
       String canvasUploadFileName = dept + "-upload.zip";
       boolean zipException = false;
@@ -163,7 +164,7 @@ public class DeptRouter {
 
          if (importId != null && !"".equals(importId)) {
             // store the Canvas importId
-            CanvasImportId canvasImportId = new CanvasImportId(importId, "N", dept);
+            CanvasImportId canvasImportId = new CanvasImportId(importId, "N", dept, source);
             canvasImportIdRepository.save(canvasImportId);
             zipFile.delete();
          }

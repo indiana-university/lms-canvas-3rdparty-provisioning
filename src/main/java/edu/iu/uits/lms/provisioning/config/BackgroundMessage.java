@@ -1,5 +1,6 @@
 package edu.iu.uits.lms.provisioning.config;
 
+import edu.iu.uits.lms.provisioning.controller.Constants;
 import edu.iu.uits.lms.provisioning.model.NotificationForm;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.service.DeptRouter;
@@ -17,5 +18,6 @@ public class BackgroundMessage implements Serializable {
    private NotificationForm notificationForm;
    private Long archiveId;
    private String username;
+   private Constants.SOURCE source;
 
 }

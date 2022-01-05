@@ -2,6 +2,7 @@ package edu.iu.uits.lms.provisioning.service;
 
 import edu.iu.uits.lms.provisioning.TestUtils;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessageSender;
+import edu.iu.uits.lms.provisioning.controller.Constants;
 import edu.iu.uits.lms.provisioning.model.FileUploadResult;
 import iuonly.client.generated.api.DeptProvisioningUserApi;
 import iuonly.client.generated.model.DeptProvisioningUser;
@@ -97,7 +98,7 @@ public class FileUploadServiceTest {
    public void testParseNoFiles() throws Exception {
       mockUser("asdf");
       Jwt jwt = TestUtils.createJwtToken("asdf");
-      ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(null, true, "CWM", jwt);
+      ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(null, true, "CWM", jwt, Constants.SOURCE.API);
       Assert.assertNotNull(responseEntity);
       Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
       Assert.assertEquals("No files to process", responseEntity.getBody().getMessage());
@@ -109,7 +110,7 @@ public class FileUploadServiceTest {
       mockUser("asdf");
       Jwt jwt = TestUtils.createJwtToken("asdf");
 
-      ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, false, "CWM", jwt);
+      ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, false, "CWM", jwt, Constants.SOURCE.API);
       Assert.assertNotNull(responseEntity);
       Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
       Assert.assertEquals(OK_MESSAGE, responseEntity.getBody().getMessage());
@@ -121,7 +122,7 @@ public class FileUploadServiceTest {
       mockUser("asdf");
       Jwt jwt = TestUtils.createJwtToken("asdf");
 
-      ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, true, "CWM", jwt);
+      ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, true, "CWM", jwt, Constants.SOURCE.API);
       Assert.assertNotNull(responseEntity);
       Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
       Assert.assertEquals(BAD_PROPS_MESSAGE, responseEntity.getBody().getMessage());
@@ -133,7 +134,7 @@ public class FileUploadServiceTest {
       mockUser("asdf");
       Jwt jwt = TestUtils.createJwtToken("asdf");
 
-      ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, true, "CWM", jwt);
+      ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, true, "CWM", jwt, Constants.SOURCE.API);
       Assert.assertNotNull(responseEntity);
       Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
       Assert.assertEquals(BAD_PROPS_MESSAGE, responseEntity.getBody().getMessage());
@@ -145,7 +146,7 @@ public class FileUploadServiceTest {
       mockUser("asdf");
       Jwt jwt = TestUtils.createJwtToken("asdf");
 
-      ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, false, "CWM", jwt);
+      ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, false, "CWM", jwt, Constants.SOURCE.API);
       Assert.assertNotNull(responseEntity);
       Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
       Assert.assertEquals(OK_MESSAGE, responseEntity.getBody().getMessage());
@@ -157,7 +158,7 @@ public class FileUploadServiceTest {
       mockUser("asdf");
       Jwt jwt = TestUtils.createJwtToken("asdf");
 
-      ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, true, "CWM", jwt);
+      ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, true, "CWM", jwt, Constants.SOURCE.API);
       Assert.assertNotNull(responseEntity);
       Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
       Assert.assertEquals(OK_MESSAGE, responseEntity.getBody().getMessage());
@@ -169,7 +170,7 @@ public class FileUploadServiceTest {
       mockUser("asdf");
       Jwt jwt = TestUtils.createJwtToken("asdf");
 
-      ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, true, "CWM", jwt);
+      ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, true, "CWM", jwt, Constants.SOURCE.API);
       Assert.assertNotNull(responseEntity);
       Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
       Assert.assertEquals("Error parsing uploaded files", responseEntity.getBody().getMessage());
