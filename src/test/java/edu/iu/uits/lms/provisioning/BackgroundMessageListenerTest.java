@@ -58,7 +58,7 @@ public class BackgroundMessageListenerTest {
       lbe.setEmails("chmaurer@iu.edu");
       Mockito.when(batchEmailApi.getBatchEmailFromGroupCode(any())).thenReturn(lbe);
 
-      backgroundMessageListener.receive(bm);
+      backgroundMessageListener.handleMessage(bm);
    }
 
    @Test
@@ -73,7 +73,7 @@ public class BackgroundMessageListenerTest {
       lbe.setEmails("chmaurer@iu.edu");
       Mockito.when(batchEmailApi.getBatchEmailFromGroupCode(any())).thenReturn(lbe);
 
-      backgroundMessageListener.receive(bm);
+      backgroundMessageListener.handleMessage(bm);
    }
 
    @Test
@@ -88,7 +88,7 @@ public class BackgroundMessageListenerTest {
       lbe.setEmails("chmaurer@iu.edu");
       Mockito.when(batchEmailApi.getBatchEmailFromGroupCode(any())).thenReturn(lbe);
 
-      backgroundMessageListener.receive(bm);
+      backgroundMessageListener.handleMessage(bm);
    }
 
    @TestConfiguration
