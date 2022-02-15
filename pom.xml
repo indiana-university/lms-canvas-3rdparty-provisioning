@@ -11,7 +11,7 @@
         <version>4.0.12</version>
         <relativePath />
     </parent>
-    <version>4.0.17-SNAPSHOT</version>
+    <version>4.0.17</version>
 
     <properties>
         <app.version>${project.version}</app.version>
