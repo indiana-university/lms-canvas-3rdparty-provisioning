@@ -39,6 +39,7 @@ spring:
     password: ${lms.rabbitmq.password.${app.env}}
     virtualHost: ${lms.rabbitmq.virtualHost.${app.env}}
     listener.simple:
+      acknowledge-mode: manual
       missing-queues-fatal: false
       retry:
         enabled: true
