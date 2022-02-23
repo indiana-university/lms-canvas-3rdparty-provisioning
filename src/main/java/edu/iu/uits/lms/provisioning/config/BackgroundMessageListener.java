@@ -14,6 +14,8 @@ import edu.iu.uits.lms.provisioning.service.exception.ZipException;
 import email.client.generated.api.EmailApi;
 import email.client.generated.model.EmailDetails;
 import iuonly.client.generated.api.BatchEmailApi;
+import iuonly.client.generated.api.DeptProvisioningUserApi;
+import iuonly.client.generated.model.DeptProvisioningUser;
 import iuonly.client.generated.model.LmsBatchEmail;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -38,6 +40,9 @@ public class BackgroundMessageListener {
    private DeptRouter deptRouter;
 
    @Autowired
+   private DeptProvisioningUserApi deptProvisioningUserApi;
+
+   @Autowired
    private CanvasImportIdRepository canvasImportIdRepository;
 
    @Autowired
@@ -51,8 +56,22 @@ public class BackgroundMessageListener {
       log.info("Received <{}>", message);
       MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> postProcessingDataMap = new ArrayListValuedHashMap<>();
 
+      DeptProvisioningUser user = deptProvisioningUserApi.findByUsername(message.getUsername());
+      boolean allowSis = user.getAllowSis();
+      boolean overrideRestrictions = user.getOverrideRestrictions();
+      List<String> authorizedAccounts = new ArrayList<>();
+      String authorizedAccountString = user.getAuthorizedAccounts();
+
+      if (authorizedAccountString != null) {
+         String[] authorizedAccountArray = authorizedAccountString.split(",");
+         if (authorizedAccountArray.length > 0) {
+            // convert the string array to a list
+            authorizedAccounts = Arrays.asList(authorizedAccountArray);
+         }
+      }
+
       try {
-         List<ProvisioningResult> provisioningResults = deptRouter.processFiles(message.getDepartment(), message.getFilesByType(), message.getNotificationForm());
+         List<ProvisioningResult> provisioningResults = deptRouter.processFiles(message.getDepartment(), message.getFilesByType(), message.getNotificationForm(), allowSis, authorizedAccounts, overrideRestrictions);
 
          List<ProvisioningResult.FileObject> allFiles = new ArrayList<>();
          StringBuilder fullEmail = new StringBuilder();

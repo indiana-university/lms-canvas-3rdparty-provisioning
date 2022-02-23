@@ -65,8 +65,7 @@ public class FileParsingUtil {
                case CsvService.SECTIONS_HEADER + CsvService.START_DATE:
                case CsvService.SECTIONS_HEADER + CsvService.END_DATE:
                case CsvService.SECTIONS_HEADER + CsvService.START_DATE + CsvService.END_DATE:
-                  FileContent fcOverride = new ByteArrayFileContent(file.getOriginalFilename(), fileBytes);
-                  filesByType.put(DeptRouter.CSV_TYPES.SECTIONS, fcOverride);
+                  filesByType.put(DeptRouter.CSV_TYPES.SECTIONS, fc);
                   break;
                case CsvService.USERS_HEADER_NO_SHORT_NAME:
                case CsvService.USERS_HEADER_NO_SHORT_NAME_ADD_SERVICE:

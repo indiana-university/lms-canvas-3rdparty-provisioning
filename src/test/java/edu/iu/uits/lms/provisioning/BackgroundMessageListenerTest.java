@@ -51,7 +51,7 @@ public class BackgroundMessageListenerTest {
       BackgroundMessage bm = new BackgroundMessage(null, "cwm", null, null, "chmaurer", Constants.SOURCE.APP);
 
       FileProcessingException fpe = new FileProcessingException("uh oh", Collections.singletonList("file.txt"));
-      Mockito.when(deptRouter.processFiles(any(), any(), any())).thenThrow(fpe);
+      Mockito.when(deptRouter.processFiles(any(), any(), any(), true, null, true)).thenThrow(fpe);
 
       LmsBatchEmail lbe = new LmsBatchEmail();
       lbe.setGroupCode("cwm");
