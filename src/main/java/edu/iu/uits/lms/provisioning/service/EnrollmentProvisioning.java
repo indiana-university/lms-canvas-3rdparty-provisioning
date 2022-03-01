@@ -94,7 +94,7 @@ public class EnrollmentProvisioning {
      * @param emailMessage
      * @return
      */
-    private List<String[]> processInputFiles(StringArrayFileContent fileToProcess, StringBuilder emailMessage, boolean allowSis, List<String> authorizedAccounts, boolean overrideRestrictions) {
+    private List<String[]> processInputFiles(StringArrayFileContent fileToProcess, StringBuilder emailMessage, boolean allowSisEnrollments, List<String> authorizedAccounts, boolean overrideRestrictions) {
         List<String[]> stringArray = new ArrayList<>();
 
         int successCount = 0;
@@ -125,7 +125,7 @@ public class EnrollmentProvisioning {
                 String status = lineContentArray[4];
 
                 // if overrideRestrictions OR allowSis is true, skip the SIS checks
-                boolean doSisCheck = !overrideRestrictions && !allowSis;
+                boolean doSisCheck = !overrideRestrictions && !allowSisEnrollments;
 
                 // check existing maps to see if we've looked up this info previously and
                 if (doSisCheck) {

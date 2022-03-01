@@ -57,7 +57,7 @@ public class BackgroundMessageListener {
       MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> postProcessingDataMap = new ArrayListValuedHashMap<>();
 
       DeptProvisioningUser user = deptProvisioningUserApi.findByUsername(message.getUsername());
-      boolean allowSis = user.getAllowSis();
+      boolean allowSisEnrollments = user.getAllowSisEnrollments();
       boolean overrideRestrictions = user.getOverrideRestrictions();
       List<String> authorizedAccounts = new ArrayList<>();
       String authorizedAccountString = user.getAuthorizedAccounts();
@@ -71,7 +71,7 @@ public class BackgroundMessageListener {
       }
 
       try {
-         List<ProvisioningResult> provisioningResults = deptRouter.processFiles(message.getDepartment(), message.getFilesByType(), message.getNotificationForm(), allowSis, authorizedAccounts, overrideRestrictions);
+         List<ProvisioningResult> provisioningResults = deptRouter.processFiles(message.getDepartment(), message.getFilesByType(), message.getNotificationForm(), allowSisEnrollments, authorizedAccounts, overrideRestrictions);
 
          List<ProvisioningResult.FileObject> allFiles = new ArrayList<>();
          StringBuilder fullEmail = new StringBuilder();

@@ -145,7 +145,24 @@ public class SectionProvisioning {
 
             boolean isAccountAuthorized = false;
 
-            if (authorizedAccounts.contains("ALL")) {
+            // check existing maps to see if we've looked up this info previously and deal with it as appropriate
+            if (accountChecksMap.containsKey(courseId)) {
+               if (accountChecksMap.get(courseId)) {
+                  // we've checked this course's account before and verified, so let's set overrideRestrictions to true to bypass the accounts check
+                  overrideRestrictions = true;
+               } else {
+                  // account for course 'false', so skip this line since we know it's not ok to use
+                  log.debug("Skipped " + rowCounter + " because user is not authorized to this account and we already checked.");
+                  errorMessage.append("\tLine " + rowCounter + " is in a node that your account is not allowed to make changes.\r\n");
+                  continue;
+               }
+            }
+
+            // if we made it here, this is a first time account lookup
+            if (overrideRestrictions) {
+               // this only matters
+               isAccountAuthorized = true;
+            } else if (authorizedAccounts.contains("ALL")) {
                // have authority for all nodes, so set the boolean
                isAccountAuthorized = true;
             } else {
@@ -153,10 +170,12 @@ public class SectionProvisioning {
                if (course == null) {
                   // course does not exist in Canvas yet, so give this a pass and assume it's cool
                   isAccountAuthorized = true;
+                  accountChecksMap.put(courseId, true);
                } else {
                   Account courseAccount = accountsApi.getAccount(course.getAccountId());
                   if (authorizedAccounts.contains(courseAccount.getName())) {
                      isAccountAuthorized = true;
+                     accountChecksMap.put(courseId, true);
                   } else {
                      // get the parent account names
                      List<String> parentAccountNames = accountsApi.getParentAccounts(courseAccount.getId())
@@ -165,8 +184,14 @@ public class SectionProvisioning {
                      for (String authorizedAccount : authorizedAccounts) {
                         if (parentAccountNames.contains(authorizedAccount)) {
                            isAccountAuthorized = true;
+                           accountChecksMap.put(courseId, true);
                            break;
                         }
+                     }
+
+                     // if we made it to here, this course does not have an authorized account. Add to map for check in future lines.
+                     if (!isAccountAuthorized) {
+                        accountChecksMap.put(courseId, false);
                      }
                   }
                }

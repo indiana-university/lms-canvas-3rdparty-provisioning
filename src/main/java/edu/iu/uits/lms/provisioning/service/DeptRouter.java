@@ -91,7 +91,7 @@ public class DeptRouter {
    @Autowired
    private ArchiveRepository archiveRepository;
 
-   public List<ProvisioningResult> processFiles(String dept, MultiValuedMap<CSV_TYPES, FileContent> filesByType, NotificationForm notificationForm, boolean allowSis, List<String> authorizedAccounts, boolean overrideRestrictions) throws FileProcessingException {
+   public List<ProvisioningResult> processFiles(String dept, MultiValuedMap<CSV_TYPES, FileContent> filesByType, NotificationForm notificationForm, boolean allowSisEnrollments, List<String> authorizedAccounts, boolean overrideRestrictions) throws FileProcessingException {
       Collection<FileContent> userFiles = filesByType.get(CSV_TYPES.USERS);
       Collection<FileContent> courseFiles = filesByType.get(CSV_TYPES.COURSES);
       Collection<FileContent> enrollmentFiles = filesByType.get(CSV_TYPES.ENROLLMENTS);
@@ -104,7 +104,7 @@ public class DeptRouter {
       allPrs.addAll(userProvisioning.processUsers(userFiles, new CustomNotificationBuilder(notificationForm), dept));
 
       allPrs.addAll(courseProvisioning.processCourses(courseFiles, authorizedAccounts, overrideRestrictions));
-      allPrs.addAll(enrollmentProvisioning.processEnrollments(enrollmentFiles, allowSis, authorizedAccounts, overrideRestrictions));
+      allPrs.addAll(enrollmentProvisioning.processEnrollments(enrollmentFiles, allowSisEnrollments, authorizedAccounts, overrideRestrictions));
       allPrs.addAll(sectionProvisioning.processSections(sectionFiles, authorizedAccounts, overrideRestrictions));
 
       //Defer processing of expand enrollments if there were user files provided
