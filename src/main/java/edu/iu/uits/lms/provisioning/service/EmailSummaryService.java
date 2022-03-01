@@ -185,7 +185,7 @@ public class EmailSummaryService {
          if (postProcessingData != null) {
             emailMessage.append("\r\nPost processing results:\r\n");
             try {
-               List<ProvisioningResult> provisioningResults = deptRouter.processFiles(cio.getGroupCode(), postProcessingData, null);
+               List<ProvisioningResult> provisioningResults = deptRouter.processFiles(cio.getGroupCode(), postProcessingData, null, true, null, true);
                for (ProvisioningResult provisioningResult : provisioningResults) {
                   emailMessage.append(provisioningResult.getEmailMessage() + "\r\n");
                }
