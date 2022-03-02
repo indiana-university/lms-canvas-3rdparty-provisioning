@@ -80,7 +80,10 @@ public class BackgroundMessageListener {
       String authorizedAccountString = user.getAuthorizedAccounts();
 
       if (authorizedAccountString != null) {
-         String[] authorizedAccountArray = authorizedAccountString.split(",");
+         String[] authorizedAccountArray = Arrays.stream(authorizedAccountString.split(","))
+                 .map(String::trim)
+                 .toArray(String[]::new);
+
          if (authorizedAccountArray.length > 0) {
             // convert the string array to a list
             authorizedAccounts = Arrays.asList(authorizedAccountArray);
