@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RabbitListener(queues = "${deptprov.backgroundQueueName}")
 @Profile("!batch")
@@ -80,14 +81,9 @@ public class BackgroundMessageListener {
       String authorizedAccountString = user.getAuthorizedAccounts();
 
       if (authorizedAccountString != null) {
-         String[] authorizedAccountArray = Arrays.stream(authorizedAccountString.split(","))
+         authorizedAccounts = Arrays.stream(authorizedAccountString.split(","))
                  .map(String::trim)
-                 .toArray(String[]::new);
-
-         if (authorizedAccountArray.length > 0) {
-            // convert the string array to a list
-            authorizedAccounts = Arrays.asList(authorizedAccountArray);
-         }
+                 .collect(Collectors.toList());
       }
 
       try {
