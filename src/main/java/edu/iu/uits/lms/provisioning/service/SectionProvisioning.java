@@ -82,7 +82,7 @@ public class SectionProvisioning {
             // courseId is always the second entry in the section.csv
             String courseId = lineContentArray[1];
 
-            // if overrideRestrictions OR allowSis is true, skip the SIS checks
+            // set SIS checks should happen until proven otherwise
             boolean doSisCheck = true;
 
             if (sisCourses.containsKey(courseId)) {
@@ -144,12 +144,13 @@ public class SectionProvisioning {
             sisSections.put(sectionId, true);
 
             boolean isAccountAuthorized = false;
+            boolean accountPreviouslyAuthorized = false;
 
             // check existing maps to see if we've looked up this info previously and deal with it as appropriate
             if (accountChecksMap.containsKey(courseId)) {
                if (accountChecksMap.get(courseId)) {
-                  // we've checked this course's account before and verified, so let's set overrideRestrictions to true to bypass the accounts check
-                  overrideRestrictions = true;
+                  // we've checked this course's account before and verified, so let's set accountPreviouslyAuthorized to true to bypass the accounts check
+                  accountPreviouslyAuthorized = true;
                } else {
                   // account for course 'false', so skip this line since we know it's not ok to use
                   log.debug("Skipped " + rowCounter + " because user is not authorized to this account and we already checked.");
@@ -159,8 +160,7 @@ public class SectionProvisioning {
             }
 
             // if we made it here, this is a first time account lookup
-            if (overrideRestrictions) {
-               // this only matters
+            if (overrideRestrictions || accountPreviouslyAuthorized) {
                isAccountAuthorized = true;
             } else if (authorizedAccounts.contains("ALL")) {
                // have authority for all nodes, so set the boolean
