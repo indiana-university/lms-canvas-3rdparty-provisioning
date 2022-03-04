@@ -200,12 +200,13 @@ public class EnrollmentProvisioning {
                 sisSections.put(sectionId, true);
 
                 boolean isAccountAuthorized = false;
+                boolean accountPreviouslyAuthorized = false;
 
                 // check existing maps to see if we've looked up this info previously and deal with it as appropriate
                 if (accountChecksMap.containsKey(courseId)) {
                     if (accountChecksMap.get(courseId)) {
-                        // we've checked this course's account before and verified, so let's set overrideRestrictions to true to bypass the accounts check
-                        overrideRestrictions = true;
+                        // we've checked this course's account before and verified, so let's set accountPreviouslyAuthorized to true to bypass the accounts check
+                        accountPreviouslyAuthorized = true;
                     } else {
                         // account for course 'false', so skip this line since we know it's not ok to use
                         log.debug("Skipped " + emailOrUserId + " because we know they're not authorized from a previous lookup.");
@@ -217,31 +218,26 @@ public class EnrollmentProvisioning {
                 }
 
                 // if we made it here, this is a first time account lookup
-                if (overrideRestrictions) {
+                if (overrideRestrictions || accountPreviouslyAuthorized) {
                     isAccountAuthorized = true;
-                    log.debug(totalCount + "override true");
                 } else if (authorizedAccounts.contains("ALL")) {
                     isAccountAuthorized = true;
-                    log.debug(totalCount + "accounts is all");
                 } else {
                     Course course = coursesApi.getCourse("sis_course_id:" + courseId);
                     if (course == null) {
                         // no course exists, so assuming new entry and letting Canvas deal with it
                         isAccountAuthorized = true;
-                        log.debug(totalCount + " course is null");
                         accountChecksMap.put(courseId, true);
                     } else {
                         Account courseAccount = accountsApi.getAccount(course.getAccountId());
                         if (authorizedAccounts.contains(courseAccount.getName())) {
                             isAccountAuthorized = true;
-                            log.debug(totalCount + " accounts match");
                             accountChecksMap.put(courseId, true);
                         } else {
                             // course exists, so do checks to see the user is allowed in the node
                             String accountId = course.getAccountId();
                             List<String> parentAccountNames = accountsApi.getParentAccounts(accountId)
                                     .stream().map(parentNames -> parentNames.getName()).collect(Collectors.toList());
-                            log.debug(totalCount + "looked up parents");
 
                             for (String authorizedAccount : authorizedAccounts) {
                                 if (parentAccountNames.contains(authorizedAccount)) {

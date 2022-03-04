@@ -115,7 +115,7 @@ public class CourseProvisioning {
                 // check existing maps to see if we've looked up this info previously and deal with it as appropriate
                 if (accountChecksMap.containsKey(account)) {
                     if (accountChecksMap.get(account)) {
-                        // we've checked this course's account before and verified it is cool, so let's set overrideRestrictions to true to bypass the accounts check
+                        // we've checked this course's account before and verified it is cool, so let's set isAccountAuthorized to true to bypass the accounts check
                         log.debug("Already verfied " + account + " check because we already verified it as good.");
                         isAccountAuthorized = true;
                     } else {
