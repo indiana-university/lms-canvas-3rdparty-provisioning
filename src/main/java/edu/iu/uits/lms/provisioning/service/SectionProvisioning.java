@@ -43,6 +43,7 @@ public class SectionProvisioning {
       Map<String, Boolean> sisCourses = new HashMap<>();
       Map<String, Boolean> sisSections = new HashMap<>();
       Map<String, Boolean> accountChecksMap = new HashMap<>();
+      Map<String, String> courseAndAccountTrackerMap = new HashMap<>();
 
       for (FileContent file : fileToProcess) {
          // read individual files line by line
@@ -64,7 +65,7 @@ public class SectionProvisioning {
             int lineLength = lineContentArray.length;
 
             if (lineLength != headerLength) {
-               errorMessage.append("\tLine " + rowCounter + " did not match the amount of fields specified in the header. Skipping. Double check the amount of commas and try again.\r\n");
+               errorMessage.append("\tLine " + rowCounter + ": Row did not match the amount of fields specified in the header. Skipping. Double check the amount of commas and try again.\r\n");
                continue;
             }
 
@@ -93,7 +94,7 @@ public class SectionProvisioning {
                } else {
                   // confirmed course is 'false', so skip this line since we know it's not ok to use
                   log.debug("Skipped " + rowCounter + " because it is a SIS course and we already checked.");
-                  errorMessage.append("\tLine " + rowCounter + " is a SIS course and your account is not allowed to make changes to SIS courses.\r\n");
+                  errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                   continue;
                }
             }
@@ -106,7 +107,7 @@ public class SectionProvisioning {
                } else {
                   // confirmed section is 'false', so skip this line since we know it's not ok to use
                   log.debug("Skipped " + rowCounter + " because it is a SIS section and we already checked.");
-                  errorMessage.append("\tLine " + rowCounter + " is a SIS section and your account is not allowed to make changes to SIS sections.\r\n");
+                  errorMessage.append("\tLine " + rowCounter + ": Section " + sectionId + " rejected. Not authorized for SIS changes.\r\n");
                   continue;
                }
             }
@@ -115,12 +116,12 @@ public class SectionProvisioning {
                // look up for SIS stuff
                if (sudsApi.getSudsCourseBySiteId(courseId) != null) {
                   log.debug("Skipped " + rowCounter + " because it is a SIS course and user did not have SIS permission.");
-                  errorMessage.append("\tLine " + rowCounter + " is a SIS course and your account is not allowed to make changes to SIS courses.\r\n");
+                  errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                   sisCourses.put(courseId, false);
                   continue;
                } else if (sudsApi.getSudsArchiveCourseBySiteId(courseId) != null) {
                   log.debug("Skipped " + rowCounter + " because it is an archived SIS course and user did not have SIS permission.");
-                  errorMessage.append("\tLine " + rowCounter + " is a SIS course and your account is not allowed to make changes to SIS courses.\r\n");
+                  errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                   sisCourses.put(courseId, false);
                   continue;
                }
@@ -128,12 +129,12 @@ public class SectionProvisioning {
                // look up for SIS stuff
                if (sudsApi.getSudsCourseBySiteId(sectionId) != null) {
                   log.debug("Skipped " + rowCounter + " because it is a SIS section and user did not have SIS permission.");
-                  errorMessage.append("\tLine " + rowCounter + " is a SIS section and your account is not allowed to make changes to SIS sections.\r\n");
+                  errorMessage.append("\tLine " + rowCounter + ": Section " + sectionId + " rejected. Not authorized for SIS changes.\r\n");
                   sisSections.put(sectionId, false);
                   continue;
                } else if (sudsApi.getSudsArchiveCourseBySiteId(sectionId) != null) {
                   log.debug("Skipped " + rowCounter + " because it is an archived SIS section and user did not have SIS permission.");
-                  errorMessage.append("\tLine " + rowCounter + " is a SIS section and your account is not allowed to make changes to SIS sections.\r\n");
+                  errorMessage.append("\tLine " + rowCounter + ": Section " + sectionId + " rejected. Not authorized for SIS changes.\r\n");
                   sisSections.put(sectionId, false);
                   continue;
                }
@@ -153,8 +154,9 @@ public class SectionProvisioning {
                   accountPreviouslyAuthorized = true;
                } else {
                   // account for course 'false', so skip this line since we know it's not ok to use
-                  log.debug("Skipped " + rowCounter + " because user is not authorized to this account and we already checked.");
-                  errorMessage.append("\tLine " + rowCounter + " is in a node that your account is not allowed to make changes.\r\n");
+                  String accountName = courseAndAccountTrackerMap.get(courseId);
+                  log.debug("Skipped " + rowCounter + " because user is not authorized to provision to " + accountName + ".");
+                  errorMessage.append("\tLine " + rowCounter + ": Section " + sectionId + " rejected. Not authorized to work in " + accountName + " subaccount.\r\n");
                   continue;
                }
             }
@@ -192,6 +194,7 @@ public class SectionProvisioning {
                      // if we made it to here, this course does not have an authorized account. Add to map for check in future lines.
                      if (!isAccountAuthorized) {
                         accountChecksMap.put(courseId, false);
+                        courseAndAccountTrackerMap.put(courseId, courseAccount.getName());
                      }
                   }
                }
@@ -203,8 +206,9 @@ public class SectionProvisioning {
                stringArrayList.add(lineContentArray);
                continue;
             } else {
-               log.debug("Skipped " + rowCounter + " because user is not authorized to provision to this account.");
-               errorMessage.append("\tLine " + rowCounter + " is in a node that your account is not allowed to make changes.\r\n");
+               String accountName = courseAndAccountTrackerMap.get(courseId);
+               log.debug("Skipped " + rowCounter + " because user is not authorized to provision to " + accountName + ".");
+               errorMessage.append("\tLine " + rowCounter + ": Section " + sectionId + " rejected. Not authorized to work in " + accountName + " subaccount.\r\n");
                continue;
             }
          }

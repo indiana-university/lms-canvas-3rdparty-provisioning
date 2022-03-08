@@ -100,14 +100,19 @@ public class EnrollmentProvisioning {
         int successCount = 0;
         int failureCount = 0;
         int totalCount = 0;
+        int rowCounter = 0;
 
         // read individual files line by line
         List <String[]> fileContents = fileToProcess.getContents();
         Map<String, Boolean> sisCourses = new HashMap<>();
         Map<String, Boolean> sisSections = new HashMap<>();
         Map<String, Boolean> accountChecksMap = new HashMap<>();
+        Map<String, String> courseAndAccountTrackerMap = new HashMap<>();
 
         for (String[] lineContentArray : fileContents) {
+            // increment the counter here and not several places
+            rowCounter++;
+
             int lineLength = lineContentArray.length;
             if (lineLength == 5 || lineLength == 6) {
                 // check to see if this is a header line
@@ -135,10 +140,10 @@ public class EnrollmentProvisioning {
                             doSisCheck = false;
                         } else {
                             // confirmed course is 'false', so skip this line since we know it's not ok to use
-                            log.warn("Skipped " + courseId + " because it is a SIS course and we already checked.");
+                            log.warn("Skipped " + emailOrUserId + " because it is in a SIS course and we already checked.");
                             failureCount++;
                             totalCount++;
-                            emailMessage.append("\t" + courseId + " is a SIS course and your account is not allowed to make changes to SIS sections.\r\n");
+                            emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                             continue;
                         }
                     }
@@ -149,10 +154,10 @@ public class EnrollmentProvisioning {
                             doSisCheck = false;
                         } else {
                             // confirmed section is 'false', so skip this line since we know it's not ok to use
-                            log.warn("Skipped " + courseId + " because it is a SIS section and we already checked.");
+                            log.warn("Skipped " + emailOrUserId + " because it is in a SIS section and we already checked.");
                             failureCount++;
                             totalCount++;
-                            emailMessage.append("\t" + sectionId + " is a SIS section and your account is not allowed to make changes to SIS sections.\r\n");
+                            emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                             continue;
                         }
                     }
@@ -162,34 +167,34 @@ public class EnrollmentProvisioning {
                 if (doSisCheck) {
                     // look up for SIS stuff
                     if (sudsApi.getSudsCourseBySiteId(courseId) != null) {
-                        log.warn("Skipped " + courseId + " because it is a SIS course and user did not have SIS permission.");
+                        log.warn("Skipped " + emailOrUserId + " because it is in a SIS course and user did not have SIS permission.");
                         failureCount++;
                         totalCount++;
-                        emailMessage.append("\t" + courseId + " is a SIS course and your account is not allowed to make changes to SIS sections.\r\n");
+                        emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                         sisCourses.put(courseId, false);
                         continue;
                     } else if (sudsApi.getSudsArchiveCourseBySiteId(courseId) != null) {
-                        log.warn("Skipped " + courseId + " because it is an archived SIS course and user did not have SIS permission.");
+                        log.warn("Skipped " + emailOrUserId + " because it is in an archived SIS course and user did not have SIS permission.");
                         failureCount++;
                         totalCount++;
-                        emailMessage.append("\t" + courseId + " is a SIS course and your account is not allowed to make changes to SIS sections.\r\n");
+                        emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                         sisCourses.put(courseId, false);
                         continue;
                     }
 
                     // look up for SIS stuff
                     if (sudsApi.getSudsCourseBySiteId(sectionId) != null) {
-                        log.warn("Skipped " + sectionId + " because it is an archived SIS section and user did not have SIS permission.");
+                        log.warn("Skipped " + emailOrUserId + " because it is in an archived SIS section and user did not have SIS permission.");
                         failureCount++;
                         totalCount++;
-                        emailMessage.append("\t" + sectionId + " is a SIS section and your account is not allowed to make changes to SIS sections.\r\n");
+                        emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                         sisSections.put(sectionId, false);
                         continue;
                     } else if (sudsApi.getSudsArchiveCourseBySiteId(sectionId) != null) {
-                        log.warn("Skipped " + sectionId + " because it is an archived SIS section and user did not have SIS permission.");
+                        log.warn("Skipped " + emailOrUserId + " because it is in an archived SIS section and user did not have SIS permission.");
                         failureCount++;
                         totalCount++;
-                        emailMessage.append("\t" + sectionId + " is a SIS section and your account is not allowed to make changes to SIS sections.\r\n");
+                        emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                         sisSections.put(sectionId, false);
                         continue;
                     }
@@ -209,8 +214,9 @@ public class EnrollmentProvisioning {
                         accountPreviouslyAuthorized = true;
                     } else {
                         // account for course 'false', so skip this line since we know it's not ok to use
+                        String accountName = courseAndAccountTrackerMap.get(courseId);
                         log.debug("Skipped " + emailOrUserId + " because we know they're not authorized from a previous lookup.");
-                        emailMessage.append("\t" + emailOrUserId + " is in a node that your account is not allowed to make changes.\r\n");
+                        emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized to work in " + accountName + " subaccount.\r\n");
                         failureCount++;
                         totalCount++;
                         continue;
@@ -242,7 +248,6 @@ public class EnrollmentProvisioning {
                             for (String authorizedAccount : authorizedAccounts) {
                                 if (parentAccountNames.contains(authorizedAccount)) {
                                     isAccountAuthorized = true;
-                                    log.info(totalCount + "authorized accounts");
                                     accountChecksMap.put(courseId, true);
                                     break;
                                 }
@@ -251,6 +256,7 @@ public class EnrollmentProvisioning {
                             // if we made it to here, this course does not have an authorized account. Add to map for check in future lines.
                             if (!isAccountAuthorized) {
                                 accountChecksMap.put(courseId, false);
+                                courseAndAccountTrackerMap.put(courseId, courseAccount.getName());
                             }
                         }
                     }
@@ -316,7 +322,7 @@ public class EnrollmentProvisioning {
                                     log.warn("Could not find emplId for: '" + emailOrUserId + "'");
                                     failureCount++;
                                     totalCount++;
-                                    emailMessage.append("\t" + emailOrUserId + " - no emplId found\r\n");
+                                    emailMessage.append("\tLine " + rowCounter + ": no emplId found for " + emailOrUserId + "\r\n");
                                     continue;
                                 }
                             }
@@ -329,8 +335,9 @@ public class EnrollmentProvisioning {
                         successCount++;
                     }
                 } else {
+                    String accountName = courseAndAccountTrackerMap.get(courseId);
                     log.debug("Skipped " + emailOrUserId + " because provisioning user is not authorized to provision to this account.");
-                    emailMessage.append("\t" + emailOrUserId + " is in a node that your account is not allowed to make changes.\r\n");
+                    emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized to work in " + accountName + " subaccount.\r\n");
                     failureCount++;
                     totalCount++;
                     continue;

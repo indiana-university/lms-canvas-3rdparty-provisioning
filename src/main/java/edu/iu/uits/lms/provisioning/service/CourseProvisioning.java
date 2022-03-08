@@ -61,7 +61,7 @@ public class CourseProvisioning {
                 int lineLength = lineContentArray.length;
 
                 if (lineLength != headerLength) {
-                    errorMessage.append("\tLine " + rowCounter + " did not match the amount of fields specified in the header. Skipping. Double check the amount of commas and try again.\r\n");
+                    errorMessage.append("\tLine " + rowCounter + ": Row did not match the amount of fields specified in the header. Skipping. Double check the amount of commas and try again.\r\n");
                     continue;
                 }
 
@@ -85,7 +85,7 @@ public class CourseProvisioning {
                     } else {
                         // confirmed course is 'false', so skip this line since we know it's not ok to use
                         log.debug("Skipped " + rowCounter + " because it is a SIS course and we already checked.");
-                        errorMessage.append("\tLine " + rowCounter + " is a SIS course and your account is not allowed to make changes to SIS courses.\r\n");
+                        errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                         continue;
                     }
                 }
@@ -94,12 +94,12 @@ public class CourseProvisioning {
                 if (doSisCheck) {
                     if (sudsApi.getSudsCourseBySiteId(courseId) != null) {
                         log.debug("Skipped " + rowCounter + " because it is a SIS course and user did not have SIS permission.");
-                        errorMessage.append("\tLine " + rowCounter + " is a SIS course and your account is not allowed to make changes to SIS courses.\r\n");
+                        errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                         sisCourses.put(courseId, false);
                         continue;
                     } else if (sudsApi.getSudsArchiveCourseBySiteId(courseId) != null) {
                         log.debug("Skipped " + rowCounter + " because it is an archived SIS course and user did not have SIS permission.");
-                        errorMessage.append("\tLine " + rowCounter + " is a SIS course and your account is not allowed to make changes to SIS courses.\r\n");
+                        errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                         sisCourses.put(courseId, false);
                         continue;
                     }
@@ -116,12 +116,12 @@ public class CourseProvisioning {
                 if (accountChecksMap.containsKey(account)) {
                     if (accountChecksMap.get(account)) {
                         // we've checked this course's account before and verified it is cool, so let's set isAccountAuthorized to true to bypass the accounts check
-                        log.debug("Already verfied " + account + " check because we already verified it as good.");
+                        log.debug("Already verified " + account + " check because we already verified it as good.");
                         isAccountAuthorized = true;
                     } else {
                         // account for course 'false', so skip this line since we know it's not ok to use
                         log.debug("Skipped " + rowCounter + " because user is not authorized to provision to this account and was previously checked.");
-                        errorMessage.append("\tLine " + rowCounter + " is in a node that your account is not allowed to make changes.\r\n");
+                        errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized to work in " + account + " subaccount.\r\n");
                         continue;
                     }
                 }
@@ -163,7 +163,7 @@ public class CourseProvisioning {
                     continue;
                 } else {
                     log.debug("Skipped " + rowCounter + " because user is not authorized to provision to this account.");
-                    errorMessage.append("\tLine " + rowCounter + " is in a node that your account is not allowed to make changes.\r\n");
+                    errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized to work in " + account + " subaccount.\r\n");
                     continue;
                 }
             }
