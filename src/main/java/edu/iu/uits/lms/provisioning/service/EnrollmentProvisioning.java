@@ -97,9 +97,8 @@ public class EnrollmentProvisioning {
     private List<String[]> processInputFiles(StringArrayFileContent fileToProcess, StringBuilder emailMessage, boolean allowSisEnrollments, List<String> authorizedAccounts, boolean overrideRestrictions) {
         List<String[]> stringArray = new ArrayList<>();
 
-        int successCount = 0;
-        int failureCount = 0;
-        int totalCount = 0;
+        int rejected = 0;
+        int success = 0;
         int rowCounter = 0;
 
         // read individual files line by line
@@ -141,8 +140,7 @@ public class EnrollmentProvisioning {
                         } else {
                             // confirmed course is 'false', so skip this line since we know it's not ok to use
                             log.warn("Skipped " + emailOrUserId + " because it is in a SIS course and we already checked.");
-                            failureCount++;
-                            totalCount++;
+                            rejected++;
                             emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                             continue;
                         }
@@ -155,8 +153,7 @@ public class EnrollmentProvisioning {
                         } else {
                             // confirmed section is 'false', so skip this line since we know it's not ok to use
                             log.warn("Skipped " + emailOrUserId + " because it is in a SIS section and we already checked.");
-                            failureCount++;
-                            totalCount++;
+                            rejected++;
                             emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                             continue;
                         }
@@ -168,15 +165,13 @@ public class EnrollmentProvisioning {
                     // look up for SIS stuff
                     if (sudsApi.getSudsCourseBySiteId(courseId) != null) {
                         log.warn("Skipped " + emailOrUserId + " because it is in a SIS course and user did not have SIS permission.");
-                        failureCount++;
-                        totalCount++;
+                        rejected++;
                         emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                         sisCourses.put(courseId, false);
                         continue;
                     } else if (sudsApi.getSudsArchiveCourseBySiteId(courseId) != null) {
                         log.warn("Skipped " + emailOrUserId + " because it is in an archived SIS course and user did not have SIS permission.");
-                        failureCount++;
-                        totalCount++;
+                        rejected++;
                         emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                         sisCourses.put(courseId, false);
                         continue;
@@ -185,15 +180,13 @@ public class EnrollmentProvisioning {
                     // look up for SIS stuff
                     if (sudsApi.getSudsCourseBySiteId(sectionId) != null) {
                         log.warn("Skipped " + emailOrUserId + " because it is in an archived SIS section and user did not have SIS permission.");
-                        failureCount++;
-                        totalCount++;
+                        rejected++;
                         emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                         sisSections.put(sectionId, false);
                         continue;
                     } else if (sudsApi.getSudsArchiveCourseBySiteId(sectionId) != null) {
                         log.warn("Skipped " + emailOrUserId + " because it is in an archived SIS section and user did not have SIS permission.");
-                        failureCount++;
-                        totalCount++;
+                        rejected++;
                         emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                         sisSections.put(sectionId, false);
                         continue;
@@ -217,8 +210,7 @@ public class EnrollmentProvisioning {
                         String accountName = courseAndAccountTrackerMap.get(courseId);
                         log.debug("Skipped " + emailOrUserId + " because we know they're not authorized from a previous lookup.");
                         emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized to work in " + accountName + " subaccount.\r\n");
-                        failureCount++;
-                        totalCount++;
+                        rejected++;
                         continue;
                     }
                 }
@@ -280,7 +272,7 @@ public class EnrollmentProvisioning {
                         String[] lineToRewrite = {courseId,emailOrUserId,role,sectionId,status,sectionLimit};
                         // add the object to our list of users to send to Canvas
                         stringArray.add(lineToRewrite);
-                        successCount++;
+                        success++;
                     } else {
                         // Not a valid email address, so treat it as a normal IU account or emplId
                         // default to true, unless csv specifies or is a teacher
@@ -320,8 +312,7 @@ public class EnrollmentProvisioning {
 
                                 if (emplId.isEmpty()) {
                                     log.warn("Could not find emplId for: '" + emailOrUserId + "'");
-                                    failureCount++;
-                                    totalCount++;
+                                    rejected++;
                                     emailMessage.append("\tLine " + rowCounter + ": no emplId found for " + emailOrUserId + "\r\n");
                                     continue;
                                 }
@@ -332,22 +323,21 @@ public class EnrollmentProvisioning {
 
                         // add the object to our list of users to send to Canvas
                         stringArray.add(lineToRewrite);
-                        successCount++;
+                        success++;
                     }
                 } else {
                     String accountName = courseAndAccountTrackerMap.get(courseId);
                     log.debug("Skipped " + emailOrUserId + " because provisioning user is not authorized to provision to this account.");
                     emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized to work in " + accountName + " subaccount.\r\n");
-                    failureCount++;
-                    totalCount++;
+                    rejected++;
                     continue;
                 }
             }
-            totalCount++;
         }
-        emailMessage.append("\tAccounts failed: " + failureCount + "\r\n");
-        emailMessage.append("\tAccounts successfully added to canvas enrollment provisioning csv: " + successCount + "\r\n");
-        emailMessage.append("\tTotal records processed: " + totalCount + "\r\n");
+        int total = rejected + success;
+        emailMessage.append("\tEnrollments rejected: " + rejected + "\r\n");
+        emailMessage.append("\tEnrollments sent to Canvas: " + success + "\r\n");
+        emailMessage.append("\tTotal enrollments processed: " + total + "\r\n");
 
         return stringArray;
     }

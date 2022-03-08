@@ -44,6 +44,8 @@ public class SectionProvisioning {
       Map<String, Boolean> sisSections = new HashMap<>();
       Map<String, Boolean> accountChecksMap = new HashMap<>();
       Map<String, String> courseAndAccountTrackerMap = new HashMap<>();
+      int rejected = 0;
+      int success = 0;
 
       for (FileContent file : fileToProcess) {
          // read individual files line by line
@@ -66,6 +68,7 @@ public class SectionProvisioning {
 
             if (lineLength != headerLength) {
                errorMessage.append("\tLine " + rowCounter + ": Row did not match the amount of fields specified in the header. Skipping. Double check the amount of commas and try again.\r\n");
+               rejected++;
                continue;
             }
 
@@ -74,6 +77,7 @@ public class SectionProvisioning {
                // Everything is cool, add it in!
                log.debug("Successfully added in row " + rowCounter);
                stringArrayList.add(lineContentArray);
+               success++;
                continue;
             }
 
@@ -95,6 +99,7 @@ public class SectionProvisioning {
                   // confirmed course is 'false', so skip this line since we know it's not ok to use
                   log.debug("Skipped " + rowCounter + " because it is a SIS course and we already checked.");
                   errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
+                  rejected++;
                   continue;
                }
             }
@@ -108,6 +113,7 @@ public class SectionProvisioning {
                   // confirmed section is 'false', so skip this line since we know it's not ok to use
                   log.debug("Skipped " + rowCounter + " because it is a SIS section and we already checked.");
                   errorMessage.append("\tLine " + rowCounter + ": Section " + sectionId + " rejected. Not authorized for SIS changes.\r\n");
+                  rejected++;
                   continue;
                }
             }
@@ -118,11 +124,13 @@ public class SectionProvisioning {
                   log.debug("Skipped " + rowCounter + " because it is a SIS course and user did not have SIS permission.");
                   errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                   sisCourses.put(courseId, false);
+                  rejected++;
                   continue;
                } else if (sudsApi.getSudsArchiveCourseBySiteId(courseId) != null) {
                   log.debug("Skipped " + rowCounter + " because it is an archived SIS course and user did not have SIS permission.");
                   errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                   sisCourses.put(courseId, false);
+                  rejected++;
                   continue;
                }
 
@@ -131,11 +139,13 @@ public class SectionProvisioning {
                   log.debug("Skipped " + rowCounter + " because it is a SIS section and user did not have SIS permission.");
                   errorMessage.append("\tLine " + rowCounter + ": Section " + sectionId + " rejected. Not authorized for SIS changes.\r\n");
                   sisSections.put(sectionId, false);
+                  rejected++;
                   continue;
                } else if (sudsApi.getSudsArchiveCourseBySiteId(sectionId) != null) {
                   log.debug("Skipped " + rowCounter + " because it is an archived SIS section and user did not have SIS permission.");
                   errorMessage.append("\tLine " + rowCounter + ": Section " + sectionId + " rejected. Not authorized for SIS changes.\r\n");
                   sisSections.put(sectionId, false);
+                  rejected++;
                   continue;
                }
             }
@@ -157,6 +167,7 @@ public class SectionProvisioning {
                   String accountName = courseAndAccountTrackerMap.get(courseId);
                   log.debug("Skipped " + rowCounter + " because user is not authorized to provision to " + accountName + ".");
                   errorMessage.append("\tLine " + rowCounter + ": Section " + sectionId + " rejected. Not authorized to work in " + accountName + " subaccount.\r\n");
+                  rejected++;
                   continue;
                }
             }
@@ -204,11 +215,13 @@ public class SectionProvisioning {
                // Everything is cool, add it in!
                log.debug("Successfully added in row " + rowCounter);
                stringArrayList.add(lineContentArray);
+               success++;
                continue;
             } else {
                String accountName = courseAndAccountTrackerMap.get(courseId);
                log.debug("Skipped " + rowCounter + " because user is not authorized to provision to " + accountName + ".");
                errorMessage.append("\tLine " + rowCounter + ": Section " + sectionId + " rejected. Not authorized to work in " + accountName + " subaccount.\r\n");
+               rejected++;
                continue;
             }
          }
@@ -219,12 +232,17 @@ public class SectionProvisioning {
          try {
             // Create csv file to send to Canvas
             fileBytes = csvService.writeCsvToBytes(stringArrayList, null);
+            int total = rejected + success;
 
             if (errorMessage.length() > 0) {
                finalMessage.append(errorMessage);
-               finalMessage.append("\tAll other entries were sent to Canvas.\r\n");
+               finalMessage.append("\tSections rejected: " + rejected + "\r\n");
+               finalMessage.append("\tSections sent to Canvas: " + success + "\r\n");
+               finalMessage.append("\tTotal sections processed: " + total + "\r\n");
             } else {
-               finalMessage.append("\tAll entries were sent to Canvas.\r\n");
+               finalMessage.append("\tSections rejected: " + rejected + "\r\n");
+               finalMessage.append("\tSections sent to Canvas: " + success + "\r\n");
+               finalMessage.append("\tTotal sections processed: " + total + "\r\n");
             }
          } catch (IOException e) {
             log.error("Error generating csv", e);
