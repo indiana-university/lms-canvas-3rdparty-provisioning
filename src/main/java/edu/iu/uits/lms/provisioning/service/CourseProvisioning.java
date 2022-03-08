@@ -41,6 +41,8 @@ public class CourseProvisioning {
         List<String[]> stringArrayList = new ArrayList<>();
         Map<String, Boolean> sisCourses = new HashMap<>();
         Map<String, Boolean> accountChecksMap = new HashMap<>();
+        int rejected = 0;
+        int success = 0;
 
         for (FileContent file : fileToProcess) {
             // read individual files line by line
@@ -62,6 +64,7 @@ public class CourseProvisioning {
 
                 if (lineLength != headerLength) {
                     errorMessage.append("\tLine " + rowCounter + ": Row did not match the amount of fields specified in the header. Skipping. Double check the amount of commas and try again.\r\n");
+                    rejected++;
                     continue;
                 }
 
@@ -73,6 +76,7 @@ public class CourseProvisioning {
                     // Everything is cool, add it in!
                     log.debug("Successfully added in row " + rowCounter);
                     stringArrayList.add(lineContentArray);
+                    success++;
                     continue;
                 }
 
@@ -86,6 +90,7 @@ public class CourseProvisioning {
                         // confirmed course is 'false', so skip this line since we know it's not ok to use
                         log.debug("Skipped " + rowCounter + " because it is a SIS course and we already checked.");
                         errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
+                        rejected++;
                         continue;
                     }
                 }
@@ -96,11 +101,13 @@ public class CourseProvisioning {
                         log.debug("Skipped " + rowCounter + " because it is a SIS course and user did not have SIS permission.");
                         errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                         sisCourses.put(courseId, false);
+                        rejected++;
                         continue;
                     } else if (sudsApi.getSudsArchiveCourseBySiteId(courseId) != null) {
                         log.debug("Skipped " + rowCounter + " because it is an archived SIS course and user did not have SIS permission.");
                         errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                         sisCourses.put(courseId, false);
+                        rejected++;
                         continue;
                     }
                 }
@@ -122,6 +129,7 @@ public class CourseProvisioning {
                         // account for course 'false', so skip this line since we know it's not ok to use
                         log.debug("Skipped " + rowCounter + " because user is not authorized to provision to this account and was previously checked.");
                         errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized to work in " + account + " subaccount.\r\n");
+                        rejected++;
                         continue;
                     }
                 }
@@ -160,10 +168,12 @@ public class CourseProvisioning {
                     // Everything is cool, add it in!
                     log.debug("Successfully added in row " + rowCounter);
                     stringArrayList.add(lineContentArray);
+                    success++;
                     continue;
                 } else {
                     log.debug("Skipped " + rowCounter + " because user is not authorized to provision to this account.");
                     errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized to work in " + account + " subaccount.\r\n");
+                    rejected++;
                     continue;
                 }
             }
@@ -174,12 +184,17 @@ public class CourseProvisioning {
             try {
                 // Create csv file to send to Canvas
                 fileBytes = csvService.writeCsvToBytes(stringArrayList, null);
+                int total = rejected + success;
 
                 if (errorMessage.length() > 0) {
                     finalMessage.append(errorMessage);
-                    finalMessage.append("\tAll other entries were sent to Canvas.\r\n");
+                    finalMessage.append("\tCourses rejected: " + rejected + "\r\n");
+                    finalMessage.append("\tCourses sent to Canvas: " + success + "\r\n");
+                    finalMessage.append("\tTotal courses processed: " + total + "\r\n");
                 } else {
-                    finalMessage.append("\tAll entries were sent to Canvas.\r\n");
+                    finalMessage.append("\tCourses rejected: " + rejected + "\r\n");
+                    finalMessage.append("\tCourses sent to Canvas: " + success + "\r\n");
+                    finalMessage.append("\tTotal courses processed: " + total + "\r\n");
                 }
             } catch (IOException e) {
                 log.error("Error generating csv", e);
