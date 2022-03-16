@@ -15,6 +15,8 @@ import edu.iu.uits.lms.provisioning.service.exception.ZipException;
 import email.client.generated.api.EmailApi;
 import email.client.generated.model.EmailDetails;
 import iuonly.client.generated.api.BatchEmailApi;
+import iuonly.client.generated.api.DeptProvisioningUserApi;
+import iuonly.client.generated.model.DeptProvisioningUser;
 import iuonly.client.generated.model.LmsBatchEmail;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -31,6 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RabbitListener(queues = "${deptprov.backgroundQueueName}")
 @Profile("!batch")
@@ -40,6 +43,9 @@ public class BackgroundMessageListener {
 
    @Autowired
    private DeptRouter deptRouter;
+
+   @Autowired
+   private DeptProvisioningUserApi deptProvisioningUserApi;
 
    @Autowired
    private CanvasImportIdRepository canvasImportIdRepository;
@@ -68,8 +74,20 @@ public class BackgroundMessageListener {
    public void handleMessage(BackgroundMessage message) {
       MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> postProcessingDataMap = new ArrayListValuedHashMap<>();
 
+      DeptProvisioningUser user = deptProvisioningUserApi.findByUsername(message.getUsername());
+      boolean allowSisEnrollments = user.getAllowSisEnrollments();
+      boolean overrideRestrictions = user.getOverrideRestrictions();
+      List<String> authorizedAccounts = new ArrayList<>();
+      String authorizedAccountString = user.getAuthorizedAccounts();
+
+      if (authorizedAccountString != null) {
+         authorizedAccounts = Arrays.stream(authorizedAccountString.split(","))
+                 .map(String::trim)
+                 .collect(Collectors.toList());
+      }
+
       try {
-         List<ProvisioningResult> provisioningResults = deptRouter.processFiles(message.getDepartment(), message.getFilesByType(), message.getNotificationForm());
+         List<ProvisioningResult> provisioningResults = deptRouter.processFiles(message.getDepartment(), message.getFilesByType(), message.getNotificationForm(), allowSisEnrollments, authorizedAccounts, overrideRestrictions);
 
          List<ProvisioningResult.FileObject> allFiles = new ArrayList<>();
          StringBuilder fullEmail = new StringBuilder();
