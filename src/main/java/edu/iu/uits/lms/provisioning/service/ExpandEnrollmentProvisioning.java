@@ -127,8 +127,9 @@ public class ExpandEnrollmentProvisioning {
                 processCounts.incrementSuccessCount();
             } else {
                 processCounts.incrementFailureCount();
-                emailMessage.append("\tCould not add enrollment for the csv supplied user id " + canvasUserId
-                      + ", listingId " + listingId + "\r\n");
+
+                emailMessage.append(String.format("\tAn error occurred while attempting to enroll user %s in Expand listing %s. ", canvasUserId, listingId) +
+                        "Double check the listing to make sure all required fields contain data and try to run the job again. If the problem persists, contact lmsreq@iu.edu for assistance.\r\n\r\n");
             }
 
         } else {
