@@ -1,8 +1,8 @@
 {
-  "title": "Google Course Tools",
-  "description": "Use Google at IU to share files and collaborate with your class",
-  "oidc_initiation_url": "http://localhost:8080/lti/login_initiation/lms_lti_gct",
-  "target_link_uri": "http://localhost:8080/app/loading",
+  "title": "Canvas and Expand Provisioning",
+  "description": "LTI tool which allows department representatives to provision their own enrollments into Canvas",
+  "oidc_initiation_url": "http://localhost:8080/lti/login_initiation/lms_lti_3rdpartyprovisioning",
+  "target_link_uri": "http://localhost:8080/app/index",
   "extensions": [
     {
       "domain": "localhost",
@@ -21,7 +21,7 @@
   ],
   "public_jwk_url": "http://localhost:8080/.well-known/jwks.json",
   "custom_fields": {
-    "canvas_membership_roles": "$Canvas.membership.roles",
+    "instructure_membership_roles": "$com.Instructure.membership.roles",
     "canvas_course_id": "$Canvas.course.id",
     "canvas_user_login_id": "$Canvas.user.loginId"
   }
