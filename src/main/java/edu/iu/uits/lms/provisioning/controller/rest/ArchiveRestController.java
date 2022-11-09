@@ -2,7 +2,8 @@ package edu.iu.uits.lms.provisioning.controller.rest;
 
 import edu.iu.uits.lms.provisioning.model.DeptProvArchive;
 import edu.iu.uits.lms.provisioning.repository.ArchiveRepository;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -22,13 +23,14 @@ import java.io.ByteArrayInputStream;
 @RestController
 @RequestMapping("/rest/archive")
 @Slf4j
-@Api(tags = "archive")
+@Tag(name = "ArchiveRestController", description = "Interact with the DeptProvArchive repository to get archive details, and download files")
 public class ArchiveRestController {
 
    @Autowired
    private ArchiveRepository archiveRepository = null;
 
    @GetMapping("/{id}")
+   @Operation(summary = "Get a DeptProvArchive by id")
    public DeptProvArchive get(@PathVariable Long id) {
       DeptProvArchive deptProvArchive = archiveRepository.findById(id).orElse(null);
       if (deptProvArchive != null) {
@@ -39,6 +41,7 @@ public class ArchiveRestController {
    }
 
    @GetMapping("/importId/{id}")
+   @Operation(summary = "Get a DeptProvArchive by Canvas Import id")
    public DeptProvArchive getByImport(@PathVariable String id) {
       DeptProvArchive deptProvArchive = archiveRepository.findByCanvasImportId(id);
       if (deptProvArchive != null) {
@@ -49,6 +52,7 @@ public class ArchiveRestController {
    }
 
    @GetMapping(value = "/download/{id}/original", produces = "application/zip")
+   @Operation(summary = "Download a zip with the original upload files by id")
    public ResponseEntity downloadOriginal(@PathVariable(name = "id") Long id) {
       DeptProvArchive archive = archiveRepository.findById(id).orElse(null);
 
@@ -59,6 +63,7 @@ public class ArchiveRestController {
    }
 
    @GetMapping(value = "/download/{id}/canvas", produces = "application/zip")
+   @Operation(summary = "Download a zip with the transformed files that were sent to Canvas by id")
    public ResponseEntity downloadCanvas(@PathVariable(name = "id") Long id) {
       DeptProvArchive archive = archiveRepository.findById(id).orElse(null);
 
@@ -84,6 +89,7 @@ public class ArchiveRestController {
    }
 
    @DeleteMapping("/{id}")
+   @Operation(summary = "Delete a zDeptProvArchive by id")
    public String delete(@PathVariable Long id) {
       archiveRepository.deleteById(id);
       return "Delete success.";

@@ -1,25 +1,22 @@
 package edu.iu.uits.lms.provisioning.service;
 
-import canvas.client.generated.api.CanvasApi;
-import canvas.client.generated.api.ImportApi;
-import canvas.client.generated.model.CanvasUploadStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.iu.uits.lms.canvas.model.uploadstatus.CanvasUploadStatus;
+import edu.iu.uits.lms.canvas.services.CanvasService;
+import edu.iu.uits.lms.canvas.services.ImportService;
+import edu.iu.uits.lms.email.service.EmailService;
+import edu.iu.uits.lms.iuonly.services.BatchEmailServiceImpl;
 import edu.iu.uits.lms.provisioning.config.ToolConfig;
 import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
-import email.client.generated.api.EmailApi;
-import iuonly.client.generated.api.BatchEmailApi;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +28,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @Slf4j
-@RunWith(SpringRunner.class)
+@SpringBootTest(classes = EmailSummaryService.class)
 public class EmailSummaryServiceTest {
 
    @Autowired
@@ -41,16 +38,16 @@ public class EmailSummaryServiceTest {
    private CanvasImportIdRepository canvasImportIdRepository;
 
    @MockBean
-   private EmailApi emailApi;
+   private EmailService emailService;
 
    @MockBean
-   private BatchEmailApi batchEmailApi;
+   private BatchEmailServiceImpl batchEmailService;
 
    @MockBean
-   private ImportApi importApi;
+   private ImportService importService;
 
    @MockBean
-   private CanvasApi canvasApi;
+   private CanvasService canvasService;
 
    @MockBean
    private DeptRouter deptRouter;
@@ -58,17 +55,9 @@ public class EmailSummaryServiceTest {
    @MockBean
    private ToolConfig toolConfig;
 
-   @TestConfiguration
-   static class TestContextConfiguration {
-      @Bean
-      public EmailSummaryService emailSummaryService() {
-         return new EmailSummaryService();
-      }
-   }
-
-   @Before
+   @BeforeEach
    public void setUp() throws Exception {
-      when(canvasApi.getBaseUrl()).thenReturn("foo.bar");
+      when(canvasService.getBaseUrl()).thenReturn("foo.bar");
    }
 
    @Test
@@ -98,7 +87,7 @@ public class EmailSummaryServiceTest {
 
    private void testProcessImport(String jsonFile, String emailFile) throws Exception {
       CanvasUploadStatus canvasUploadStatus = loadData(jsonFile);
-      when(importApi.getImportStatus(anyString())).thenReturn(canvasUploadStatus);
+      when(importService.getImportStatus(anyString())).thenReturn(canvasUploadStatus);
       EmailSummaryService.CanvasImportObject cio = new EmailSummaryService.CanvasImportObject();
       StringBuilder sb = new StringBuilder();
 
@@ -106,7 +95,7 @@ public class EmailSummaryServiceTest {
       log.debug("{}", sb);
 
       String expectedEmail = getEmailResult(emailFile);
-      Assert.assertEquals("emails don't match", expectedEmail, sb.toString());
+      Assertions.assertEquals(expectedEmail, sb.toString(), "emails don't match");
    }
 
    private CanvasUploadStatus loadData(String fileName) throws IOException {

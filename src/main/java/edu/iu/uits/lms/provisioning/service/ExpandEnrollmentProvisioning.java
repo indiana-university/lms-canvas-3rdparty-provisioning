@@ -1,8 +1,7 @@
 package edu.iu.uits.lms.provisioning.service;
 
-import canvas.client.generated.api.ExpandApi;
-import canvas.client.generated.api.UsersApi;
-import canvas.client.generated.model.User;
+import edu.iu.uits.lms.canvas.model.User;
+import edu.iu.uits.lms.canvas.services.UserService;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
 import lombok.Data;
@@ -21,10 +20,10 @@ import java.util.List;
 public class ExpandEnrollmentProvisioning {
 
     @Autowired
-    private UsersApi usersApi;
+    private UserService userService;
 
     @Autowired
-    private ExpandApi expandApi;
+    private ExpandListingService expandListingService;
 
     /**
      * Pass in a path to a csv file and this will validate the data and send enrollments to Expand
@@ -102,28 +101,28 @@ public class ExpandEnrollmentProvisioning {
             // get canvasId for user by sis id
             log.debug("Looking up user " + canvasUserId + " by sisId");
 
-            user = usersApi.getUserBySisId(canvasUserId);
+            user = userService.getUserBySisId(canvasUserId);
 
             if (user == null) {
                 log.debug("Not found by sis id. Trying login id");
-                user = usersApi.getUserBySisLoginId(canvasUserId);
+                user = userService.getUserBySisLoginId(canvasUserId);
             }
         } else { // must be login id
             // get canvasId for user by login id
             log.debug("Looking up user " + canvasUserId + " by sisLoginId");
 
-            user = usersApi.getUserBySisLoginId(canvasUserId);
+            user = userService.getUserBySisLoginId(canvasUserId);
 
             if (user == null) {
                 log.debug("Not found by login id. Trying sis id");
-                user = usersApi.getUserBySisId(canvasUserId);
+                user = userService.getUserBySisId(canvasUserId);
             }
         }
 
         if (user != null) {
             log.debug("found user = " + user.getName() + ", canvas id = " + user.getId());
 
-            if (expandApi.addUserToListing(user.getId(), listingId)) {
+            if (expandListingService.addUserToListing(user.getId(), listingId)) {
                 processCounts.incrementSuccessCount();
             } else {
                 processCounts.incrementFailureCount();

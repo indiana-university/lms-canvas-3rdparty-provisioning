@@ -1,5 +1,7 @@
 package edu.iu.uits.lms.provisioning.service;
 
+import edu.iu.uits.lms.iuonly.model.DeptProvisioningUser;
+import edu.iu.uits.lms.iuonly.services.DeptProvisioningUserServiceImpl;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessage;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessageSender;
 import edu.iu.uits.lms.provisioning.controller.Constants;
@@ -9,8 +11,6 @@ import edu.iu.uits.lms.provisioning.model.content.ByteArrayFileContent;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.service.exception.FileParsingException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
-import iuonly.client.generated.api.DeptProvisioningUserApi;
-import iuonly.client.generated.model.DeptProvisioningUser;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -39,8 +39,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 @Slf4j
-@Service
-public class FileUploadService {
+@Service("DeptProvFileUploadService")
+public class DeptProvFileUploadService {
 
    @Autowired
    private DeptRouter deptRouter;
@@ -49,7 +49,7 @@ public class FileUploadService {
    private BackgroundMessageSender backgroundMessageSender;
 
    @Autowired
-   private DeptProvisioningUserApi deptProvisioningUserApi;
+   private DeptProvisioningUserServiceImpl deptProvisioningUserService;
 
    /**
     *
@@ -166,7 +166,7 @@ public class FileUploadService {
             username = jwt.getClaimAsString("client_id");
             log.debug("client id from Jwt: {}", username);
          }
-         DeptProvisioningUser user = deptProvisioningUserApi.findByUsername(username);
+         DeptProvisioningUser user = deptProvisioningUserService.findByUsername(username);
          log.debug("User: {}", user);
          if (user != null) {
             return user.getUsername();

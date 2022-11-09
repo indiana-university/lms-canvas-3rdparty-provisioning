@@ -1,12 +1,12 @@
 package edu.iu.uits.lms.provisioning.service;
 
-import canvas.client.generated.api.AccountsApi;
-import canvas.client.generated.api.CoursesApi;
-import canvas.client.generated.model.Account;
-import canvas.client.generated.model.Course;
+import edu.iu.uits.lms.canvas.model.Account;
+import edu.iu.uits.lms.canvas.model.Course;
+import edu.iu.uits.lms.canvas.services.AccountService;
+import edu.iu.uits.lms.canvas.services.CourseService;
+import edu.iu.uits.lms.iuonly.services.SudsServiceImpl;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
-import iuonly.client.generated.api.SudsApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,16 +24,16 @@ import java.util.stream.Collectors;
 public class SectionProvisioning {
 
    @Autowired
-   private AccountsApi accountsApi;
+   private AccountService accountService;
 
    @Autowired
-   private CoursesApi coursesApi;
+   private CourseService courseService;
 
    @Autowired
    private CsvService csvService;
 
    @Autowired
-   private SudsApi sudsApi;
+   private SudsServiceImpl sudsService;
 
    public List<ProvisioningResult> processSections(Collection<FileContent> fileToProcess, List<String> authorizedAccounts, boolean overrideRestrictions) {
       List<ProvisioningResult> prs = new ArrayList<>();
@@ -120,13 +120,13 @@ public class SectionProvisioning {
 
             if (doSisCheck) {
                // look up for SIS stuff
-               if (sudsApi.getSudsCourseBySiteId(courseId) != null) {
+               if (sudsService.getSudsCourseBySiteId(courseId) != null) {
                   log.debug("Skipped " + rowCounter + " because it is a SIS course and user did not have SIS permission.");
                   errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                   sisCourses.put(courseId, false);
                   rejected++;
                   continue;
-               } else if (sudsApi.getSudsArchiveCourseBySiteId(courseId) != null) {
+               } else if (sudsService.getSudsArchiveCourseBySiteId(courseId) != null) {
                   log.debug("Skipped " + rowCounter + " because it is an archived SIS course and user did not have SIS permission.");
                   errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                   sisCourses.put(courseId, false);
@@ -135,13 +135,13 @@ public class SectionProvisioning {
                }
 
                // look up for SIS stuff
-               if (sudsApi.getSudsCourseBySiteId(sectionId) != null) {
+               if (sudsService.getSudsCourseBySiteId(sectionId) != null) {
                   log.debug("Skipped " + rowCounter + " because it is a SIS section and user did not have SIS permission.");
                   errorMessage.append("\tLine " + rowCounter + ": Section " + sectionId + " rejected. Not authorized for SIS changes.\r\n");
                   sisSections.put(sectionId, false);
                   rejected++;
                   continue;
-               } else if (sudsApi.getSudsArchiveCourseBySiteId(sectionId) != null) {
+               } else if (sudsService.getSudsArchiveCourseBySiteId(sectionId) != null) {
                   log.debug("Skipped " + rowCounter + " because it is an archived SIS section and user did not have SIS permission.");
                   errorMessage.append("\tLine " + rowCounter + ": Section " + sectionId + " rejected. Not authorized for SIS changes.\r\n");
                   sisSections.put(sectionId, false);
@@ -179,19 +179,19 @@ public class SectionProvisioning {
                // have authority for all nodes, so set the boolean
                isAccountAuthorized = true;
             } else {
-               Course course = coursesApi.getCourse("sis_course_id:" + courseId);
+               Course course = courseService.getCourse("sis_course_id:" + courseId);
                if (course == null) {
                   // course does not exist in Canvas yet, so give this a pass and assume it's cool
                   isAccountAuthorized = true;
                   accountChecksMap.put(courseId, true);
                } else {
-                  Account courseAccount = accountsApi.getAccount(course.getAccountId());
+                  Account courseAccount = accountService.getAccount(course.getAccountId());
                   if (authorizedAccounts.contains(courseAccount.getName())) {
                      isAccountAuthorized = true;
                      accountChecksMap.put(courseId, true);
                   } else {
                      // get the parent account names
-                     List<String> parentAccountNames = accountsApi.getParentAccounts(courseAccount.getId())
+                     List<String> parentAccountNames = accountService.getParentAccounts(courseAccount.getId())
                              .stream().map(parentNames -> parentNames.getName()).collect(Collectors.toList());
 
                      for (String authorizedAccount : authorizedAccounts) {

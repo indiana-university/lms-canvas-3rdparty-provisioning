@@ -14,9 +14,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriTemplate;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URI;
@@ -31,8 +32,8 @@ import java.util.List;
 public class GuestAccountService {
 
     @Autowired
-    @Qualifier("uaaRestTemplate")
-    private RestTemplate uaaRestTemplate;
+    @Qualifier("uaaWebClient")
+    private WebClient uaaWebClient;
 
     @Autowired
     private ToolConfig toolConfig;
@@ -50,7 +51,13 @@ public class GuestAccountService {
         GuestAccount ga = new GuestAccount();
 
         try {
-            ResponseEntity<GuestAccount> guestAccountResponseEntity = uaaRestTemplate.postForEntity(url, requestEntity, GuestAccount.class);
+            ResponseEntity<GuestAccount> guestAccountResponseEntity = uaaWebClient.post().uri(url)
+                  .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                  .body(Mono.just(input), GuestInput.class)
+                  .retrieve()
+                  .toEntity(GuestAccount.class)
+                  .block();
+//            ResponseEntity<GuestAccount> guestAccountResponseEntity = ccWebClient.postForEntity(url, requestEntity, GuestAccount.class);
             return guestAccountResponseEntity.getBody();
         } catch (HttpStatusCodeException e) {
             ObjectMapper mapper = new ObjectMapper();
@@ -78,7 +85,12 @@ public class GuestAccountService {
         builder.queryParam("internetAddress", emailAddress);
 
         try {
-            HttpEntity<GuestAccount> courseResponseEntity = uaaRestTemplate.getForEntity(builder.build().toUri(), GuestAccount.class);
+//            HttpEntity<GuestAccount> courseResponseEntity = ccWebClient.getForEntity(builder.build().toUri(), GuestAccount.class);
+            ResponseEntity<GuestAccount> courseResponseEntity = uaaWebClient.get().uri(builder.build().toUri())
+                  .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                  .retrieve()
+                  .toEntity(GuestAccount.class)
+                  .block();
             log.debug("{}", courseResponseEntity);
 
             if (courseResponseEntity != null) {

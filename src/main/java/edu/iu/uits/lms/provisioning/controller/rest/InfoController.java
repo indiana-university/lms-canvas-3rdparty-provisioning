@@ -1,7 +1,8 @@
 package edu.iu.uits.lms.provisioning.controller.rest;
 
 import edu.iu.uits.lms.provisioning.config.ToolConfig;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/rest/info")
 @Slf4j
-@Api(tags = "info")
+@Tag(name = "InfoController", description = "Get some tool details")
 public class InfoController {
 
    @Autowired
    private ToolConfig toolConfig;
 
    @GetMapping
+   @Operation(summary = "Get tool details")
    public Config getInfo() {
       return new Config(toolConfig);
    }

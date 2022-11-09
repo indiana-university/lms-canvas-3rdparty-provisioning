@@ -1,9 +1,10 @@
 package edu.iu.uits.lms.provisioning.controller;
 
 import edu.iu.uits.lms.common.session.CourseSessionService;
+import edu.iu.uits.lms.iuonly.services.DeptProvisioningUserServiceImpl;
 import edu.iu.uits.lms.lti.LTIConstants;
-import edu.iu.uits.lms.lti.controller.LtiAuthenticationTokenAwareController;
-import edu.iu.uits.lms.lti.security.LtiAuthenticationToken;
+import edu.iu.uits.lms.lti.controller.OidcTokenAwareController;
+import edu.iu.uits.lms.lti.service.OidcTokenUtils;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessage;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessageSender;
 import edu.iu.uits.lms.provisioning.model.DeptAuthMessageSender;
@@ -14,7 +15,6 @@ import edu.iu.uits.lms.provisioning.service.DeptRouter;
 import edu.iu.uits.lms.provisioning.service.FileParsingUtil;
 import edu.iu.uits.lms.provisioning.service.exception.FileParsingException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
-import iuonly.client.generated.api.DeptProvisioningUserApi;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.KeyValue;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -29,21 +29,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import uk.ac.ox.ctl.lti13.security.oauth2.client.lti.authentication.OidcAuthenticationToken;
 
 import javax.servlet.http.HttpSession;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/app")
 @Slf4j
-public class ProvisioningController extends LtiAuthenticationTokenAwareController {
+public class ProvisioningController extends OidcTokenAwareController {
 
     private static final String SESSION_KEY = "uploadedInfo";
 
     @Autowired
-    private DeptProvisioningUserApi deptProvisioningUserApi;
+    private DeptProvisioningUserServiceImpl deptProvisioningUserService;
 
     @Autowired
     private DeptAuthMessageSenderRepository deptAuthMessageSenderRepository;
@@ -61,13 +63,13 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
     @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
     public ModelAndView index(Model model, HttpSession session) {
         log.debug("/index");
-        LtiAuthenticationToken token = getTokenWithoutContext();
-        String name = (String)token.getPrincipal();
-
-        List<String> groups = (List<String>)session.getAttribute(Constants.AVAILABLE_GROUPS_KEY);
-
+        OidcAuthenticationToken token = getTokenWithoutContext();
+        OidcTokenUtils tokenUtils = new OidcTokenUtils(token);
+        String[] groups = tokenUtils.getCustomArray(Constants.AVAILABLE_GROUPS_KEY);
+        if (groups != null) {
+            Arrays.sort(groups);
+        }
         model.addAttribute("groups", groups);
-        model.addAttribute("name", name);
         return new ModelAndView("index");
     }
 
@@ -83,16 +85,19 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
                                @RequestParam(value = "customUsersNotification", required = false) boolean customUsersNotification,
                                Model model, HttpSession session) {
         log.debug("/upload");
-        LtiAuthenticationToken token = getTokenWithoutContext();
+        OidcAuthenticationToken token = getTokenWithoutContext();
         model.addAttribute("selectedGroup", deptDropdown);
 
         try {
             MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> filesByType = FileParsingUtil.parseFiles(files, customUsersNotification);
 
-            Long archiveId = deptRouter.zipOriginals(filesByType.get(DeptRouter.CSV_TYPES.ORIGINALS), deptDropdown, (String)token.getPrincipal());
-            String username = (String)token.getPrincipal();
+            OidcTokenUtils tokenUtils = new OidcTokenUtils(token);
+            String username = tokenUtils.getUserLoginId();
+
+            Long archiveId = deptRouter.zipOriginals(filesByType.get(DeptRouter.CSV_TYPES.ORIGINALS), deptDropdown, username);
+
             if (customUsersNotification) {
-                courseSessionService.addAttributeToSession(session, token.getContext(), SESSION_KEY,
+                courseSessionService.addAttributeToSession(session, tokenUtils.getCourseId(), SESSION_KEY,
                       new BackgroundMessage(filesByType, deptDropdown, null, archiveId, username, Constants.SOURCE.APP));
                 return notify(deptDropdown, model);
             }
@@ -129,12 +134,13 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
     @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
     public ModelAndView submitNotification(@ModelAttribute NotificationForm notifForm, Model model, HttpSession session) {
         log.debug("/submit");
-        LtiAuthenticationToken token = getTokenWithoutContext();
-        BackgroundMessage storedData = courseSessionService.getAttributeFromSession(session, token.getContext(), SESSION_KEY, BackgroundMessage.class);
+        OidcAuthenticationToken token = getTokenWithoutContext();
+        OidcTokenUtils tokenUtils = new OidcTokenUtils(token);
+        String username = tokenUtils.getUserLoginId();
+        BackgroundMessage storedData = courseSessionService.getAttributeFromSession(session, tokenUtils.getCourseId(), SESSION_KEY, BackgroundMessage.class);
 
-        processFiles(storedData.getFilesByType(), storedData.getDepartment(), notifForm, storedData.getArchiveId(),
-              (String)token.getPrincipal());
-        courseSessionService.removeAttributeFromSession(session, token.getContext(), SESSION_KEY);
+        processFiles(storedData.getFilesByType(), storedData.getDepartment(), notifForm, storedData.getArchiveId(), username);
+        courseSessionService.removeAttributeFromSession(session, tokenUtils.getCourseId(), SESSION_KEY);
         model.addAttribute("uploadSuccess", true);
 
         return index(model, session);
@@ -143,7 +149,7 @@ public class ProvisioningController extends LtiAuthenticationTokenAwareControlle
     @PostMapping(value = "/submit", params = "action=cancel")
     @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
     public ModelAndView cancel(@ModelAttribute NotificationForm notifForm, Model model, HttpSession session) {
-        LtiAuthenticationToken token = getTokenWithoutContext();
+        OidcAuthenticationToken token = getTokenWithoutContext();
         session.removeAttribute(SESSION_KEY);
         return index(model, session);
     }

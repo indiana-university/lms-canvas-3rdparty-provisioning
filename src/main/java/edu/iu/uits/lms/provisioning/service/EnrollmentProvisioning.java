@@ -1,16 +1,16 @@
 package edu.iu.uits.lms.provisioning.service;
 
-import canvas.client.generated.api.AccountsApi;
-import canvas.client.generated.api.CoursesApi;
-import canvas.client.generated.api.UsersApi;
-import canvas.client.generated.model.Account;
-import canvas.client.generated.model.Course;
-import canvas.client.generated.model.User;
+import edu.iu.uits.lms.canvas.model.Account;
+import edu.iu.uits.lms.canvas.model.Course;
+import edu.iu.uits.lms.canvas.model.User;
+import edu.iu.uits.lms.canvas.services.AccountService;
+import edu.iu.uits.lms.canvas.services.CourseService;
+import edu.iu.uits.lms.canvas.services.UserService;
+import edu.iu.uits.lms.iuonly.services.SudsServiceImpl;
 import edu.iu.uits.lms.provisioning.model.ImsUser;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
 import edu.iu.uits.lms.provisioning.repository.ImsUserRepository;
-import iuonly.client.generated.api.SudsApi;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class EnrollmentProvisioning {
     public static final String ACTIVE = "active";
 
     @Autowired
-    private UsersApi usersApi = null;
+    private UserService userService = null;
 
     @Autowired
     private GuestAccountService guestAccountService = null;
@@ -48,13 +48,13 @@ public class EnrollmentProvisioning {
     private ImsUserRepository imsUserRepository = null;
 
     @Autowired
-    private AccountsApi accountsApi;
+    private AccountService accountService;
 
     @Autowired
-    private CoursesApi coursesApi;
+    private CourseService courseService;
 
     @Autowired
-    private SudsApi sudsApi;
+    private SudsServiceImpl sudsService;
 
     /**
      * Pass in a path to a csv file and a department code and this validate the data and send enrollments to Canvas
@@ -163,13 +163,13 @@ public class EnrollmentProvisioning {
                 // if user does not have overrideRestrictions, allowSis, or the course/sections have not been looked up yet, do the SIS checks
                 if (doSisCheck) {
                     // look up for SIS stuff
-                    if (sudsApi.getSudsCourseBySiteId(courseId) != null) {
+                    if (sudsService.getSudsCourseBySiteId(courseId) != null) {
                         log.warn("Skipped " + emailOrUserId + " because it is in a SIS course and user did not have SIS permission.");
                         rejected++;
                         emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                         sisCourses.put(courseId, false);
                         continue;
-                    } else if (sudsApi.getSudsArchiveCourseBySiteId(courseId) != null) {
+                    } else if (sudsService.getSudsArchiveCourseBySiteId(courseId) != null) {
                         log.warn("Skipped " + emailOrUserId + " because it is in an archived SIS course and user did not have SIS permission.");
                         rejected++;
                         emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
@@ -178,13 +178,13 @@ public class EnrollmentProvisioning {
                     }
 
                     // look up for SIS stuff
-                    if (sudsApi.getSudsCourseBySiteId(sectionId) != null) {
+                    if (sudsService.getSudsCourseBySiteId(sectionId) != null) {
                         log.warn("Skipped " + emailOrUserId + " because it is in an archived SIS section and user did not have SIS permission.");
                         rejected++;
                         emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                         sisSections.put(sectionId, false);
                         continue;
-                    } else if (sudsApi.getSudsArchiveCourseBySiteId(sectionId) != null) {
+                    } else if (sudsService.getSudsArchiveCourseBySiteId(sectionId) != null) {
                         log.warn("Skipped " + emailOrUserId + " because it is in an archived SIS section and user did not have SIS permission.");
                         rejected++;
                         emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
@@ -221,20 +221,20 @@ public class EnrollmentProvisioning {
                 } else if (authorizedAccounts.contains("ALL")) {
                     isAccountAuthorized = true;
                 } else {
-                    Course course = coursesApi.getCourse("sis_course_id:" + courseId);
+                    Course course = courseService.getCourse("sis_course_id:" + courseId);
                     if (course == null) {
                         // no course exists, so assuming new entry and letting Canvas deal with it
                         isAccountAuthorized = true;
                         accountChecksMap.put(courseId, true);
                     } else {
-                        Account courseAccount = accountsApi.getAccount(course.getAccountId());
+                        Account courseAccount = accountService.getAccount(course.getAccountId());
                         if (authorizedAccounts.contains(courseAccount.getName())) {
                             isAccountAuthorized = true;
                             accountChecksMap.put(courseId, true);
                         } else {
                             // course exists, so do checks to see the user is allowed in the node
                             String accountId = course.getAccountId();
-                            List<String> parentAccountNames = accountsApi.getParentAccounts(accountId)
+                            List<String> parentAccountNames = accountService.getParentAccounts(accountId)
                                     .stream().map(parentNames -> parentNames.getName()).collect(Collectors.toList());
 
                             for (String authorizedAccount : authorizedAccounts) {
@@ -305,7 +305,7 @@ public class EnrollmentProvisioning {
                                 emplId = "";
 
                                 // regular username, so try this
-                                User user = usersApi.getUserBySisLoginId(emailOrUserId);
+                                User user = userService.getUserBySisLoginId(emailOrUserId);
                                 if (user != null && user.getSisUserId() != null) {
                                     emplId = user.getSisUserId();
                                 }

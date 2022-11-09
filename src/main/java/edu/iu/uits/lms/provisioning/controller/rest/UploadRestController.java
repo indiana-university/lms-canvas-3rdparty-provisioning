@@ -2,8 +2,9 @@ package edu.iu.uits.lms.provisioning.controller.rest;
 
 import edu.iu.uits.lms.provisioning.controller.Constants;
 import edu.iu.uits.lms.provisioning.model.FileUploadResult;
-import edu.iu.uits.lms.provisioning.service.FileUploadService;
-import io.swagger.annotations.Api;
+import edu.iu.uits.lms.provisioning.service.DeptProvFileUploadService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +22,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/rest/upload")
 @Slf4j
-@Api(tags = "upload")
+@Tag(name = "UploadRestController", description = "Upload files for provisioning")
 public class UploadRestController {
 
    @Autowired
-   private FileUploadService fileUploadService;
+   private DeptProvFileUploadService fileUploadService;
 
    @PostMapping("/{dept}/zip")
+   @Operation(summary = "Upload a zip file containing individual files to provision")
    public ResponseEntity<FileUploadResult> uploadZip(@PathVariable("dept") String dept, @RequestParam("deptFileUpload") MultipartFile file,
                          @RequestParam(value = "customUsersNotification", required = false, defaultValue = "false") boolean customUsersNotification) {
       Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -42,6 +44,7 @@ public class UploadRestController {
    }
 
    @PostMapping("/{dept}")
+   @Operation(summary = "Upload files to provision")
    public ResponseEntity<FileUploadResult> upload(@PathVariable("dept") String dept, @RequestParam("deptFileUpload") MultipartFile[] files,
                                                   @RequestParam(value = "customUsersNotification", required = false, defaultValue = "false") boolean customUsersNotification) {
       Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();

@@ -1,5 +1,8 @@
 package edu.iu.uits.lms.provisioning;
 
+import edu.iu.uits.lms.email.service.EmailService;
+import edu.iu.uits.lms.iuonly.model.LmsBatchEmail;
+import edu.iu.uits.lms.iuonly.services.BatchEmailServiceImpl;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessage;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessageListener;
 import edu.iu.uits.lms.provisioning.controller.Constants;
@@ -8,27 +11,21 @@ import edu.iu.uits.lms.provisioning.service.DeptRouter;
 import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
 import edu.iu.uits.lms.provisioning.service.exception.FileUploadException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
-import email.client.generated.api.EmailApi;
-import iuonly.client.generated.api.BatchEmailApi;
-import iuonly.client.generated.model.LmsBatchEmail;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
 
 @Slf4j
-@RunWith(SpringRunner.class)
-@Ignore
+@Disabled
 public class BackgroundMessageListenerTest {
 
    @Autowired
@@ -41,10 +38,10 @@ public class BackgroundMessageListenerTest {
    private CanvasImportIdRepository canvasImportIdRepository;
 
    @MockBean
-   private EmailApi emailApi;
+   private EmailService emailService;
 
    @MockBean
-   private BatchEmailApi batchEmailApi;
+   private BatchEmailServiceImpl batchEmailService;
 
    @Test
    public void testListenWithFileProcessingException() throws Exception {
@@ -56,7 +53,7 @@ public class BackgroundMessageListenerTest {
       LmsBatchEmail lbe = new LmsBatchEmail();
       lbe.setGroupCode("cwm");
       lbe.setEmails("chmaurer@iu.edu");
-      Mockito.when(batchEmailApi.getBatchEmailFromGroupCode(any())).thenReturn(lbe);
+      Mockito.when(batchEmailService.getBatchEmailFromGroupCode(any())).thenReturn(lbe);
 
       backgroundMessageListener.handleMessage(bm);
    }
@@ -71,7 +68,7 @@ public class BackgroundMessageListenerTest {
       LmsBatchEmail lbe = new LmsBatchEmail();
       lbe.setGroupCode("cwm");
       lbe.setEmails("chmaurer@iu.edu");
-      Mockito.when(batchEmailApi.getBatchEmailFromGroupCode(any())).thenReturn(lbe);
+      Mockito.when(batchEmailService.getBatchEmailFromGroupCode(any())).thenReturn(lbe);
 
       backgroundMessageListener.handleMessage(bm);
    }
@@ -86,7 +83,7 @@ public class BackgroundMessageListenerTest {
       LmsBatchEmail lbe = new LmsBatchEmail();
       lbe.setGroupCode("cwm");
       lbe.setEmails("chmaurer@iu.edu");
-      Mockito.when(batchEmailApi.getBatchEmailFromGroupCode(any())).thenReturn(lbe);
+      Mockito.when(batchEmailService.getBatchEmailFromGroupCode(any())).thenReturn(lbe);
 
       backgroundMessageListener.handleMessage(bm);
    }

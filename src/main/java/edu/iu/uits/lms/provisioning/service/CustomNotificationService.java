@@ -1,30 +1,40 @@
 package edu.iu.uits.lms.provisioning.service;
 
+import edu.iu.uits.lms.email.model.EmailDetails;
+import edu.iu.uits.lms.email.model.Priority;
+import edu.iu.uits.lms.email.service.EmailService;
+import edu.iu.uits.lms.email.service.LmsEmailTooBigException;
 import edu.iu.uits.lms.provisioning.model.DeptAuthMessageSender;
 import edu.iu.uits.lms.provisioning.repository.DeptAuthMessageSenderRepository;
-import email.client.generated.api.EmailApi;
-import email.client.generated.model.EmailDetails;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
+
 @Service
+@Slf4j
 public class CustomNotificationService {
 
    @Autowired
-   private EmailApi emailApi = null;
+   private EmailService emailService = null;
 
    @Autowired
    private DeptAuthMessageSenderRepository deptAuthMessageSenderRepository = null;
 
    public void sendCustomWelcomeMessage(String email, CustomNotificationBuilder customNotificationBuilder) {
       EmailDetails details = new EmailDetails();
-      details.addRecipientsItem(email);
+      details.setRecipients(new String[] {email});
       details.setSubject(customNotificationBuilder.getSubject());
       details.setBody(customNotificationBuilder.getBody());
       details.setEnableHtml(false);
-      details.setPriority(EmailDetails.PriorityEnum.NORMAL);
+      details.setPriority(Priority.NORMAL);
       details.setFrom(customNotificationBuilder.getSender());
-      emailApi.sendEmail(details, false);
+      try {
+         emailService.sendEmail(details, false);
+      } catch (LmsEmailTooBigException | MessagingException e) {
+         log.error("Unable to send email", e);
+      }
    }
 
    public DeptAuthMessageSender getValidatedCustomMessageSender(CustomNotificationBuilder customNotificationBuilder, String dept) {

@@ -1,9 +1,9 @@
 package edu.iu.uits.lms.provisioning.service;
 
-import canvas.client.generated.api.AccountsApi;
+import edu.iu.uits.lms.canvas.services.AccountService;
+import edu.iu.uits.lms.iuonly.services.SudsServiceImpl;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
-import iuonly.client.generated.api.SudsApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 public class CourseProvisioning {
 
     @Autowired
-    private AccountsApi accountsApi;
+    private AccountService accountService;
 
     @Autowired
     private CsvService csvService = null;
 
     @Autowired
-    private SudsApi sudsApi;
+    private SudsServiceImpl sudsService;
 
     /**
      * Pass in a path to a csv file and a department code and this validate the data and send enrollments to Canvas
@@ -97,13 +97,13 @@ public class CourseProvisioning {
 
                 // look up for SIS stuff
                 if (doSisCheck) {
-                    if (sudsApi.getSudsCourseBySiteId(courseId) != null) {
+                    if (sudsService.getSudsCourseBySiteId(courseId) != null) {
                         log.debug("Skipped " + rowCounter + " because it is a SIS course and user did not have SIS permission.");
                         errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                         sisCourses.put(courseId, false);
                         rejected++;
                         continue;
-                    } else if (sudsApi.getSudsArchiveCourseBySiteId(courseId) != null) {
+                    } else if (sudsService.getSudsArchiveCourseBySiteId(courseId) != null) {
                         log.debug("Skipped " + rowCounter + " because it is an archived SIS course and user did not have SIS permission.");
                         errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                         sisCourses.put(courseId, false);
@@ -145,7 +145,7 @@ public class CourseProvisioning {
                             isAccountAuthorized = true;
                         } else {
                             // get the parent account names
-                            List<String> parentAccountNames = accountsApi.getParentAccounts("sis_account_id:"+account)
+                            List<String> parentAccountNames = accountService.getParentAccounts("sis_account_id:"+account)
                                     .stream().map(parentNames -> parentNames.getName()).collect(Collectors.toList());
 
                             for (String authorizedAccount : authorizedAccounts) {

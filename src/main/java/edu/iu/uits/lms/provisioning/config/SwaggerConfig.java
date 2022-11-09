@@ -1,83 +1,33 @@
 package edu.iu.uits.lms.provisioning.config;
 
-import edu.iu.uits.lms.common.oauth.OAuthConfig;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.OAuthFlow;
+import io.swagger.v3.oas.annotations.security.OAuthFlows;
+import io.swagger.v3.oas.annotations.security.OAuthScope;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import org.springdoc.core.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
-import springfox.documentation.builders.AuthorizationCodeGrantBuilder;
-import springfox.documentation.builders.OAuthBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.AuthorizationScope;
-import springfox.documentation.service.GrantType;
-import springfox.documentation.service.SecurityReference;
-import springfox.documentation.service.SecurityScheme;
-import springfox.documentation.service.TokenEndpoint;
-import springfox.documentation.service.TokenRequestEndpoint;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spi.service.contexts.SecurityContext;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger.web.SecurityConfiguration;
-import springfox.documentation.swagger.web.SecurityConfigurationBuilder;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
-import java.util.Arrays;
 
-//@Configuration
-//@EnableSwagger2
-@Slf4j
+@Profile("swagger")
+@Configuration
+@OpenAPIDefinition(info = @Info(title = "Department Provisioning REST Endpoints", version = "${deptprov.version}"))
+@SecurityScheme(name = "security_auth_gct", type = SecuritySchemeType.OAUTH2,
+      flows = @OAuthFlows(authorizationCode = @OAuthFlow(
+            authorizationUrl = "${springdoc.oAuthFlow.authorizationUrl}",
+            scopes = {@OAuthScope(name = "lms:rest")},
+            tokenUrl = "${springdoc.oAuthFlow.tokenUrl}")))
 public class SwaggerConfig {
 
-   @Autowired
-   private OAuthConfig oAuthConfig;
-
    @Bean
-   public Docket api() {
-      return new Docket(DocumentationType.SWAGGER_2)
-            .select()
-            .apis(RequestHandlerSelectors.basePackage("edu.iu.uits.lms.provisioning.controller.rest"))
-            .paths(PathSelectors.any())
-            .build()
-            .securitySchemes(Arrays.asList(securityScheme()))
-            .securityContexts(Arrays.asList(securityContext()));
-   }
-
-   @Bean
-   public SecurityConfiguration security() {
-      return SecurityConfigurationBuilder.builder()
-            .clientId(oAuthConfig.getClientId())
-            .clientSecret("CLIENT_SECRET")
-            .scopeSeparator(" ")
-            .useBasicAuthenticationWithAccessCodeGrant(false)
-            .build();
-   }
-
-   private SecurityScheme securityScheme() {
-//      GrantType grantType = new ResourceOwnerPasswordCredentialsGrant(oAuthConfig.getAccessTokenUri());
-      GrantType grantType = new AuthorizationCodeGrantBuilder()
-            .tokenEndpoint(new TokenEndpoint(oAuthConfig.getAccessTokenUri(), "oauthtoken"))
-            .tokenRequestEndpoint(
-                  new TokenRequestEndpoint(oAuthConfig.getUrl() + "/oauth/authorize",
-                        oAuthConfig.getClientId(), oAuthConfig.getClientSecret()))
-            .build();
-
-      SecurityScheme oauth = new OAuthBuilder().name("spring_oauth")
-            .grantTypes(Arrays.asList(grantType))
-            .scopes(Arrays.asList(scopes()))
-            .build();
-      return oauth;
-   }
-
-   private AuthorizationScope[] scopes() {
-      AuthorizationScope[] scopes = {
-            new AuthorizationScope("lms:rest", "for lms rest operations") };
-      return scopes;
-   }
-
-   private SecurityContext securityContext() {
-      return SecurityContext.builder()
-            .securityReferences(
-                  Arrays.asList(new SecurityReference("spring_oauth", scopes())))
-            .forPaths(PathSelectors.regex("/rest/*"))
+   public GroupedOpenApi groupedOpenApi() {
+      return GroupedOpenApi.builder()
+            .group("dept-provisioning")
+            .packagesToScan("edu.iu.uits.lms.provisioning.controller.rest")
             .build();
    }
 }

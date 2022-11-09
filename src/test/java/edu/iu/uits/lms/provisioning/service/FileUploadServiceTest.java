@@ -1,24 +1,21 @@
 package edu.iu.uits.lms.provisioning.service;
 
-import edu.iu.uits.lms.provisioning.TestUtils;
+import edu.iu.uits.lms.iuonly.model.DeptProvisioningUser;
+import edu.iu.uits.lms.iuonly.services.DeptProvisioningUserServiceImpl;
+import edu.iu.uits.lms.lti.config.TestUtils;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessageSender;
 import edu.iu.uits.lms.provisioning.controller.Constants;
 import edu.iu.uits.lms.provisioning.model.FileUploadResult;
-import iuonly.client.generated.api.DeptProvisioningUserApi;
-import iuonly.client.generated.model.DeptProvisioningUser;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -30,14 +27,14 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @Slf4j
-@RunWith(SpringRunner.class)
+@SpringBootTest(classes = DeptProvFileUploadService.class)
 public class FileUploadServiceTest {
 
    private static final String OK_MESSAGE = "The files are being processed. Summary emails will be sent at a later time.";
    private static final String BAD_PROPS_MESSAGE = "User indicated that custom user notification was desired, but either no message.properties file was supplied, or it was malformed";
 
    @Autowired
-   private FileUploadService fileUploadService;
+   private DeptProvFileUploadService fileUploadService;
 
    @MockBean
    private DeptRouter deptRouter;
@@ -46,7 +43,7 @@ public class FileUploadServiceTest {
    private BackgroundMessageSender backgroundMessageSender;
 
    @MockBean
-   private DeptProvisioningUserApi deptProvisioningUserApi;
+   private DeptProvisioningUserServiceImpl deptProvisioningUserService;
 
    @Test
    public void testUnzip() throws Exception {
@@ -54,36 +51,36 @@ public class FileUploadServiceTest {
       List<MultipartFile> files = fileUploadService.unzip(file);
       files.sort(Comparator.comparing(MultipartFile::getOriginalFilename));
       files.forEach(f -> log.debug(f.getOriginalFilename()));
-      Assert.assertEquals(2, files.size());
-      Assert.assertEquals("sections.csv", files.get(0).getOriginalFilename());
-      Assert.assertEquals("users.csv", files.get(1).getOriginalFilename());
+      Assertions.assertEquals(2, files.size());
+      Assertions.assertEquals("sections.csv", files.get(0).getOriginalFilename());
+      Assertions.assertEquals("users.csv", files.get(1).getOriginalFilename());
    }
 
    @Test
    public void testGetValidatedUsernameWithNull() throws Exception {
-      FileUploadService.UserAuthException t = Assert.assertThrows(FileUploadService.UserAuthException.class, () -> fileUploadService.getValidatedUsername(null));
-      Assert.assertEquals("No username could be found for authorization", t.getMessage());
+      DeptProvFileUploadService.UserAuthException t = Assertions.assertThrows(DeptProvFileUploadService.UserAuthException.class, () -> fileUploadService.getValidatedUsername(null));
+      Assertions.assertEquals("No username could be found for authorization", t.getMessage());
    }
 
    @Test
    public void testGetValidatedUsernameWithNullUsername() throws Exception {
       Jwt jwt = TestUtils.createJwtToken("asdf", null);
-      FileUploadService.UserAuthException t = Assert.assertThrows(FileUploadService.UserAuthException.class, () -> fileUploadService.getValidatedUsername(jwt));
-      Assert.assertEquals("User (asdf) is not authorized to upload files", t.getMessage());
+      DeptProvFileUploadService.UserAuthException t = Assertions.assertThrows(DeptProvFileUploadService.UserAuthException.class, () -> fileUploadService.getValidatedUsername(jwt));
+      Assertions.assertEquals("User (asdf) is not authorized to upload files", t.getMessage());
    }
 
    @Test
    public void testGetValidatedUsernameWithClientAndUsername() throws Exception {
       Jwt jwt = TestUtils.createJwtToken("asdf", "foo");
-      FileUploadService.UserAuthException t = Assert.assertThrows(FileUploadService.UserAuthException.class, () -> fileUploadService.getValidatedUsername(jwt));
-      Assert.assertEquals("User (foo) is not authorized to upload files", t.getMessage());
+      DeptProvFileUploadService.UserAuthException t = Assertions.assertThrows(DeptProvFileUploadService.UserAuthException.class, () -> fileUploadService.getValidatedUsername(jwt));
+      Assertions.assertEquals("User (foo) is not authorized to upload files", t.getMessage());
    }
 
    @Test
    public void testGetValidatedUsernameWithBad() throws Exception {
       Jwt jwt = TestUtils.createJwtToken("asdf");
-      FileUploadService.UserAuthException t = Assert.assertThrows(FileUploadService.UserAuthException.class, () -> fileUploadService.getValidatedUsername(jwt));
-      Assert.assertEquals("User (asdf) is not authorized to upload files", t.getMessage());
+      DeptProvFileUploadService.UserAuthException t = Assertions.assertThrows(DeptProvFileUploadService.UserAuthException.class, () -> fileUploadService.getValidatedUsername(jwt));
+      Assertions.assertEquals("User (asdf) is not authorized to upload files", t.getMessage());
    }
 
    @Test
@@ -91,7 +88,7 @@ public class FileUploadServiceTest {
       mockUser("asdf");
       Jwt jwt = TestUtils.createJwtToken("asdf");
       String username = fileUploadService.getValidatedUsername(jwt);
-      Assert.assertEquals("asdf", username);
+      Assertions.assertEquals("asdf", username);
    }
 
    @Test
@@ -99,9 +96,9 @@ public class FileUploadServiceTest {
       mockUser("asdf");
       Jwt jwt = TestUtils.createJwtToken("asdf");
       ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(null, true, "CWM", jwt, Constants.SOURCE.API);
-      Assert.assertNotNull(responseEntity);
-      Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-      Assert.assertEquals("No files to process", responseEntity.getBody().getMessage());
+      Assertions.assertNotNull(responseEntity);
+      Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+      Assertions.assertEquals("No files to process", responseEntity.getBody().getMessage());
    }
 
    @Test
@@ -111,9 +108,9 @@ public class FileUploadServiceTest {
       Jwt jwt = TestUtils.createJwtToken("asdf");
 
       ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, false, "CWM", jwt, Constants.SOURCE.API);
-      Assert.assertNotNull(responseEntity);
-      Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-      Assert.assertEquals(OK_MESSAGE, responseEntity.getBody().getMessage());
+      Assertions.assertNotNull(responseEntity);
+      Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+      Assertions.assertEquals(OK_MESSAGE, responseEntity.getBody().getMessage());
    }
 
    @Test
@@ -123,9 +120,9 @@ public class FileUploadServiceTest {
       Jwt jwt = TestUtils.createJwtToken("asdf");
 
       ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, true, "CWM", jwt, Constants.SOURCE.API);
-      Assert.assertNotNull(responseEntity);
-      Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-      Assert.assertEquals(BAD_PROPS_MESSAGE, responseEntity.getBody().getMessage());
+      Assertions.assertNotNull(responseEntity);
+      Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+      Assertions.assertEquals(BAD_PROPS_MESSAGE, responseEntity.getBody().getMessage());
    }
 
    @Test
@@ -135,9 +132,9 @@ public class FileUploadServiceTest {
       Jwt jwt = TestUtils.createJwtToken("asdf");
 
       ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, true, "CWM", jwt, Constants.SOURCE.API);
-      Assert.assertNotNull(responseEntity);
-      Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-      Assert.assertEquals(BAD_PROPS_MESSAGE, responseEntity.getBody().getMessage());
+      Assertions.assertNotNull(responseEntity);
+      Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+      Assertions.assertEquals(BAD_PROPS_MESSAGE, responseEntity.getBody().getMessage());
    }
 
    @Test
@@ -147,9 +144,9 @@ public class FileUploadServiceTest {
       Jwt jwt = TestUtils.createJwtToken("asdf");
 
       ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, false, "CWM", jwt, Constants.SOURCE.API);
-      Assert.assertNotNull(responseEntity);
-      Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-      Assert.assertEquals(OK_MESSAGE, responseEntity.getBody().getMessage());
+      Assertions.assertNotNull(responseEntity);
+      Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+      Assertions.assertEquals(OK_MESSAGE, responseEntity.getBody().getMessage());
    }
 
    @Test
@@ -159,9 +156,9 @@ public class FileUploadServiceTest {
       Jwt jwt = TestUtils.createJwtToken("asdf");
 
       ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, true, "CWM", jwt, Constants.SOURCE.API);
-      Assert.assertNotNull(responseEntity);
-      Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-      Assert.assertEquals(OK_MESSAGE, responseEntity.getBody().getMessage());
+      Assertions.assertNotNull(responseEntity);
+      Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+      Assertions.assertEquals(OK_MESSAGE, responseEntity.getBody().getMessage());
    }
 
    @Test
@@ -171,16 +168,16 @@ public class FileUploadServiceTest {
       Jwt jwt = TestUtils.createJwtToken("asdf");
 
       ResponseEntity<FileUploadResult> responseEntity = fileUploadService.parseFiles(files, true, "CWM", jwt, Constants.SOURCE.API);
-      Assert.assertNotNull(responseEntity);
-      Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-      Assert.assertEquals("Error parsing uploaded files", responseEntity.getBody().getMessage());
-      Assert.assertEquals("No files found that match the 'users' format", responseEntity.getBody().getFileErrors().get(0).getTitle());
+      Assertions.assertNotNull(responseEntity);
+      Assertions.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+      Assertions.assertEquals("Error parsing uploaded files", responseEntity.getBody().getMessage());
+      Assertions.assertEquals("No files found that match the 'users' format", responseEntity.getBody().getFileErrors().get(0).getTitle());
    }
 
    private void mockUser(String username) {
       DeptProvisioningUser user = new DeptProvisioningUser();
       user.setUsername(username);
-      when(deptProvisioningUserApi.findByUsername(anyString())).thenReturn(user);
+      when(deptProvisioningUserService.findByUsername(anyString())).thenReturn(user);
    }
 
    private MultipartFile mockFile(String fileName) throws IOException {
@@ -190,14 +187,5 @@ public class FileUploadServiceTest {
    private MultipartFile mockFile(String inputFileName, String resultFileName) throws IOException {
       InputStream fileStream = this.getClass().getResourceAsStream("/uploads/" + inputFileName);
       return new MockMultipartFile(resultFileName, resultFileName, "application/zip", fileStream);
-   }
-
-   @TestConfiguration
-   static class TestContextConfiguration {
-      @Bean
-      public FileUploadService fileUploadService() {
-         return new FileUploadService();
-      }
-
    }
 }

@@ -3,6 +3,8 @@ package edu.iu.uits.lms.provisioning.controller.rest;
 import edu.iu.uits.lms.provisioning.model.DeptAuthMessageSender;
 import edu.iu.uits.lms.provisioning.service.CustomNotificationBuilder;
 import edu.iu.uits.lms.provisioning.service.CustomNotificationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +18,14 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/rest/dept_message_tester")
+@Tag(name = "CustomWelcomeMessageController", description = "Validate details for a custom welcome message and send a test email message")
 public class CustomWelcomeMessageController {
 
    @Autowired
    private CustomNotificationService customNotificationService = null;
 
    @PostMapping(value="/validate")
+   @Operation(summary = "Validate the given properties and send a test email welcome message")
    public ResponseEntity validatePropertiesFile(@RequestParam("messagePropertiesFile") MultipartFile messagePropertiesFile,
                                                 @RequestParam("department") String department) throws IOException {
 

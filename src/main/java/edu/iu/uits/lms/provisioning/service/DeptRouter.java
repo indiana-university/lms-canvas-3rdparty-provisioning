@@ -1,7 +1,12 @@
 package edu.iu.uits.lms.provisioning.service;
 
-import canvas.client.generated.api.CanvasApi;
-import canvas.client.generated.api.ImportApi;
+import edu.iu.uits.lms.canvas.services.CanvasService;
+import edu.iu.uits.lms.canvas.services.ImportService;
+import edu.iu.uits.lms.email.model.EmailDetails;
+import edu.iu.uits.lms.email.service.EmailService;
+import edu.iu.uits.lms.email.service.LmsEmailTooBigException;
+import edu.iu.uits.lms.iuonly.model.LmsBatchEmail;
+import edu.iu.uits.lms.iuonly.services.BatchEmailServiceImpl;
 import edu.iu.uits.lms.provisioning.controller.Constants;
 import edu.iu.uits.lms.provisioning.model.CanvasImportId;
 import edu.iu.uits.lms.provisioning.model.DeptProvArchive;
@@ -13,22 +18,18 @@ import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
 import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
 import edu.iu.uits.lms.provisioning.service.exception.FileUploadException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
-import email.client.generated.api.EmailApi;
-import email.client.generated.model.EmailDetails;
-import iuonly.client.generated.api.BatchEmailApi;
-import iuonly.client.generated.model.LmsBatchEmail;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -74,19 +75,19 @@ public class DeptRouter {
    private CanvasImportIdRepository canvasImportIdRepository;
 
    @Autowired
-   private ImportApi importApi;
+   private ImportService importService;
 
    @Autowired
-   private EmailApi emailApi;
+   private EmailService emailService;
 
    @Autowired
    private CsvService csvService;
 
    @Autowired
-   private BatchEmailApi batchEmailApi;
+   private BatchEmailServiceImpl batchEmailService;
 
    @Autowired
-   private CanvasApi canvasApi;
+   private CanvasService canvasService;
 
    @Autowired
    private ArchiveRepository archiveRepository;
@@ -142,24 +143,25 @@ public class DeptRouter {
       // Zip up csv files and send it to Canvas!
       if (!allStreams.isEmpty()) {
          File zipFile = csvService.zipCsv(allStreams, canvasUploadFileNameFullPath);
-         importId = importApi.sendZipToCanvas(zipFile);
+         byte[] bytes = new byte[0];
+         try {
+            bytes = IOUtils.toByteArray(new FileInputStream(zipFile));
+            importId = importService.sendZipToCanvas(bytes);
 
-         if (archiveId != null) {
-            DeptProvArchive archive = archiveRepository.findById(archiveId).orElse(null);
-            if (archive == null) {
-               archive = new DeptProvArchive();
-               archive.setDepartment(dept);
-               archive.setUsername(username);
-            }
-            archive.setCanvasDisplayName(canvasUploadFileName);
-            try {
-               byte[] bytes = IOUtils.toByteArray(new FileInputStream(zipFile));
+            if (archiveId != null) {
+               DeptProvArchive archive = archiveRepository.findById(archiveId).orElse(null);
+               if (archive == null) {
+                  archive = new DeptProvArchive();
+                  archive.setDepartment(dept);
+                  archive.setUsername(username);
+               }
+               archive.setCanvasDisplayName(canvasUploadFileName);
                archive.setCanvasContent(bytes);
                archive.setCanvasImportId(importId);
                archiveRepository.save(archive);
-            } catch (IOException e) {
-               zipException = true;
             }
+         } catch (IOException e) {
+            zipException = true;
          }
 
          if (importId != null && !"".equals(importId)) {
@@ -171,19 +173,19 @@ public class DeptRouter {
       }
 
       if (emailMessage.length() > 0) {
-         LmsBatchEmail emails = batchEmailApi.getBatchEmailFromGroupCode(dept);
+         LmsBatchEmail emails = batchEmailService.getBatchEmailFromGroupCode(dept);
          String[] emailAddresses = null;
          if (emails != null) {
             emailAddresses = emails.getEmails().split(",");
          }
          if (emailAddresses != null && emailAddresses.length > 0) {
             // create the subject line of the email
-            String subject = emailApi.getStandardHeader() + " csv file upload(s) for " + dept;
+            String subject = emailService.getStandardHeader() + " csv file upload(s) for " + dept;
 
             // piece standard info, the errorMessages, and resultsMessages together
             StringBuilder finalMessage = new StringBuilder();
             finalMessage.append("The preprocessing stage of your Canvas provisioning job is complete and the results are provided below. " +
-                  "The final results from Canvas (" + canvasApi.getBaseUrl() + ") will be sent out at a later time and will inform you " +
+                  "The final results from Canvas (" + canvasService.getBaseUrl() + ") will be sent out at a later time and will inform you " +
                   "of any issues that may have been encountered while importing the data. Guest account provisioning is the exception and will have final results in this email.\r\n\r\n");
             if (emailMessage.length() > 0) {
                finalMessage.append("Results from the uploads: \r\n\r\n");
@@ -192,10 +194,14 @@ public class DeptRouter {
 
             // email has been combined together, so send it!
             EmailDetails details = new EmailDetails();
-            details.setRecipients(Arrays.asList(emailAddresses));
+            details.setRecipients(emailAddresses);
             details.setSubject(subject);
             details.setBody(finalMessage.toString());
-            emailApi.sendEmail(details, true);
+            try {
+               emailService.sendEmail(details, true);
+            } catch (LmsEmailTooBigException | MessagingException e) {
+               log.error("Unable to send email", e);
+            }
 
          } else {
             log.warn("No email addresses specified for the group code: '" + dept + "' so no status email will be sent.");
