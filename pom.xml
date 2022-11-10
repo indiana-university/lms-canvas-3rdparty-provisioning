@@ -74,10 +74,10 @@
         <jdk.source>11</jdk.source>
         <jdk.target>11</jdk.target>
         <jquery.version>3.5.1</jquery.version>
-        <lms-canvas-services.version>5.0.11-SNAPSHOT</lms-canvas-services.version>
+        <lms-canvas-services.version>5.0.11</lms-canvas-services.version>
         <lms-canvas-common-configuration.version>5.0.7</lms-canvas-common-configuration.version>
-        <lms-canvas-iu-custom-services.version>5.0.12-SNAPSHOT</lms-canvas-iu-custom-services.version>
-        <lms-canvas-lti-framework.version>5.1.17-SNAPSHOT</lms-canvas-lti-framework.version>
+        <lms-canvas-iu-custom-services.version>5.0.12</lms-canvas-iu-custom-services.version>
+        <lms-canvas-lti-framework.version>5.1.18</lms-canvas-lti-framework.version>
         <lms-canvas-rivet.version>5.1.8.2_1</lms-canvas-rivet.version>
         <lms-canvas-redis-config.version>5.0.7</lms-canvas-redis-config.version>
         <lms-email-service.version>5.0.4</lms-email-service.version>
@@ -359,6 +359,8 @@
                     <excludes>
                         <exclude>**/env.properties</exclude>
                         <exclude>**/messages.properties</exclude>
+                        <exclude>**/test/resources/**/*.json</exclude>
+                        <exclude>**/test/resources/**/*.properties</exclude>
                     </excludes>
                 </configuration>
             </plugin>
