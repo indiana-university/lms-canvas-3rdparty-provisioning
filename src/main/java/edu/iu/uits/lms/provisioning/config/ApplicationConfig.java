@@ -56,23 +56,6 @@ public class ApplicationConfig implements WebMvcConfigurer {
       registry.addResourceHandler("/app/jsrivet/**").addResourceLocations("classpath:/META-INF/resources/jsrivet/").resourceChain(true);
    }
 
-//   @Bean(name = "uaaRestTemplate")
-//   public OAuth2RestTemplate uaaRestTemplate() {
-//      ResourceOwnerPasswordResourceDetails resourceDetails = new ResourceOwnerPasswordResourceDetails();
-//      resourceDetails.setClientId(oAuthConfig.getClientId());
-//      resourceDetails.setClientSecret(oAuthConfig.getClientSecret());
-//      resourceDetails.setUsername(oAuthConfig.getClientId());
-//      resourceDetails.setPassword(oAuthConfig.getClientPassword());
-//      resourceDetails.setAccessTokenUri(oAuthConfig.getAccessTokenUri());
-//      resourceDetails.setClientAuthenticationScheme(AuthenticationScheme.form);
-//
-//      AccessTokenRequest atr = new DefaultAccessTokenRequest();
-//      DefaultOAuth2ClientContext clientContext = new DefaultOAuth2ClientContext(atr);
-//
-//      OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resourceDetails, clientContext);
-//      return restTemplate;
-//   }
-
    @Bean(name = "uaaWebClient")
    WebClient webClient(OAuth2AuthorizedClientManager authorizedClientManager) {
       ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =

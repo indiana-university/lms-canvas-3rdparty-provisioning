@@ -61,12 +61,6 @@ public class AppLaunchSecurityTest {
    public void appAuthnWrongContextLaunch() throws Exception {
       OidcAuthenticationToken token = TestUtils.buildToken("userId",
             "asdf", LTIConstants.INSTRUCTOR_AUTHORITY);
-
-//      LtiAuthenticationToken token = new LtiAuthenticationToken("userId",
-//            "asdf", "systemId",
-//            AuthorityUtils.createAuthorityList(LtiAuthenticationProvider.LTI_USER_ROLE, LTIConstants.INSTRUCTOR_AUTHORITY),
-//            "unit_test");
-
       SecurityContextHolder.getContext().setAuthentication(token);
 
       //This is a secured endpoint and should not allow access without authn
@@ -80,10 +74,7 @@ public class AppLaunchSecurityTest {
    public void appAuthnLaunch() throws Exception {
       OidcAuthenticationToken token = TestUtils.buildToken("userId",
             "asdf", LTIConstants.INSTRUCTOR_AUTHORITY);
-
       SecurityContextHolder.getContext().setAuthentication(token);
-
-//      when(googleCourseToolsService.getCourseInit("1234")).thenReturn(courseInit);
 
       //This is a secured endpoint and should not allow access without authn
       mvc.perform(get("/app/index")
@@ -105,12 +96,6 @@ public class AppLaunchSecurityTest {
    public void randomUrlWithAuth() throws Exception {
       OidcAuthenticationToken token = TestUtils.buildToken("userId",
             "asdf", LTIConstants.INSTRUCTOR_AUTHORITY);
-
-//      LtiAuthenticationToken token = new LtiAuthenticationToken("userId",
-//            "1234", "systemId",
-//
-//            AuthorityUtils.createAuthorityList(LtiAuthenticationProvider.LTI_USER_ROLE),
-//            "unit_test");
       SecurityContextHolder.getContext().setAuthentication(token);
 
       //This is a secured endpoint and should not allow access without authn

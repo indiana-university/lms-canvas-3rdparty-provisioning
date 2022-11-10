@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Profile;
 @Profile("swagger")
 @Configuration
 @OpenAPIDefinition(info = @Info(title = "Department Provisioning REST Endpoints", version = "${deptprov.version}"))
-@SecurityScheme(name = "security_auth_gct", type = SecuritySchemeType.OAUTH2,
+@SecurityScheme(name = "security_auth_deptprov", type = SecuritySchemeType.OAUTH2,
       flows = @OAuthFlows(authorizationCode = @OAuthFlow(
             authorizationUrl = "${springdoc.oAuthFlow.authorizationUrl}",
             scopes = {@OAuthScope(name = "lms:rest")},

@@ -57,7 +57,6 @@ public class GuestAccountService {
                   .retrieve()
                   .toEntity(GuestAccount.class)
                   .block();
-//            ResponseEntity<GuestAccount> guestAccountResponseEntity = ccWebClient.postForEntity(url, requestEntity, GuestAccount.class);
             return guestAccountResponseEntity.getBody();
         } catch (HttpStatusCodeException e) {
             ObjectMapper mapper = new ObjectMapper();
@@ -85,7 +84,6 @@ public class GuestAccountService {
         builder.queryParam("internetAddress", emailAddress);
 
         try {
-//            HttpEntity<GuestAccount> courseResponseEntity = ccWebClient.getForEntity(builder.build().toUri(), GuestAccount.class);
             ResponseEntity<GuestAccount> courseResponseEntity = uaaWebClient.get().uri(builder.build().toUri())
                   .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                   .retrieve()

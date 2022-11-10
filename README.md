@@ -148,6 +148,6 @@ that need to be accounted for while using this setup.
 This is marked as experimental due to the fact that we aren't running with this option at IU.  We are running into CORS
 issues when trying to talk to our OAuth2 service via swagger, so we can't verify if it really works or not!
 
-## Running the roster sync job
+## Running the Results Email job
 There is a job [ResultsEmailJob](src/main/java/edu/iu/uits/lms/provisioning/job/ResultsEmailJob.java) that will process and summarize any completed imports from Canvas.
 Feel free to run it at an interval that makes sense.
