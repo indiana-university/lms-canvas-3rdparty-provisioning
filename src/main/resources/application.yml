@@ -35,7 +35,7 @@ spring:
             provider: uaa
             client-id: ${oauth.tokenprovider.clientId}
             client-secret: ${oauth.tokenprovider.clientSecret}
-            authorization-grant-type: client_credentials
+            authorization-grant-type: password
         provider:
           uaa:
             token-uri: ${oauth.tokenprovider.accessTokenUri}
