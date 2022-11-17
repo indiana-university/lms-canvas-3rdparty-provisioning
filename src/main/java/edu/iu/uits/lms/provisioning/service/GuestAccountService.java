@@ -46,8 +46,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriTemplate;
 import reactor.core.publisher.Mono;
@@ -91,7 +91,7 @@ public class GuestAccountService {
                   .toEntity(GuestAccount.class)
                   .block();
             return guestAccountResponseEntity.getBody();
-        } catch (HttpStatusCodeException e) {
+        } catch (WebClientResponseException e) {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 GuestErrorResponse ger = mapper.readValue(e.getResponseBodyAsString(), GuestErrorResponse.class);
@@ -127,11 +127,11 @@ public class GuestAccountService {
             if (courseResponseEntity != null) {
                 return courseResponseEntity.getBody();
             }
-        } catch (HttpStatusCodeException e) {
+        } catch (WebClientResponseException e) {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 GuestErrorResponse ger = mapper.readValue(e.getResponseBodyAsString(), GuestErrorResponse.class);
-                log.error("Error retrieving guest account for " + emailAddress + ": " + ger.getErrorMessage(), e);
+                log.warn("Error retrieving guest account for " + emailAddress + ": " + ger.getErrorMessage(), e);
             } catch (IOException ioe) {
                 log.error("Error parsing error message", ioe);
             }
