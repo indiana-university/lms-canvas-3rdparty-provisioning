@@ -1,8 +1,0 @@
-batchJob: "resultsemail"
-schedule: "0 0/1 * * *"
-# NOTE: The cron schedule here needs to be in UTC time (or whatever the TZ is on the kube controller), which is likely
-# not the same as the local timezone.
-# Example: If you want something to run at 2am Indiana time, as of October 27, you'd put a 6 for the hour.
-# As of November 1, you'd put an 7 for the hour.
-# EDT (March - November) = UTC -4
-# EST (November - March) = UTC -5

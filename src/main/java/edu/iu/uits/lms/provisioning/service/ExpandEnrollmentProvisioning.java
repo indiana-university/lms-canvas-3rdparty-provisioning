@@ -1,8 +1,40 @@
 package edu.iu.uits.lms.provisioning.service;
 
-import canvas.client.generated.api.ExpandApi;
-import canvas.client.generated.api.UsersApi;
-import canvas.client.generated.model.User;
+/*-
+ * #%L
+ * lms-lti-3rdpartyprovisioning
+ * %%
+ * Copyright (C) 2015 - 2022 Indiana University
+ * %%
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 
+ * 3. Neither the name of the Indiana University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software without
+ *    specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ * #L%
+ */
+
+import edu.iu.uits.lms.canvas.model.User;
+import edu.iu.uits.lms.canvas.services.UserService;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
 import lombok.Data;
@@ -21,10 +53,10 @@ import java.util.List;
 public class ExpandEnrollmentProvisioning {
 
     @Autowired
-    private UsersApi usersApi;
+    private UserService userService;
 
     @Autowired
-    private ExpandApi expandApi;
+    private ExpandListingService expandListingService;
 
     /**
      * Pass in a path to a csv file and this will validate the data and send enrollments to Expand
@@ -102,28 +134,28 @@ public class ExpandEnrollmentProvisioning {
             // get canvasId for user by sis id
             log.debug("Looking up user " + canvasUserId + " by sisId");
 
-            user = usersApi.getUserBySisId(canvasUserId);
+            user = userService.getUserBySisId(canvasUserId);
 
             if (user == null) {
                 log.debug("Not found by sis id. Trying login id");
-                user = usersApi.getUserBySisLoginId(canvasUserId);
+                user = userService.getUserBySisLoginId(canvasUserId);
             }
         } else { // must be login id
             // get canvasId for user by login id
             log.debug("Looking up user " + canvasUserId + " by sisLoginId");
 
-            user = usersApi.getUserBySisLoginId(canvasUserId);
+            user = userService.getUserBySisLoginId(canvasUserId);
 
             if (user == null) {
                 log.debug("Not found by login id. Trying sis id");
-                user = usersApi.getUserBySisId(canvasUserId);
+                user = userService.getUserBySisId(canvasUserId);
             }
         }
 
         if (user != null) {
             log.debug("found user = " + user.getName() + ", canvas id = " + user.getId());
 
-            if (expandApi.addUserToListing(user.getId(), listingId)) {
+            if (expandListingService.addUserToListing(user.getId(), listingId)) {
                 processCounts.incrementSuccessCount();
             } else {
                 processCounts.incrementFailureCount();

@@ -1,10 +1,9 @@
 spring:
   application:
     name: lms-lti-3rdpartyprovisioning
-  profiles:
-    active: redis
   session:
     store-type: none
+  config.import: optional:${app.fullFilePath}/${app.overridesFileName}, optional:${app.fullFilePath}/security.properties, classpath:canvas.properties, optional:classpath:git.properties, optional:classpath:email.properties, classpath:lti-registrations.properties,optional:classpath:derdack.properties,
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -19,20 +18,28 @@ spring:
       jadira:
         usertype:
           autoRegisterUserTypes: true
-#  output:
-#    ansi:
-#      enabled: ALWAYS
   datasource:
-    driverClassName: ${lms.db.driverClass}
     url: ${lms.db.url}
     username: ${lms.db.user}
     password: ${lms.db.password}
-    type: org.springframework.jdbc.datasource.DriverManagerDataSource
+    type: ${lms.db.poolType}
+  cloud.vault.enabled: false
   security:
     oauth2:
       resourceserver:
         jwt:
           jwk-set-uri: ${oauth.tokenprovider.url}/.well-known/jwks.json
+      client:
+        registration:
+          uaa:
+            provider: uaa
+            client-id: ${oauth.tokenprovider.clientId}
+            client-secret: ${oauth.tokenprovider.clientSecret}
+            authorization-grant-type: password
+        provider:
+          uaa:
+            token-uri: ${oauth.tokenprovider.accessTokenUri}
+
   rabbitmq:
     addresses: ${lms.rabbitmq.address.${app.env}}
     username: ${lms.rabbitmq.username.${app.env}}
@@ -80,6 +87,11 @@ deptprov:
   backgroundQueueName: deptprov_queue_${app.env}
   defaultBatchNotificationEmail: iu-uits-es-ess-lms-notify@exchange.iu.edu
 
+expand:
+  baseUrl: ${expand.baseUrl.${app.env}}
+  baseApiUrl: ${expand.baseUrl}/api/v1
+  token: ${expand.token.${app.env}}
+
 server:
   error:
     whitelabel:
@@ -88,11 +100,65 @@ server:
     session:
       timeout: 30m
 
+app:
+  env: dev
+  fullFilePath: file:/usr/src/app/config
+  overridesFileName: overrides.properties
+
+management:
+  endpoint.info.enabled: true
+  endpoints.web.exposure.include: health,info
+  health.redis.enabled: false
+
+springdoc:
+  api-docs.enabled: false
+  swagger-ui.enabled: false
+
 ---
 
 spring:
-  profiles: redis
+  config.activate.on-profile: redis-session
   session:
     store-type: redis
-    redis.namespace: deptprov-${app.version}:session
+    redis.namespace: deptprov-@app.version@:session
+management.health.redis.enabled: true
 
+---
+
+spring:
+  config:
+    activate.on-profile: vault
+    import: vault://
+  cloud.vault:
+    enabled: true
+    config:
+      lifecycle.lease-endpoints: sysleases
+    generic:
+      enabled: false
+    kv:
+      enabled: true
+      backend: ua-vpit/enterprise-systems/lms/kv
+      application-name: lmslti3rdpartyprovisioning
+
+---
+
+spring:
+  config:
+    activate.on-profile: swagger
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api/v3/api-docs
+  cache.disabled: true
+  packagesToScan: edu.iu.uits.lms.provisioning.controller.rest
+  swagger-ui:
+    enabled: false
+    disable-swagger-default-url: true
+    path: /api/swagger-ui.html
+    # Setting supportedSubmitMethods to an empty list is what turns off the "try it out" button
+    #    supportedSubmitMethods:
+    oauth:
+      clientId: ${oauth.tokenprovider.clientId}
+  oAuthFlow:
+    authorizationUrl: ${oauth.tokenprovider.url}/oauth/authorize
+    tokenUrl: ${oauth.tokenprovider.accessTokenUri}

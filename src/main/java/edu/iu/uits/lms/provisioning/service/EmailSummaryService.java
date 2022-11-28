@@ -1,17 +1,51 @@
 package edu.iu.uits.lms.provisioning.service;
 
-import canvas.client.generated.api.CanvasApi;
-import canvas.client.generated.api.ImportApi;
-import canvas.client.generated.model.CanvasUploadStatus;
+/*-
+ * #%L
+ * lms-lti-3rdpartyprovisioning
+ * %%
+ * Copyright (C) 2015 - 2022 Indiana University
+ * %%
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 
+ * 3. Neither the name of the Indiana University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software without
+ *    specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ * #L%
+ */
+
+import edu.iu.uits.lms.canvas.model.uploadstatus.CanvasUploadStatus;
+import edu.iu.uits.lms.canvas.services.CanvasService;
+import edu.iu.uits.lms.canvas.services.ImportService;
+import edu.iu.uits.lms.email.model.EmailDetails;
+import edu.iu.uits.lms.email.service.EmailService;
+import edu.iu.uits.lms.email.service.LmsEmailTooBigException;
+import edu.iu.uits.lms.iuonly.model.LmsBatchEmail;
+import edu.iu.uits.lms.iuonly.services.BatchEmailServiceImpl;
 import edu.iu.uits.lms.provisioning.config.ToolConfig;
 import edu.iu.uits.lms.provisioning.model.CanvasImportId;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
 import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
-import email.client.generated.api.EmailApi;
-import email.client.generated.model.EmailDetails;
-import iuonly.client.generated.api.BatchEmailApi;
-import iuonly.client.generated.model.LmsBatchEmail;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +53,8 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -35,16 +68,16 @@ public class EmailSummaryService {
    private CanvasImportIdRepository canvasImportIdRepository;
 
    @Autowired
-   private EmailApi emailApi;
+   private EmailService emailService;
 
    @Autowired
-   private BatchEmailApi batchEmailApi;
+   private BatchEmailServiceImpl batchEmailService;
 
    @Autowired
-   private ImportApi importApi;
+   private ImportService importService;
 
    @Autowired
-   private CanvasApi canvasApi;
+   private CanvasService canvasService;
 
    @Autowired
    private DeptRouter deptRouter;
@@ -89,13 +122,13 @@ public class EmailSummaryService {
       // parse out the warnings
       for (CanvasImportObject cio : importTrackerMap.values()) {
          //Setting a default email
-         cio.setEmailList(Collections.singletonList(toolConfig.getDefaultBatchNotificationEmail()));
-         LmsBatchEmail batchEmail = batchEmailApi.getBatchEmailFromGroupCode(cio.getGroupCode());
+         cio.setEmailList(new String[] {toolConfig.getDefaultBatchNotificationEmail()});
+         LmsBatchEmail batchEmail = batchEmailService.getBatchEmailFromGroupCode(cio.getGroupCode());
          if (batchEmail != null && batchEmail.getEmails() != null) {
             String[] emailAddresses = batchEmail.getEmails().split(",");
             if (emailAddresses.length > 0) {
                //Set the actual email addresses, if any
-               cio.setEmailList(Arrays.asList(emailAddresses));
+               cio.setEmailList(emailAddresses);
             }
          }
 
@@ -111,13 +144,17 @@ public class EmailSummaryService {
 
          // check if there are warnings, if so, send an email
          if (emailMessage.length() > 0) {
-            String subject = emailApi.getStandardHeader() + " " + cio.getGroupCode() + " Canvas Provisioning Errors";
+            String subject = emailService.getStandardHeader() + " " + cio.getGroupCode() + " Canvas Provisioning Errors";
 
             EmailDetails emailDetails = new EmailDetails();
             emailDetails.setRecipients(cio.getEmailList());
             emailDetails.setSubject(subject);
             emailDetails.setBody(emailMessage.toString());
-            emailApi.sendEmail(emailDetails, true);
+            try {
+               emailService.sendEmail(emailDetails, true);
+            } catch (LmsEmailTooBigException | MessagingException e) {
+               log.error("Unable to send email", e);
+            }
          } else {
             log.info("There were no warnings from the Canvas imports.  Update the records as processed and will not send an email.");
          }
@@ -132,7 +169,7 @@ public class EmailSummaryService {
    protected void processImport(String importId, StringBuilder emailMessage, Map<String,
          MultiValuedMap<DeptRouter.CSV_TYPES, FileContent>> postProcessingMap, CanvasImportObject cio,
                                   List<String> processedImportIds) {
-      CanvasUploadStatus importStatus = importApi.getImportStatus(importId);
+      CanvasUploadStatus importStatus = importService.getImportStatus(importId);
       // a call to see if the import for this id is finished
       boolean canvasFinished = false;
       String endedAt = importStatus.getEndedAt();
@@ -147,7 +184,7 @@ public class EmailSummaryService {
          List<List<String>> canvasErrorsList = importStatus.getProcessingErrors();
 
          if (emailMessage.length() == 0) {
-            emailMessage.append("Here is a report of errors from Canvas (" + canvasApi.getBaseUrl() + "):\r\n\r\n");
+            emailMessage.append("Here is a report of errors from Canvas (" + canvasService.getBaseUrl() + "):\r\n\r\n");
          }
 
          emailMessage.append("From importId: " + importId + "\r\n\r\n");
@@ -209,7 +246,7 @@ public class EmailSummaryService {
    @Setter
    @Getter
    protected static class CanvasImportObject {
-      private List<String> emailList;
+      private String[] emailList;
       private StringBuilder emailMessage;
       private String groupCode;
       private List<String> importIdsList;

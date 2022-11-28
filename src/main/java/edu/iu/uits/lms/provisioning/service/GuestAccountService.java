@@ -1,5 +1,38 @@
 package edu.iu.uits.lms.provisioning.service;
 
+/*-
+ * #%L
+ * lms-lti-3rdpartyprovisioning
+ * %%
+ * Copyright (C) 2015 - 2022 Indiana University
+ * %%
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 
+ * 3. Neither the name of the Indiana University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software without
+ *    specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ * #L%
+ */
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.iu.uits.lms.provisioning.config.ToolConfig;
 import edu.iu.uits.lms.provisioning.model.GuestAccount;
@@ -13,10 +46,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriTemplate;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URI;
@@ -31,8 +65,8 @@ import java.util.List;
 public class GuestAccountService {
 
     @Autowired
-    @Qualifier("uaaRestTemplate")
-    private RestTemplate uaaRestTemplate;
+    @Qualifier("uaaWebClient")
+    private WebClient uaaWebClient;
 
     @Autowired
     private ToolConfig toolConfig;
@@ -50,9 +84,14 @@ public class GuestAccountService {
         GuestAccount ga = new GuestAccount();
 
         try {
-            ResponseEntity<GuestAccount> guestAccountResponseEntity = uaaRestTemplate.postForEntity(url, requestEntity, GuestAccount.class);
+            ResponseEntity<GuestAccount> guestAccountResponseEntity = uaaWebClient.post().uri(url)
+                  .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                  .body(Mono.just(input), GuestInput.class)
+                  .retrieve()
+                  .toEntity(GuestAccount.class)
+                  .block();
             return guestAccountResponseEntity.getBody();
-        } catch (HttpStatusCodeException e) {
+        } catch (WebClientResponseException e) {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 GuestErrorResponse ger = mapper.readValue(e.getResponseBodyAsString(), GuestErrorResponse.class);
@@ -78,17 +117,21 @@ public class GuestAccountService {
         builder.queryParam("internetAddress", emailAddress);
 
         try {
-            HttpEntity<GuestAccount> courseResponseEntity = uaaRestTemplate.getForEntity(builder.build().toUri(), GuestAccount.class);
+            ResponseEntity<GuestAccount> courseResponseEntity = uaaWebClient.get().uri(builder.build().toUri())
+                  .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                  .retrieve()
+                  .toEntity(GuestAccount.class)
+                  .block();
             log.debug("{}", courseResponseEntity);
 
             if (courseResponseEntity != null) {
                 return courseResponseEntity.getBody();
             }
-        } catch (HttpStatusCodeException e) {
+        } catch (WebClientResponseException e) {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 GuestErrorResponse ger = mapper.readValue(e.getResponseBodyAsString(), GuestErrorResponse.class);
-                log.error("Error retrieving guest account for " + emailAddress + ": " + ger.getErrorMessage(), e);
+                log.warn("Error retrieving guest account for " + emailAddress + ": " + ger.getErrorMessage(), e);
             } catch (IOException ioe) {
                 log.error("Error parsing error message", ioe);
             }

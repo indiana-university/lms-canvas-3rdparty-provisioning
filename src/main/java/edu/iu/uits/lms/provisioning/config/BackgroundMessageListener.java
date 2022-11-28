@@ -1,6 +1,46 @@
 package edu.iu.uits.lms.provisioning.config;
 
+/*-
+ * #%L
+ * lms-lti-3rdpartyprovisioning
+ * %%
+ * Copyright (C) 2015 - 2022 Indiana University
+ * %%
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 
+ * 3. Neither the name of the Indiana University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software without
+ *    specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ * #L%
+ */
+
 import com.rabbitmq.client.Channel;
+import edu.iu.uits.lms.email.model.EmailDetails;
+import edu.iu.uits.lms.email.service.EmailService;
+import edu.iu.uits.lms.email.service.LmsEmailTooBigException;
+import edu.iu.uits.lms.iuonly.model.DeptProvisioningUser;
+import edu.iu.uits.lms.iuonly.model.LmsBatchEmail;
+import edu.iu.uits.lms.iuonly.services.BatchEmailServiceImpl;
+import edu.iu.uits.lms.iuonly.services.DeptProvisioningUserServiceImpl;
 import edu.iu.uits.lms.provisioning.model.CanvasImportId;
 import edu.iu.uits.lms.provisioning.model.PostProcessingData;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
@@ -12,12 +52,6 @@ import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
 import edu.iu.uits.lms.provisioning.service.exception.FileUploadException;
 import edu.iu.uits.lms.provisioning.service.exception.ProvisioningException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
-import email.client.generated.api.EmailApi;
-import email.client.generated.model.EmailDetails;
-import iuonly.client.generated.api.BatchEmailApi;
-import iuonly.client.generated.api.DeptProvisioningUserApi;
-import iuonly.client.generated.model.DeptProvisioningUser;
-import iuonly.client.generated.model.LmsBatchEmail;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
@@ -29,6 +63,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
+import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,16 +80,16 @@ public class BackgroundMessageListener {
    private DeptRouter deptRouter;
 
    @Autowired
-   private DeptProvisioningUserApi deptProvisioningUserApi;
+   private DeptProvisioningUserServiceImpl deptProvisioningUserApi;
 
    @Autowired
    private CanvasImportIdRepository canvasImportIdRepository;
 
    @Autowired
-   private EmailApi emailApi;
+   private EmailService emailService;
 
    @Autowired
-   private BatchEmailApi batchEmailApi;
+   private BatchEmailServiceImpl batchEmailService;
 
    @RabbitHandler
    public void receive(BackgroundMessage message, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
@@ -75,8 +110,8 @@ public class BackgroundMessageListener {
       MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> postProcessingDataMap = new ArrayListValuedHashMap<>();
 
       DeptProvisioningUser user = deptProvisioningUserApi.findByUsername(message.getUsername());
-      boolean allowSisEnrollments = user.getAllowSisEnrollments();
-      boolean overrideRestrictions = user.getOverrideRestrictions();
+      boolean allowSisEnrollments = user.isAllowSisEnrollments();
+      boolean overrideRestrictions = user.isOverrideRestrictions();
       List<String> authorizedAccounts = new ArrayList<>();
       String authorizedAccountString = user.getAuthorizedAccounts();
 
@@ -125,14 +160,14 @@ public class BackgroundMessageListener {
     * @param pe
     */
    private void sendEmail(String dept, ProvisioningException pe) {
-      LmsBatchEmail emails = batchEmailApi.getBatchEmailFromGroupCode(dept);
+      LmsBatchEmail emails = batchEmailService.getBatchEmailFromGroupCode(dept);
       String[] emailAddresses = null;
       if (emails != null) {
          emailAddresses = emails.getEmails().split(",");
       }
       if (emailAddresses != null && emailAddresses.length > 0) {
          // create the subject line of the email
-         String subject = emailApi.getStandardHeader() + " processing errors for " + dept;
+         String subject = emailService.getStandardHeader() + " processing errors for " + dept;
 
          StringBuilder finalMessage = new StringBuilder();
          finalMessage.append("The preprocessing stage of your Canvas provisioning job is incomplete and encountered the following errors below.\r\n\r\n");
@@ -144,10 +179,14 @@ public class BackgroundMessageListener {
 
          // email has been combined together, so send it!
          EmailDetails details = new EmailDetails();
-         details.setRecipients(Arrays.asList(emailAddresses));
+         details.setRecipients(emailAddresses);
          details.setSubject(subject);
          details.setBody(finalMessage.toString());
-         emailApi.sendEmail(details, true);
+         try {
+            emailService.sendEmail(details, true);
+         } catch (LmsEmailTooBigException | MessagingException e) {
+            log.error("Unable to send email", e);
+         }
       }
    }
 
