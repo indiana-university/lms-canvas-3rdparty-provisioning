@@ -60,7 +60,9 @@ public class ExpandEnrollmentProvisioning {
 
     /**
      * Pass in a path to a csv file and this will validate the data and send enrollments to Expand
-     * @param fileToProcess
+     * @param fileToProcess List of files to process
+     * @param deferredProcessing Flag indicating of processing should be deferred
+     * @return List of ProvisioningResult objects
      */
     public List<ProvisioningResult> processEnrollments(Collection<FileContent> fileToProcess, boolean deferredProcessing) {
         List<ProvisioningResult> prs = new ArrayList<>();
@@ -83,8 +85,9 @@ public class ExpandEnrollmentProvisioning {
     }
 
     /**
-     * @param fileToProcess
-     * @return
+     * Process the content
+     * @param fileToProcess File content to be processed
+     * @return Email message
      */
     private StringBuilder processInputFiles(StringArrayFileContent fileToProcess) {
         StringBuilder emailMessage = new StringBuilder(fileToProcess.getFileName() + ":\r\n");

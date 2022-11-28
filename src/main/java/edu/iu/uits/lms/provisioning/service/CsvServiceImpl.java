@@ -62,10 +62,9 @@ public class CsvServiceImpl implements CsvService {
      * Generic method to write csv files using the open CSVWriter. The headerArray can be null or empty and will still
      * function correctly. Will throw an exception if the stringArrayList is null or empty
      *
-     * @param stringArrayList
-     * @param headerArray
-     * @param filePath
-     * @return
+     * @param stringArrayList CSV "contents"
+     * @param headerArray Array of header values
+     * @param filePath Path where csv file will be written
      */
     @Override
     public void writeCsv(List<String[]> stringArrayList, String[] headerArray, String filePath) throws IOException {
@@ -110,8 +109,9 @@ public class CsvServiceImpl implements CsvService {
      * Use this to zip up csv files into one archive.  Provide a list of file names to archive and
      * the path/filename of the zip file to create
      *
-     * @param fileList
-     * @param filePath
+     * @param fileList List of files to zip up
+     * @param filePath Path where zip file will be written
+     * @return Zip file that was created
      */
     @Override
     public File zipCsv(List<ProvisioningResult.FileObject> fileList, String filePath) {

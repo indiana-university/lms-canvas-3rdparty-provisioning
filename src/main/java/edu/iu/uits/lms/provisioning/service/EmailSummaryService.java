@@ -253,6 +253,7 @@ public class EmailSummaryService {
 
       /**
        * Convenience method to add an importId to the importIdsList
+       * @param importId ImportId to add
        */
       public void addImportId(String importId) {
          this.importIdsList.add(importId);

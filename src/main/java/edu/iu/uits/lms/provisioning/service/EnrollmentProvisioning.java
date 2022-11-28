@@ -91,7 +91,11 @@ public class EnrollmentProvisioning {
 
     /**
      * Pass in a path to a csv file and a department code and this validate the data and send enrollments to Canvas
-     * @param fileToProcess
+     * @param fileToProcess List of files to process
+     * @param allowSis Flag indicating if sis enrollments are allowed
+     * @param authorizedAccounts List of authorized accounts
+     * @param overrideRestrictions Flag indicating of restrictions are to be overridden
+     * @return List of ProvisioningResult objects
      */
     public List<ProvisioningResult> processEnrollments(Collection<FileContent> fileToProcess, boolean allowSis, List<String> authorizedAccounts, boolean overrideRestrictions) {
         List<ProvisioningResult> prs = new ArrayList<>();

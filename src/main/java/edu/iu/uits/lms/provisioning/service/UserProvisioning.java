@@ -78,7 +78,10 @@ public class UserProvisioning {
     /**
      * Pass in a path to a csv file and a department code and this validate the data, attempt to make IU Guest Accounts,
      * create new Canvas accounts, and update existing Canvas accounts
-     * @param filesToProcess
+     * @param filesToProcess Files to process
+     * @param customNotificationBuilder CustomNotificationBuilder
+     * @param dept Department to be processed
+     * @return List of ProvisioningResult objects
      */
     public List<ProvisioningResult> processUsers(Collection<FileContent> filesToProcess, CustomNotificationBuilder customNotificationBuilder,
                                       String dept) {

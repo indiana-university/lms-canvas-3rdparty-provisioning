@@ -65,7 +65,10 @@ public class CourseProvisioning {
     /**
      * Pass in a path to a csv file and a department code and this validate the data and send enrollments to Canvas
      * It is also assumed that if you're calling this method, you've passed in a valid Canvas course.csv header!
-     * @param fileToProcess
+     * @param fileToProcess List of files to process
+     * @param authorizedAccounts List of authorized accounts
+     * @param overrideRestrictions Flag indicating of restrictions should be overridden
+     * @return List of ProvisioningResult objects
      */
     public List<ProvisioningResult> processCourses(Collection<FileContent> fileToProcess, List<String> authorizedAccounts, boolean overrideRestrictions) {
         List<ProvisioningResult> prs = new ArrayList<>();

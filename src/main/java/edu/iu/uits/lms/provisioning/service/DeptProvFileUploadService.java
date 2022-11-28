@@ -88,7 +88,7 @@ public class DeptProvFileUploadService {
     *
     * @param file Input zip file
     * @return File object representing the directory where all the files were unzipped
-    * @throws IOException
+    * @throws IOException Throws IOException when there are file related issues
     */
    public List<MultipartFile> unzip(MultipartFile file) throws IOException {
       List<MultipartFile> files = new ArrayList<>();
@@ -149,11 +149,12 @@ public class DeptProvFileUploadService {
 
    /**
     *
-    * @param files
-    * @param customUsersNotification
-    * @param department
-    * @param principal
-    * @return
+    * @param files List of files to parse
+    * @param customUsersNotification Flag indicating if a custom user notification is desired
+    * @param department Department the upload is for
+    * @param principal Principal
+    * @param source Source of the upload
+    * @return ResponseEntity with the FileUploadResult
     */
    public ResponseEntity<FileUploadResult> parseFiles(MultipartFile[] files, boolean customUsersNotification,
                                                       String department, Object principal, Constants.SOURCE source) {
@@ -184,9 +185,9 @@ public class DeptProvFileUploadService {
 
    /**
     *
-    * @param principal
-    * @return
-    * @throws UserAuthException
+    * @param principal Principal object
+    * @return Validated Username
+    * @throws UserAuthException When user is not authorized
     */
    protected String getValidatedUsername(Object principal) throws UserAuthException {
       log.debug("Principal: {}", principal);
