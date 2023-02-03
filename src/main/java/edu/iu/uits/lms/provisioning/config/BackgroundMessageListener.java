@@ -183,7 +183,7 @@ public class BackgroundMessageListener {
          details.setSubject(subject);
          details.setBody(finalMessage.toString());
          try {
-            emailService.sendEmail(details, true);
+            emailService.sendEmail(details);
          } catch (LmsEmailTooBigException | MessagingException e) {
             log.error("Unable to send email", e);
          }

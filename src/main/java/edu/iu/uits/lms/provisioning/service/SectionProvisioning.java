@@ -37,7 +37,7 @@ import edu.iu.uits.lms.canvas.model.Account;
 import edu.iu.uits.lms.canvas.model.Course;
 import edu.iu.uits.lms.canvas.services.AccountService;
 import edu.iu.uits.lms.canvas.services.CourseService;
-import edu.iu.uits.lms.iuonly.services.SudsServiceImpl;
+import edu.iu.uits.lms.iuonly.services.SisServiceImpl;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +66,7 @@ public class SectionProvisioning {
    private CsvService csvService;
 
    @Autowired
-   private SudsServiceImpl sudsService;
+   private SisServiceImpl sisService;
 
    public List<ProvisioningResult> processSections(Collection<FileContent> fileToProcess, List<String> authorizedAccounts, boolean overrideRestrictions) {
       List<ProvisioningResult> prs = new ArrayList<>();
@@ -139,7 +139,7 @@ public class SectionProvisioning {
 
             if (sisSections.containsKey(sectionId)) {
                if (sisSections.get(sectionId)) {
-                  // confirmed section is 'true' in the map, so skip the suds lookup later
+                  // confirmed section is 'true' in the map, so skip the sis lookup later
                   log.debug("Skipped the sectionId " + sectionId + " check because we already verified it as good.");
                   doSisCheck = false;
                } else {
@@ -153,14 +153,8 @@ public class SectionProvisioning {
 
             if (doSisCheck) {
                // look up for SIS stuff
-               if (sudsService.getSudsCourseBySiteId(courseId) != null) {
+               if (sisService.isLegitSisCourse(courseId)) {
                   log.debug("Skipped " + rowCounter + " because it is a SIS course and user did not have SIS permission.");
-                  errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
-                  sisCourses.put(courseId, false);
-                  rejected++;
-                  continue;
-               } else if (sudsService.getSudsArchiveCourseBySiteId(courseId) != null) {
-                  log.debug("Skipped " + rowCounter + " because it is an archived SIS course and user did not have SIS permission.");
                   errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                   sisCourses.put(courseId, false);
                   rejected++;
@@ -168,14 +162,8 @@ public class SectionProvisioning {
                }
 
                // look up for SIS stuff
-               if (sudsService.getSudsCourseBySiteId(sectionId) != null) {
+               if (sisService.isLegitSisCourse(sectionId)) {
                   log.debug("Skipped " + rowCounter + " because it is a SIS section and user did not have SIS permission.");
-                  errorMessage.append("\tLine " + rowCounter + ": Section " + sectionId + " rejected. Not authorized for SIS changes.\r\n");
-                  sisSections.put(sectionId, false);
-                  rejected++;
-                  continue;
-               } else if (sudsService.getSudsArchiveCourseBySiteId(sectionId) != null) {
-                  log.debug("Skipped " + rowCounter + " because it is an archived SIS section and user did not have SIS permission.");
                   errorMessage.append("\tLine " + rowCounter + ": Section " + sectionId + " rejected. Not authorized for SIS changes.\r\n");
                   sisSections.put(sectionId, false);
                   rejected++;

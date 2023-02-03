@@ -39,7 +39,7 @@ import edu.iu.uits.lms.canvas.model.User;
 import edu.iu.uits.lms.canvas.services.AccountService;
 import edu.iu.uits.lms.canvas.services.CourseService;
 import edu.iu.uits.lms.canvas.services.UserService;
-import edu.iu.uits.lms.iuonly.services.SudsServiceImpl;
+import edu.iu.uits.lms.iuonly.services.SisServiceImpl;
 import edu.iu.uits.lms.provisioning.model.ImsUser;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
@@ -87,7 +87,7 @@ public class EnrollmentProvisioning {
     private CourseService courseService;
 
     @Autowired
-    private SudsServiceImpl sudsService;
+    private SisServiceImpl sisService;
 
     /**
      * Pass in a path to a csv file and a department code and this validate the data and send enrollments to Canvas
@@ -200,14 +200,8 @@ public class EnrollmentProvisioning {
                 // if user does not have overrideRestrictions, allowSis, or the course/sections have not been looked up yet, do the SIS checks
                 if (doSisCheck) {
                     // look up for SIS stuff
-                    if (sudsService.getSudsCourseBySiteId(courseId) != null) {
+                    if (sisService.isLegitSisCourse(courseId)) {
                         log.warn("Skipped " + emailOrUserId + " because it is in a SIS course and user did not have SIS permission.");
-                        rejected++;
-                        emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
-                        sisCourses.put(courseId, false);
-                        continue;
-                    } else if (sudsService.getSudsArchiveCourseBySiteId(courseId) != null) {
-                        log.warn("Skipped " + emailOrUserId + " because it is in an archived SIS course and user did not have SIS permission.");
                         rejected++;
                         emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                         sisCourses.put(courseId, false);
@@ -215,14 +209,8 @@ public class EnrollmentProvisioning {
                     }
 
                     // look up for SIS stuff
-                    if (sudsService.getSudsCourseBySiteId(sectionId) != null) {
-                        log.warn("Skipped " + emailOrUserId + " because it is in an archived SIS section and user did not have SIS permission.");
-                        rejected++;
-                        emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
-                        sisSections.put(sectionId, false);
-                        continue;
-                    } else if (sudsService.getSudsArchiveCourseBySiteId(sectionId) != null) {
-                        log.warn("Skipped " + emailOrUserId + " because it is in an archived SIS section and user did not have SIS permission.");
+                    if (sisService.isLegitSisCourse(sectionId)) {
+                        log.warn("Skipped " + emailOrUserId + " because it is in a SIS section and user did not have SIS permission.");
                         rejected++;
                         emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
                         sisSections.put(sectionId, false);

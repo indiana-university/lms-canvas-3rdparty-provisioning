@@ -34,7 +34,7 @@ package edu.iu.uits.lms.provisioning.service;
  */
 
 import edu.iu.uits.lms.canvas.services.AccountService;
-import edu.iu.uits.lms.iuonly.services.SudsServiceImpl;
+import edu.iu.uits.lms.iuonly.services.SisServiceImpl;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +60,7 @@ public class CourseProvisioning {
     private CsvService csvService = null;
 
     @Autowired
-    private SudsServiceImpl sudsService;
+    private SisServiceImpl sisService;
 
     /**
      * Pass in a path to a csv file and a department code and this validate the data and send enrollments to Canvas
@@ -120,7 +120,7 @@ public class CourseProvisioning {
 
                 if (sisCourses.containsKey(courseId)) {
                     if (sisCourses.get(courseId)) {
-                        // confirmed course is 'true' in the map, so skip the suds lookup later
+                        // confirmed course is 'true' in the map, so skip the sis lookup later
                         doSisCheck = false;
                     } else {
                         // confirmed course is 'false', so skip this line since we know it's not ok to use
@@ -133,14 +133,8 @@ public class CourseProvisioning {
 
                 // look up for SIS stuff
                 if (doSisCheck) {
-                    if (sudsService.getSudsCourseBySiteId(courseId) != null) {
+                    if (sisService.isLegitSisCourse(courseId)) {
                         log.debug("Skipped " + rowCounter + " because it is a SIS course and user did not have SIS permission.");
-                        errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
-                        sisCourses.put(courseId, false);
-                        rejected++;
-                        continue;
-                    } else if (sudsService.getSudsArchiveCourseBySiteId(courseId) != null) {
-                        log.debug("Skipped " + rowCounter + " because it is an archived SIS course and user did not have SIS permission.");
                         errorMessage.append("\tLine " + rowCounter + ": Course " + courseId + " rejected. Not authorized for SIS changes.\r\n");
                         sisCourses.put(courseId, false);
                         rejected++;

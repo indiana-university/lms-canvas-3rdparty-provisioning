@@ -64,7 +64,7 @@ public class CustomNotificationService {
       details.setPriority(Priority.NORMAL);
       details.setFrom(customNotificationBuilder.getSender());
       try {
-         emailService.sendEmail(details, false);
+         emailService.sendEmail(details);
       } catch (LmsEmailTooBigException | MessagingException e) {
          log.error("Unable to send email", e);
       }
