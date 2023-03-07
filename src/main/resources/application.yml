@@ -36,6 +36,7 @@ spring:
             client-id: ${oauth.tokenprovider.clientId}
             client-secret: ${oauth.tokenprovider.clientSecret}
             authorization-grant-type: password
+            client-authentication-method: post
         provider:
           uaa:
             token-uri: ${oauth.tokenprovider.accessTokenUri}
@@ -106,9 +107,10 @@ app:
   overridesFileName: overrides.properties
 
 management:
-  endpoint.info.enabled: true
-  endpoints.web.exposure.include: health,info
+  endpoint.lms.enabled: true
+  endpoints.web.exposure.include: health,lms
   health.redis.enabled: false
+  info.java.enabled: true
 
 springdoc:
   api-docs.enabled: false
