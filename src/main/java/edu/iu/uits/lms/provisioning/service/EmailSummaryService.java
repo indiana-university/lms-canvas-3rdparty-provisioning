@@ -151,7 +151,7 @@ public class EmailSummaryService {
             emailDetails.setSubject(subject);
             emailDetails.setBody(emailMessage.toString());
             try {
-               emailService.sendEmail(emailDetails, true);
+               emailService.sendEmail(emailDetails);
             } catch (LmsEmailTooBigException | MessagingException e) {
                log.error("Unable to send email", e);
             }

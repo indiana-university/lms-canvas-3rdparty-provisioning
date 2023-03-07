@@ -33,6 +33,7 @@ package edu.iu.uits.lms.provisioning;
  * #L%
  */
 
+import edu.iu.uits.lms.iuonly.services.SisServiceImpl;
 import edu.iu.uits.lms.lti.config.TestUtils;
 import edu.iu.uits.lms.provisioning.config.ToolConfig;
 import edu.iu.uits.lms.provisioning.controller.rest.UploadRestController;
@@ -75,6 +76,9 @@ public class UploadRestControllerTest {
 
    @MockBean
    private DeptProvFileUploadService fileUploadService;
+
+   @MockBean
+   private SisServiceImpl sisService;
 
    @Test
    public void restNoAuthnLaunch() throws Exception {

@@ -40,6 +40,7 @@ import edu.iu.uits.lms.provisioning.config.ExpandEnvironmentConfig;
 import edu.iu.uits.lms.provisioning.config.SecurityConfig;
 import edu.iu.uits.lms.provisioning.service.DeptRouter;
 import edu.iu.uits.lms.provisioning.service.ExpandListingService;
+import org.springframework.boot.context.metrics.buffering.BufferingApplicationStartup;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
@@ -47,10 +48,13 @@ import org.springframework.context.annotation.Import;
 public class DeptProvSwaggerConfig {
 
    @MockBean
-   private DeptRouter deptRouter;
+   private BackgroundMessageListener backgroundMessageListener;
 
    @MockBean
-   private BackgroundMessageListener backgroundMessageListener;
+   private BufferingApplicationStartup bufferingApplicationStartup;
+
+   @MockBean
+   private DeptRouter deptRouter;
 
    @MockBean
    private ExpandConfiguration expandConfiguration;

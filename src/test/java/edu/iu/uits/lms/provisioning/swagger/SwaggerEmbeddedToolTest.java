@@ -33,8 +33,10 @@ package edu.iu.uits.lms.provisioning.swagger;
  * #L%
  */
 
+import edu.iu.uits.lms.iuonly.services.SisServiceImpl;
 import edu.iu.uits.lms.lti.swagger.AbstractSwaggerEmbeddedToolTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -45,6 +47,9 @@ import static edu.iu.uits.lms.iuonly.IuCustomConstants.IUCUSTOMREST_PROFILE;
 @SpringBootTest(classes = {DeptProvSwaggerConfig.class})
 @ActiveProfiles({IUCUSTOMREST_PROFILE, EMAILREST_PROFILE})
 public class SwaggerEmbeddedToolTest extends AbstractSwaggerEmbeddedToolTest {
+
+   @MockBean
+   private SisServiceImpl sisService;
 
    @Override
    protected List<String> getEmbeddedSwaggerToolPaths() {

@@ -34,6 +34,7 @@ package edu.iu.uits.lms.provisioning;
  */
 
 import edu.iu.uits.lms.iuonly.services.DeptProvisioningUserServiceImpl;
+import edu.iu.uits.lms.iuonly.services.SisServiceImpl;
 import edu.iu.uits.lms.lti.LTIConstants;
 import edu.iu.uits.lms.lti.config.TestUtils;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessageSender;
@@ -79,6 +80,9 @@ public class AppLaunchSecurityTest {
 
    @MockBean
    private BackgroundMessageSender backgroundMessageSender;
+
+   @MockBean
+   private SisServiceImpl sisService;
 
 
    @Test
