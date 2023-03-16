@@ -50,20 +50,14 @@ import java.io.IOException;
 @Profile("resultsemail")
 public class ResultsEmailJob implements BatchJob {
 
-
+    @Autowired
     private EmailSummaryService emailSummaryService;
+
+    @Autowired
     private ConfigurableApplicationContext ctx;
 
     @Autowired
-    private ResultsEmailJob job;
-
-    @Autowired
     private ErrorContactServiceImpl errorContactService;
-
-    public ResultsEmailJob(EmailSummaryService emailSummaryService, ConfigurableApplicationContext ctx) {
-        this.emailSummaryService = emailSummaryService;
-        this.ctx = ctx;
-    }
 
     private void resultsEmail() throws IOException {
         log.info("ResultsEmail job running!");
@@ -74,7 +68,7 @@ public class ResultsEmailJob implements BatchJob {
     public void run() {
 
         try {
-            job.resultsEmail();
+            resultsEmail();
         } catch (Exception e) {
             log.error("Caught exception performing results email", e);
 

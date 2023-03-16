@@ -32,18 +32,16 @@
  */
 $(document).ready(function(){
 
-    // Listen for a custom "modalOpen" event
-    document.addEventListener('modalOpen', event => {
-        if (event.detail.name() === 'modal-preview') {
-            var selectedFrom = $('#senderUsername option:selected').text();
-            var subject = $('#msgSubject').val();
-            var body = $('#msgBody').val();
+    // Listen for a custom "rvtDialogOpen" event
+    document.addEventListener('rvtDialogOpened', function (event) {
+        var selectedFrom = $('#senderUsername option:selected').text();
+        var subject = $('#msgSubject').val();
+        var body = $('#msgBody').val();
 
-            $('#modalFrom').text(selectedFrom);
-            $('#modalSubject').text(subject);
-            $('#modalBody').text(body);
-        }
-    }, false);
+        $('#dialogFrom').text(selectedFrom);
+        $('#dialogSubject').text(subject);
+        $('#dialogBody').text(body);
+    });
 
     $('#uploadSubmit').click(function() {
         var button = $(this);

@@ -43,11 +43,11 @@
 <body>
     <div layout:fragment="content">
 
-        <div th:if="${uploadSuccess}" class="rvt-alert rvt-alert--success rvt-m-top-md" role="alert" aria-labelledby="success-alert-title">
-            <h1 class="rvt-alert__title" id="success-alert-title">Files are being processed!</h1>
+        <div th:if="${uploadSuccess}" class="rvt-alert rvt-alert--success [ rvt-m-top-md ]" role="alert" aria-labelledby="success-alert-title" data-rvt-alert="success">
+            <div class="rvt-alert__title" id="success-alert-title">Files are being processed!</div>
             <p class="rvt-alert__message">The files are being processed. Summary emails will be sent at a later time.</p>
-            <button type="button" class="rvt-alert__dismiss" data-alert-close>
-                <span class="v-hide">Dismiss this alert</span>
+            <button type="button" class="rvt-alert__dismiss" data-rvt-alert-close>
+                <span class="rvt-sr-only">Close</span>
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
                     <path fill="currentColor" d="M9.41,8l5.29-5.29a1,1,0,0,0-1.41-1.41L8,6.59,2.71,1.29A1,1,0,0,0,1.29,2.71L6.59,8,1.29,13.29a1,1,0,1,0,1.41,1.41L8,9.41l5.29,5.29a1,1,0,0,0,1.41-1.41Z"/>
                 </svg>
@@ -56,27 +56,25 @@
 
         <h1 class="rvt-ts-36">Canvas Provisioning Tool</h1>
 
-        <div class="rvt-box">
-            <div class="rvt-box__body">
-                <p>Make sure the files being uploaded are in the correct format. Format details can be found at <a href="https://kb.iu.edu/d/bfqc" target="_blank">https://kb.iu.edu/d/bfqc</a>.</p>
+        <div class="rvt-border-all rvt-border-radius rvt-p-all-sm">
+            <div class="rvt-m-all-none">
+                <p>Make sure the files being uploaded are in the correct format. Format details can be found at <a href="https://kb.iu.edu/d/bfqc" target="_blank">https://kb.iu.edu/d/bfqc <span class="rvt-sr-only">Opens in new window</span><rvt-icon name="link-external"></rvt-icon></a>.</p>
                 <form id="uploadForm" th:action="@{/app/upload}" method="post" enctype="multipart/form-data">
-                    <label for="deptDropdown">Department/Organization</label>
-                    <div class="rvt-width-md">
-                        <select id="deptDropdown" name="deptDropdown" class="rvt-m-bottom-md">
-                            <option value="" selected>Select...</option>
-                            <option th:each="group : ${groups}" th:value="${group}" th:text="${group}" th:selected="${group == selectedGroup}">dept</option>
-                        </select>
-                    </div>
-                    <p class="rvt-text-bold">Select all of the files to be provisioned in Canvas and/or Expand</p>
-                    <div class="rvt-file" data-upload="deptFileUpload">
-                        <input type="file" id="deptFileUpload" name="deptFileUpload" aria-describedby="deptFileUploadDescription" multiple>
+                    <label for="deptDropdown" class="rvt-label">Department/Organization</label>
+                    <select id="deptDropdown" name="deptDropdown" class="rvt-select rvt-width-md rvt-m-bottom-md">
+                        <option value="" selected>Select...</option>
+                        <option th:each="group : ${groups}" th:value="${group}" th:text="${group}" th:selected="${group == selectedGroup}">dept</option>
+                    </select>
+                    <p>Select all of the files to be provisioned in Canvas and/or Expand</p>
+                    <div class="rvt-file" data-rvt-file-input="deptFileUpload">
+                        <input type="file" data-rvt-file-input-button="deptFileUpload" id="deptFileUpload" name="deptFileUpload" aria-describedby="deptFileUploadDescription" multiple>
                         <label for="deptFileUpload" class="rvt-button rvt-button--secondary">
                             <span>Upload file(s)</span>
                             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
                                 <path fill="currentColor" d="M10.41,1H3.5A1.3,1.3,0,0,0,2.2,2.3V13.7A1.3,1.3,0,0,0,3.5,15h9a1.3,1.3,0,0,0,1.3-1.3V4.39ZM11.8,5.21V6H9.25V3h.34ZM4.2,13V3h3V6.75A1.25,1.25,0,0,0,8.5,8h3.3v5Z"/>
                             </svg>
                         </label>
-                        <div class="rvt-file__preview" data-file-preview="deptFileUpload" id="deptFileUploadDescription">
+                        <div class="rvt-file__preview" data-rvt-file-input-preview="deptFileUpload" id="deptFileUploadDescription">
                             No file(s) selected
                         </div>
                     </div>
@@ -89,12 +87,14 @@
                         </li>
                     </ul>
                     <div class="rvt-m-top-sm">
-                        <fieldset>
-                            <legend class="sr-only">Checkbox to send custom notifications to new guest users</legend>
-                            <ul class="rvt-inline-list">
+                        <fieldset class="rvt-fieldset">
+                            <legend class="rvt-sr-only">Checkbox to send custom notifications to new guest users</legend>
+                            <ul class="rvt-list-inline">
                                 <li>
-                                    <input type="checkbox" name="customUsersNotification" id="customUsersNotification" th:checked="${checkedNotification}">
-                                    <label for="customUsersNotification" class="rvt-m-right-sm">Send custom notifications to new guest users?</label>
+                                    <div class="rvt-checkbox">
+                                        <input type="checkbox" name="customUsersNotification" id="customUsersNotification" th:checked="${checkedNotification}">
+                                        <label for="customUsersNotification" class="rvt-m-right-sm">Send custom notifications to new guest users?</label>
+                                    </div>
                                 </li>
                             </ul>
                         </fieldset>

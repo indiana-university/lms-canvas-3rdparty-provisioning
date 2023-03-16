@@ -44,72 +44,73 @@
     <div layout:fragment="content">
         <h1 class="rvt-ts-36">Canvas Provisioning Tool</h1>
 
-        <div class="rvt-box">
-            <div class="rvt-box__body">
+        <div class="rvt-border-all rvt-border-radius rvt-p-all-sm">
+            <div class="rvt-m-all-none">
                 <h2 class="rvt-ts-26 rvt-m-bottom-sm">Send Custom Notification to New Guests</h2>
                 <form id="notificationForm" th:action="@{/app/submit}" method="post" th:object="${notifForm}">
                     <div class="rvt-width-xl">
-                        <label for="senderUsername">Sender's Name</label>
-                        <select id="senderUsername" th:field="*{sender}">
+                        <label for="senderUsername" class="rvt-label">Sender's Name</label>
+                        <select id="senderUsername" class="rvt-select" th:field="*{sender}">
                             <option value="" selected>Select...</option>
                             <option th:each="sender : ${senders}" th:value="${sender.key}" th:text="${sender.value}"></option>
                         </select>
                     </div>
 
                     <div class="rvt-width-xl">
-                        <label for="msgSubject" class="rvt-m-top-md">Message Subject</label>
-                        <input id="msgSubject" type="text" th:field="*{subject}"/>
+                        <label for="msgSubject" class="rvt-label rvt-m-top-md">Message Subject</label>
+                        <input id="msgSubject" type="text" class="rvt-text-input" th:field="*{subject}"/>
                     </div>
 
                     <!-- This will need to be replaced with a RTE -->
                     <div class="rvt-width-xxl">
-                        <label for="msgBody" class="rvt-m-top-md">Message Body</label>
-                        <textarea type="text" id="msgBody" th:field="*{body}"></textarea>
+                        <label for="msgBody" class="rvt-label rvt-m-top-md">Message Body</label>
+                        <textarea type="text" id="msgBody" class="rvt-textarea" th:field="*{body}"></textarea>
                     </div>
 
                     <div class="rvt-button-group rvt-m-top-md">
                         <button id="notificationSubmit" type="submit" name="action" value="submit" class="rvt-button" disabled>
                             <span class="rvt-button__content">Submit</span>
                         </button>
-                        <button id="notificationPreview" type="button" class="rvt-button rvt-button--secondary" data-modal-trigger="modal-preview">Preview</button>
+                        <button id="notificationPreview" type="button" class="rvt-button rvt-button--secondary" data-rvt-dialog-trigger="dialog-preview">Preview</button>
                         <button id="notificationCancel" type="submit" name="action" value="cancel" class="rvt-button rvt-button--secondary">Cancel</button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <div class="rvt-modal"
-             id="modal-preview"
+        <div class="rvt-dialog"
+             id="dialog-preview"
              role="dialog"
-             aria-labelledby="modal-preview-title"
-             aria-hidden="true"
-             tabindex=-1>
-            <div class="rvt-modal__inner">
-                <header class="rvt-modal__header">
-                    <h1 class="rvt-modal__title" id="modal-preview-title">Notification Preview</h1>
-                </header>
-                <div class="rvt-modal__body">
-                    <dl>
-                        <dt>From</dt>
-                        <dd id="modalFrom">octest1@iu.edu</dd>
-                        <dt>Subject</dt>
-                        <dd id="modalSubject">Custom notification subject</dd>
-                        <dt>Body</dt>
-                        <dd><pre id="modalBody" class="preformatted">Message body goes here...</pre></dd>
-                    </dl>
-                </div>
-                <div class="rvt-modal__controls">
-                    <button type="button" class="rvt-button rvt-button--secondary" data-modal-close="modal-preview">Close</button>
-                </div>
-                <button type="button" class="rvt-button rvt-modal__close" data-modal-close="modal-preview">
-                    <span class="rvt-sr-only">Close</span>
-                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                        <path fill="currentColor" d="M9.41,8l5.29-5.29a1,1,0,0,0-1.41-1.41L8,6.59,2.71,1.29A1,1,0,0,0,1.29,2.71L6.59,8,1.29,13.29a1,1,0,1,0,1.41,1.41L8,9.41l5.29,5.29a1,1,0,0,0,1.41-1.41Z"/>
-                    </svg>
-                </button>
+             tabindex="-1"
+             aria-labelledby="dialog-preview-title"
+             data-rvt-dialog="dialog-preview"
+             data-rvt-dialog-modal
+             data-rvt-dialog-darken-page
+             data-rvt-dialog-disable-page-interaction
+             hidden>
+            <header class="rvt-dialog__header">
+                <h1 class="rvt-dialog__title" id="dialog-preview-title">Notification Preview</h1>
+            </header>
+            <div class="rvt-dialog__body">
+                <dl class="rvt-list-description">
+                    <dt>From</dt>
+                    <dd id="dialogFrom">testemail@iu.edu</dd>
+                    <dt>Subject</dt>
+                    <dd id="dialogSubject">Custom notification subject</dd>
+                    <dt>Body</dt>
+                    <dd><pre id="dialogBody" class="preformatted">Message body goes here...</pre></dd>
+                </dl>
             </div>
+            <div class="rvt-dialog__controls">
+                <button type="button" class="rvt-button rvt-button--secondary" data-rvt-dialog-close="dialog-preview">Close</button>
+            </div>
+            <button type="button" class="rvt-button rvt-dialog__close" data-rvt-dialog-close="dialog-preview">
+                <span class="rvt-sr-only">Close</span>
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                    <path fill="currentColor" d="M9.41,8l5.29-5.29a1,1,0,0,0-1.41-1.41L8,6.59,2.71,1.29A1,1,0,0,0,1.29,2.71L6.59,8,1.29,13.29a1,1,0,1,0,1.41,1.41L8,9.41l5.29,5.29a1,1,0,0,0,1.41-1.41Z"/>
+                </svg>
+            </button>
         </div>
-
     </div>
 </body>
 </html>
