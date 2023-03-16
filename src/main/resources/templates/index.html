@@ -54,10 +54,10 @@
             </button>
         </div>
 
-        <h1 id="dept-provisioning-title" class="rvt-ts-36">Canvas Provisioning Tool</h1>
+        <h1 class="rvt-ts-36">Canvas Provisioning Tool</h1>
 
         <div class="rvt-border-all rvt-border-radius rvt-p-all-sm">
-            <p class="rvt-m-all-none">
+            <div class="rvt-m-all-none">
                 <p>Make sure the files being uploaded are in the correct format. Format details can be found at <a href="https://kb.iu.edu/d/bfqc" target="_blank">https://kb.iu.edu/d/bfqc <span class="rvt-sr-only">Opens in new window</span><rvt-icon name="link-external"></rvt-icon></a>.</p>
                 <form id="uploadForm" th:action="@{/app/upload}" method="post" enctype="multipart/form-data">
                     <label for="deptDropdown" class="rvt-label">Department/Organization</label>
@@ -105,7 +105,7 @@
                         </button>
                     </div>
                 </form>
-            </p>
+            </div>
         </div>
     </div>
 </body>

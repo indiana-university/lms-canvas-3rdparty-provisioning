@@ -45,7 +45,7 @@
         <h1 class="rvt-ts-36">Canvas Provisioning Tool</h1>
 
         <div class="rvt-border-all rvt-border-radius rvt-p-all-sm">
-            <p class="rvt-m-all-none">
+            <div class="rvt-m-all-none">
                 <h2 class="rvt-ts-26 rvt-m-bottom-sm">Send Custom Notification to New Guests</h2>
                 <form id="notificationForm" th:action="@{/app/submit}" method="post" th:object="${notifForm}">
                     <div class="rvt-width-xl">
@@ -75,7 +75,7 @@
                         <button id="notificationCancel" type="submit" name="action" value="cancel" class="rvt-button rvt-button--secondary">Cancel</button>
                     </div>
                 </form>
-            </p>
+            </div>
         </div>
 
         <div class="rvt-dialog"
