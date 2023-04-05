@@ -92,11 +92,12 @@ public class ExpandListingService {
     }
 
     public boolean addUserToListing(@RequestParam(name = "canvas_user_id") String canvasUserId,
-                                    @RequestParam(name="listing_id") String listingId) {
+                                    @RequestParam(name="listing_id") String listingId,
+                                    @RequestParam(name="send_email") boolean sendEmail) {
         URI uri = EXPAND_LISTING_TEMPLATE.expand(expandConfiguration.getBaseApiUrl());
         log.debug(uri.toString());
 
-        EnrollmentPostWrapper enrollmentPostWrapper = new EnrollmentPostWrapper(new ExpandEnrollment(canvasUserId, listingId));
+        EnrollmentPostWrapper enrollmentPostWrapper = new EnrollmentPostWrapper(new ExpandEnrollment(canvasUserId, listingId), sendEmail);
 
         try {
             HttpHeaders headers = new HttpHeaders();

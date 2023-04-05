@@ -77,6 +77,7 @@ public interface CsvService {
    String END_DATE = ",end_date";
 
    String EXPAND_ENROLLMENT_HEADER = "user_id,listing_id";
+   String EXPAND_ENROLLMENT_HEADER_WITH_EMAIL = "user_id,listing_id,send_email";
 
    String BLUEPRINT_COURSE_ID = ",blueprint_course_id";
 

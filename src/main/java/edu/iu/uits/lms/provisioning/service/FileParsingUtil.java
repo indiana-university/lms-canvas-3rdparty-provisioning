@@ -106,6 +106,7 @@ public class FileParsingUtil {
                   foundUsersFile = true;
                   break;
                case CsvService.EXPAND_ENROLLMENT_HEADER:
+               case CsvService.EXPAND_ENROLLMENT_HEADER_WITH_EMAIL:
                   filesByType.put(DeptRouter.CSV_TYPES.EXPAND_ENROLLMENTS, fc);
                   break;
                default:
