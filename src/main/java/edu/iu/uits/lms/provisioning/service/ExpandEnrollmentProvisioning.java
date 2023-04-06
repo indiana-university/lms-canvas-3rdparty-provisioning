@@ -99,17 +99,27 @@ public class ExpandEnrollmentProvisioning {
         for (String[] lineContentArray : fileContents) {
             int lineLength = lineContentArray.length;
 
-            if (lineLength == 2) {
+            if (lineLength == 2 || lineLength == 3) {
                 // check to see if this is a header line
                 // if it's a header row, we want to ignore it and move on
                 String[] expandEnrollmentsHeader = CsvService.EXPAND_ENROLLMENT_HEADER.split(",");
+                String[] expandEnrollmentsWithEmailHeader = CsvService.EXPAND_ENROLLMENT_HEADER_WITH_EMAIL.split(",");
 
-                if (!Arrays.equals(lineContentArray, expandEnrollmentsHeader)) {
+                if (!Arrays.equals(lineContentArray, expandEnrollmentsHeader) && !Arrays.equals(lineContentArray, expandEnrollmentsWithEmailHeader)) {
 
                     String userId = lineContentArray[0];
                     String listingId = lineContentArray[1];
 
-                    processEnrollment(userId, listingId, emailMessage, processCounts);
+                    // see if there is a value for send_email
+                    String sendEmailString = "false";
+                    if (lineLength == 3) {
+                        sendEmailString = lineContentArray[2];
+                    }
+
+                    // if the string is anything but "true", this will be set to false, which we want as a default
+                    boolean sendEmail = Boolean.parseBoolean(sendEmailString);
+
+                    processEnrollment(userId, listingId, sendEmail, emailMessage, processCounts);
                 }
             }
         }
@@ -121,7 +131,7 @@ public class ExpandEnrollmentProvisioning {
         return emailMessage;
     }
 
-    private void processEnrollment(String canvasUserId, String listingId, StringBuilder emailMessage, ProcessCounts processCounts) {
+    private void processEnrollment(String canvasUserId, String listingId, boolean sendEmail, StringBuilder emailMessage, ProcessCounts processCounts) {
         // from the message population from csv we don't know what the user id is.
         // what comes in right now is either a sis_id or a login_id.  This model object
         // is reused from the actual expand create REST call hence why this field is called
@@ -158,7 +168,7 @@ public class ExpandEnrollmentProvisioning {
         if (user != null) {
             log.debug("found user = " + user.getName() + ", canvas id = " + user.getId());
 
-            if (expandListingService.addUserToListing(user.getId(), listingId)) {
+            if (expandListingService.addUserToListing(user.getId(), listingId, sendEmail)) {
                 processCounts.incrementSuccessCount();
             } else {
                 processCounts.incrementFailureCount();
