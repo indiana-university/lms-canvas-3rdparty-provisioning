@@ -127,9 +127,6 @@ public class SecurityConfig {
                   .and()
                   .referrerPolicy(referrer -> referrer
                           .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN));
-
-            // Is this needed or should we use the annotation for the Global Access Denied Error?
-            http.exceptionHandling().accessDeniedPage("/app/accessDenied");
         }
 
         @Override

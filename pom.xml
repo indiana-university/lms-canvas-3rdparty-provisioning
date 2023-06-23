@@ -80,7 +80,7 @@
         <jdk.target>17</jdk.target>
         <jquery.version>3.6.4</jquery.version>
         <lms-canvas-rivet.version>5.2.4.0</lms-canvas-rivet.version>
-        <lms-embedded-services.version>5.2.8</lms-embedded-services.version>
+        <lms-embedded-services.version>5.2.9</lms-embedded-services.version>
         <lms-team-spring-boot-it12>4.8</lms-team-spring-boot-it12>
         <opencsv.version>5.7.1</opencsv.version>
         <spring-cloud.version>2021.0.7</spring-cloud.version>
