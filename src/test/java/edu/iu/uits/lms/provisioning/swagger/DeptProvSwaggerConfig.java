@@ -40,6 +40,7 @@ import edu.iu.uits.lms.provisioning.config.ExpandEnvironmentConfig;
 import edu.iu.uits.lms.provisioning.config.SecurityConfig;
 import edu.iu.uits.lms.provisioning.service.DeptRouter;
 import edu.iu.uits.lms.provisioning.service.ExpandListingService;
+import org.springframework.boot.actuate.health.HealthContributorRegistry;
 import org.springframework.boot.context.metrics.buffering.BufferingApplicationStartup;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -64,4 +65,7 @@ public class DeptProvSwaggerConfig {
 
    @MockBean
    private ExpandListingService expandListingService;
+
+   @MockBean
+   private HealthContributorRegistry healthContributorRegistry;
 }

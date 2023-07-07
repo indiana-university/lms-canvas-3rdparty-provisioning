@@ -44,6 +44,7 @@ import edu.iu.uits.lms.provisioning.repository.DeptAuthMessageSenderRepository;
 import edu.iu.uits.lms.provisioning.service.DeptRouter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.health.HealthContributorRegistry;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -83,6 +84,9 @@ public class AppLaunchSecurityTest {
 
    @MockBean
    private SisServiceImpl sisService;
+
+   @MockBean
+   private HealthContributorRegistry healthContributorRegistry;
 
 
    @Test

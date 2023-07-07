@@ -41,6 +41,7 @@ import edu.iu.uits.lms.provisioning.service.DeptProvFileUploadService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.health.HealthContributorRegistry;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -79,6 +80,9 @@ public class UploadRestControllerTest {
 
    @MockBean
    private SisServiceImpl sisService;
+
+   @MockBean
+   private HealthContributorRegistry healthContributorRegistry;
 
    @Test
    public void restNoAuthnLaunch() throws Exception {

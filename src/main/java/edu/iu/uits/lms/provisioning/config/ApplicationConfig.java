@@ -37,6 +37,9 @@ import edu.iu.uits.lms.common.oauth.OAuthConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Queue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.health.HealthContributor;
+import org.springframework.boot.actuate.health.HealthContributorRegistry;
+import org.springframework.boot.actuate.health.HealthEndpointGroups;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -139,5 +142,10 @@ public class ApplicationConfig implements WebMvcConfigurer {
    @Bean(name = "backgroundQueue")
    Queue backgroundQueue() {
       return new Queue(toolConfig.getBackgroundQueueName());
+   }
+
+   @Bean
+   public HealthContributorRegistry healthContributorRegistry(final Map<String, HealthContributor> contributors, final HealthEndpointGroups groups) {
+      return new LoggingHealthContributorRegistry(contributors, groups.getNames());
    }
 }
