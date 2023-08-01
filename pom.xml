@@ -78,22 +78,22 @@
         <java.version>17</java.version>
         <jdk.source>17</jdk.source>
         <jdk.target>17</jdk.target>
-        <jquery.version>3.6.4</jquery.version>
-        <lms-canvas-rivet.version>5.2.4.0</lms-canvas-rivet.version>
-        <lms-embedded-services.version>5.2.11</lms-embedded-services.version>
+        <jquery.version>3.7.0</jquery.version>
+        <lms-canvas-rivet.version>5.2.5.1</lms-canvas-rivet.version>
+        <lms-embedded-services.version>5.2.12-SNAPSHOT</lms-embedded-services.version>
         <lms-team-spring-boot-it12>4.8</lms-team-spring-boot-it12>
-        <opencsv.version>5.7.1</opencsv.version>
-        <spring-cloud.version>2021.0.7</spring-cloud.version>
+        <opencsv.version>5.8</opencsv.version>
+        <spring-cloud.version>2021.0.8</spring-cloud.version>
         <springdoc-openapi-ui.version>1.7.0</springdoc-openapi-ui.version>
-        <webjars-locator.version>0.46</webjars-locator.version>
+        <webjars-locator.version>0.47</webjars-locator.version>
 
         <plugins.compiler.version>3.11.0</plugins.compiler.version>
-        <plugins.gpg.version>3.0.1</plugins.gpg.version>
-        <plugins.javadoc.version>3.0.1</plugins.javadoc.version>
+        <plugins.gpg.version>3.1.0</plugins.gpg.version>
+        <plugins.javadoc.version>3.3.1</plugins.javadoc.version>
         <plugins.license.version>2.0.0</plugins.license.version>
         <plugins.nexus-staging.version>1.6.13</plugins.nexus-staging.version>
         <plugins.release.version>3.0.0</plugins.release.version>
-        <plugins.source.version>3.2.1</plugins.source.version>
+        <plugins.source.version>3.3.0</plugins.source.version>
     </properties>
 
     <dependencyManagement>
