@@ -92,7 +92,7 @@ public class ProvisioningController extends OidcTokenAwareController {
     @Autowired
     private CourseSessionService courseSessionService;
 
-    @RequestMapping("/index")
+    @RequestMapping({"/index", "/launch"})
     @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
     public ModelAndView index(Model model, HttpSession session) {
         log.debug("/index");
