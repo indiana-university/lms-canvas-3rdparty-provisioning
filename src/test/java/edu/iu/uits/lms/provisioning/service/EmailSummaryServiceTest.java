@@ -39,6 +39,7 @@ import edu.iu.uits.lms.canvas.services.CanvasService;
 import edu.iu.uits.lms.canvas.services.ImportService;
 import edu.iu.uits.lms.email.service.EmailService;
 import edu.iu.uits.lms.iuonly.services.BatchEmailServiceImpl;
+import edu.iu.uits.lms.iuonly.services.JobCompletionDetailService;
 import edu.iu.uits.lms.provisioning.config.ToolConfig;
 import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -87,6 +88,9 @@ public class EmailSummaryServiceTest {
 
    @MockBean
    private ToolConfig toolConfig;
+
+   @MockBean
+   private JobCompletionDetailService jobCompletionDetailService;
 
    @BeforeEach
    public void setUp() throws Exception {
