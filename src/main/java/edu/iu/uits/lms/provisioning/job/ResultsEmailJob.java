@@ -61,7 +61,7 @@ public class ResultsEmailJob implements BatchJob {
 
     private void resultsEmail() throws IOException {
         log.info("ResultsEmail job running!");
-        emailSummaryService.processResults();
+        emailSummaryService.processResults(getJobCode());
     }
 
     @Override

@@ -36,11 +36,13 @@ package edu.iu.uits.lms.provisioning.service;
 import edu.iu.uits.lms.canvas.model.uploadstatus.CanvasUploadStatus;
 import edu.iu.uits.lms.canvas.services.CanvasService;
 import edu.iu.uits.lms.canvas.services.ImportService;
+import edu.iu.uits.lms.common.server.ServerUtils;
 import edu.iu.uits.lms.email.model.EmailDetails;
 import edu.iu.uits.lms.email.service.EmailService;
 import edu.iu.uits.lms.email.service.LmsEmailTooBigException;
 import edu.iu.uits.lms.iuonly.model.LmsBatchEmail;
 import edu.iu.uits.lms.iuonly.services.BatchEmailServiceImpl;
+import edu.iu.uits.lms.iuonly.services.JobCompletionDetailService;
 import edu.iu.uits.lms.provisioning.config.ToolConfig;
 import edu.iu.uits.lms.provisioning.model.CanvasImportId;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
@@ -85,9 +87,13 @@ public class EmailSummaryService {
    @Autowired
    private ToolConfig toolConfig;
 
-   public void processResults() {
+   @Autowired
+   private JobCompletionDetailService jobCompletionDetailService;
+
+   public void processResults(String jobCode) {
       Map<String, CanvasImportObject> importTrackerMap = new HashMap<>();
       Map<String, MultiValuedMap<DeptRouter.CSV_TYPES, FileContent>> postProcessingMap = new HashMap<>();
+      String serverHostName = ServerUtils.getServerHostName();
 
       List<CanvasImportId> results = canvasImportIdRepository.findByProcessedOrderByGroupCodeAscImportIdAsc("N");
 
@@ -115,6 +121,8 @@ public class EmailSummaryService {
       // if the list is empty, don't bother continuing
       if (importTrackerMap.isEmpty()) {
          log.info("There were no importIds to process. Exiting gracefully.");
+         jobCompletionDetailService.addJobCompletionDetail(jobCode, serverHostName, "There were no importIds to process. Exiting gracefully.",
+                 true, false);
          return;
       }
 
@@ -151,12 +159,16 @@ public class EmailSummaryService {
             emailDetails.setSubject(subject);
             emailDetails.setBody(emailMessage.toString());
             try {
+               jobCompletionDetailService.addJobCompletionDetail(jobCode, serverHostName, emailMessage.toString(), true, false);
                emailService.sendEmail(emailDetails);
             } catch (LmsEmailTooBigException | MessagingException e) {
                log.error("Unable to send email", e);
             }
          } else {
             log.info("There were no warnings from the Canvas imports.  Update the records as processed and will not send an email.");
+            jobCompletionDetailService.addJobCompletionDetail(jobCode, serverHostName,
+                    "There were no warnings from the Canvas imports.  Update the records as processed and will not send an email.",
+                    true, false);
          }
       }
 
