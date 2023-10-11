@@ -2,7 +2,7 @@
   "title": "Canvas and Expand Provisioning",
   "description": "LTI tool which allows department representatives to provision their own enrollments into Canvas",
   "oidc_initiation_url": "http://localhost:8080/lti/login_initiation/lms_lti_3rdpartyprovisioning",
-  "target_link_uri": "http://localhost:8080/app/index",
+  "target_link_uri": "http://localhost:8080/app/launch",
   "extensions": [
     {
       "domain": "localhost",
