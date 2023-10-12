@@ -62,7 +62,9 @@ public class SecurityConfig {
 
         @Override
         public void configure(HttpSecurity http) throws Exception {
-            http.requestMatchers().antMatchers("/rest/**", "/api/**")
+            http
+                  .cors().and()
+                  .requestMatchers().antMatchers("/rest/**", "/api/**")
                   .and()
                   .authorizeRequests()
                   // In order to allow CORS preflight requests to succeed, we need to allow OPTIONS requests to the token endpoint
@@ -147,7 +149,14 @@ public class SecurityConfig {
             http.requestMatchers().antMatchers("/**")
                   .and()
                   .authorizeRequests()
-                  .anyRequest().authenticated();
+                  .anyRequest().authenticated()
+                  .withObjectPostProcessor(new LmsFilterSecurityInterceptorObjectPostProcessor())
+                  .and()
+                  .headers()
+                  .contentSecurityPolicy("style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'self' https://*.instructure.com")
+                  .and()
+                  .referrerPolicy(referrer -> referrer
+                          .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN));
         }
     }
 }
