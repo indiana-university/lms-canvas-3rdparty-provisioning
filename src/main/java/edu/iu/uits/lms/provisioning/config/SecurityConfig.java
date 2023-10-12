@@ -150,6 +150,7 @@ public class SecurityConfig {
                   .and()
                   .authorizeRequests()
                   .anyRequest().authenticated()
+                  .withObjectPostProcessor(new LmsFilterSecurityInterceptorObjectPostProcessor())
                   .and()
                   .headers()
                   .contentSecurityPolicy("style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'self' https://*.instructure.com")
