@@ -9,7 +9,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.16</version>
+        <version>2.7.18</version>
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
@@ -56,8 +56,8 @@
     <properties>
         <app.version>${project.version}</app.version>
         <commons-fileupload.version>1.5</commons-fileupload.version>
-        <commons-io.version>2.14.0</commons-io.version>
-        <commons-validator.version>1.7</commons-validator.version>
+        <commons-io.version>2.15.1</commons-io.version>
+        <commons-validator.version>1.8.0</commons-validator.version>
         <denodo-hibernate-dialect.version>8.0.20201021</denodo-hibernate-dialect.version>
         <denodo-jdbc.version>8.0.2</denodo-jdbc.version>
         <git-commit-id-maven-plugin.version>5.0.0</git-commit-id-maven-plugin.version>
@@ -66,13 +66,13 @@
         <jdk.source>17</jdk.source>
         <jdk.target>17</jdk.target>
         <jquery.version>3.7.1</jquery.version>
-        <lms-canvas-rivet.version>5.2.5.2</lms-canvas-rivet.version>
-        <lms-embedded-services.version>5.2.19</lms-embedded-services.version>
+        <lms-canvas-rivet.version>5.2.5.2_2</lms-canvas-rivet.version>
+        <lms-embedded-services.version>5.2.27</lms-embedded-services.version>
         <lms-team-spring-boot-it12>4.8</lms-team-spring-boot-it12>
-        <opencsv.version>5.8</opencsv.version>
+        <opencsv.version>5.9</opencsv.version>
         <spring-cloud.version>2021.0.8</spring-cloud.version>
         <springdoc-openapi-ui.version>1.7.0</springdoc-openapi-ui.version>
-        <webjars-locator.version>0.47</webjars-locator.version>
+        <webjars-locator.version>0.50</webjars-locator.version>
 
         <plugins.compiler.version>3.11.0</plugins.compiler.version>
         <plugins.license.version>2.0.0</plugins.license.version>
