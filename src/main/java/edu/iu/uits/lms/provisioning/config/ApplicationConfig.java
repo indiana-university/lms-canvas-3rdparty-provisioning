@@ -34,8 +34,14 @@ package edu.iu.uits.lms.provisioning.config;
  */
 
 import edu.iu.uits.lms.common.oauth.OAuthConfig;
+import edu.iu.uits.lms.provisioning.controller.Constants;
+import edu.iu.uits.lms.provisioning.model.content.ByteArrayFileContent;
+import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
+import edu.iu.uits.lms.provisioning.service.DeptRouter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -90,27 +96,27 @@ public class ApplicationConfig implements WebMvcConfigurer {
    @Bean(name = "uaaWebClient")
    WebClient webClient(OAuth2AuthorizedClientManager authorizedClientManager) {
       ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =
-            new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
+              new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
       oauth2Client.setDefaultClientRegistrationId("uaa");
       return WebClient.builder()
-            .apply(oauth2Client.oauth2Configuration())
-            .build();
+              .apply(oauth2Client.oauth2Configuration())
+              .build();
    }
 
    @Bean
    OAuth2AuthorizedClientManager authorizedClientManager(
-         ClientRegistrationRepository clientRegistrationRepository,
-         OAuth2AuthorizedClientService clientService) {
+           ClientRegistrationRepository clientRegistrationRepository,
+           OAuth2AuthorizedClientService clientService) {
 
       OAuth2AuthorizedClientProvider authorizedClientProvider =
-            OAuth2AuthorizedClientProviderBuilder.builder()
-                  .authorizationCode()
-                  .refreshToken()
-                  .clientCredentials()
-                  .password()
-                  .build();
+              OAuth2AuthorizedClientProviderBuilder.builder()
+                      .authorizationCode()
+                      .refreshToken()
+                      .clientCredentials()
+                      .password()
+                      .build();
       AuthorizedClientServiceOAuth2AuthorizedClientManager authorizedClientManager =
-            new AuthorizedClientServiceOAuth2AuthorizedClientManager(clientRegistrationRepository, clientService);
+              new AuthorizedClientServiceOAuth2AuthorizedClientManager(clientRegistrationRepository, clientService);
       authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 
       // For the `password` grant, the `username` and `password` need to be supplied
@@ -139,5 +145,19 @@ public class ApplicationConfig implements WebMvcConfigurer {
    @Bean(name = "backgroundQueue")
    Queue backgroundQueue() {
       return new Queue(toolConfig.getBackgroundQueueName());
+   }
+
+   @Bean
+   public SimpleMessageConverter converter() {
+      SimpleMessageConverter converter = new SimpleMessageConverter();
+      converter.addAllowedListPatterns(BackgroundMessage.class.getName(),
+              ArrayListValuedHashMap.class.getName(),
+              DeptRouter.CSV_TYPES.class.getName(),
+              java.lang.Enum.class.getName(),
+              ByteArrayFileContent.class.getName(),
+              StringArrayFileContent.class.getName(),
+              java.util.LinkedList.class.getName(),
+              Constants.SOURCE.class.getName());
+      return converter;
    }
 }
