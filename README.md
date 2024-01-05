@@ -105,6 +105,15 @@ They can be set in a security.properties file, or overridden as environment vari
 | `lti.errorcontact.name` | Display name for your support organization                                                                |
 | `lti.errorcontact.link` | Contact mechanism - URL or mailto:email (e.g. `http://support.school.edu` or `mailto:support@school.edu`) |
 
+### LTI issuer configuration
+Be sure to configure an environment appropriate issuer for the Canvas instance that is launching the tool.
+
+See https://canvas.instructure.com/doc/api/file.lti_dev_key_config.html#overview-of-an-lti-launch for details.
+
+| Property          | Description                                              |
+|-------------------|----------------------------------------------------------|
+| `canvas.issuer`   | Issuer for the Canvas instance doing the LTI tool launch |
+
 ### Rabbit MQ Configuration
 Job processing happens in the background, via a RabbitMQ job.  Configuring the queue requires the following settings:
 
