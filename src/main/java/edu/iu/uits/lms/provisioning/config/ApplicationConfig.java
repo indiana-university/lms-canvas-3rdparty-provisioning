@@ -35,6 +35,7 @@ package edu.iu.uits.lms.provisioning.config;
 
 import edu.iu.uits.lms.common.oauth.OAuthConfig;
 import edu.iu.uits.lms.provisioning.controller.Constants;
+import edu.iu.uits.lms.provisioning.model.NotificationForm;
 import edu.iu.uits.lms.provisioning.model.content.ByteArrayFileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
 import edu.iu.uits.lms.provisioning.service.DeptRouter;
@@ -151,6 +152,7 @@ public class ApplicationConfig implements WebMvcConfigurer {
    public SimpleMessageConverter converter() {
       SimpleMessageConverter converter = new SimpleMessageConverter();
       converter.addAllowedListPatterns(BackgroundMessage.class.getName(),
+              NotificationForm.class.getName(),
               ArrayListValuedHashMap.class.getName(),
               DeptRouter.CSV_TYPES.class.getName(),
               java.lang.Enum.class.getName(),
