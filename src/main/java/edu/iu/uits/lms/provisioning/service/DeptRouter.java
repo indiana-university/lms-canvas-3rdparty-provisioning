@@ -218,7 +218,7 @@ public class DeptRouter {
             // piece standard info, the errorMessages, and resultsMessages together
             StringBuilder finalMessage = new StringBuilder();
             finalMessage.append("The preprocessing stage of your Canvas provisioning job is complete and the results are provided below. " +
-                  "The final results from Canvas (" + canvasService.getBaseUrl() + ") will be sent out at a later time and will inform you " +
+                  "The final results from Canvas (" + canvasService.getHost() + ") will be sent out at a later time and will inform you " +
                   "of any issues that may have been encountered while importing the data. Guest account provisioning is the exception and will have final results in this email.\r\n\r\n");
             if (emailMessage.length() > 0) {
                finalMessage.append("Results from the uploads: \r\n\r\n");
