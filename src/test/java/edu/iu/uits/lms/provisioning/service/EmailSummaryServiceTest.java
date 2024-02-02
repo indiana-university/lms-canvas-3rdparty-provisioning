@@ -90,7 +90,7 @@ public class EmailSummaryServiceTest {
 
    @BeforeEach
    public void setUp() throws Exception {
-      when(canvasService.getBaseUrl()).thenReturn("foo.bar");
+      when(canvasService.getHost()).thenReturn("foo.bar");
    }
 
    @Test
