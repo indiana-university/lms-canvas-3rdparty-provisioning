@@ -184,7 +184,7 @@ public class EmailSummaryService {
          List<List<String>> canvasErrorsList = importStatus.getProcessingErrors();
 
          if (emailMessage.length() == 0) {
-            emailMessage.append("Here is a report of errors from Canvas (" + canvasService.getBaseUrl() + "):\r\n\r\n");
+            emailMessage.append("Here is a report of errors from Canvas (" + canvasService.getHost() + "):\r\n\r\n");
          }
 
          emailMessage.append("From importId: " + importId + "\r\n\r\n");
