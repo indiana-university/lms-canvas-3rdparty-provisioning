@@ -223,6 +223,11 @@ public class DeptRouter {
             if (emailMessage.length() > 0) {
                finalMessage.append("Results from the uploads: \r\n\r\n");
             }
+
+            if (importId != null && ! importId.isEmpty()) {
+               finalMessage.append(String.format("ImportId is %s\r\n\r\n", importId));
+            }
+            
             finalMessage.append(emailMessage);
 
             // email has been combined together, so send it!
