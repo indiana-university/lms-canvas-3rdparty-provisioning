@@ -35,11 +35,11 @@ package edu.iu.uits.lms.provisioning.repository;
 
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.service.DeptRouter;
+import jakarta.persistence.AttributeConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.SerializationUtils;
 
-import javax.persistence.AttributeConverter;
 import java.io.Serializable;
 
 

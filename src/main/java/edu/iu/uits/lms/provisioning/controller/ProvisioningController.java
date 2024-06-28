@@ -48,6 +48,7 @@ import edu.iu.uits.lms.provisioning.service.DeptRouter;
 import edu.iu.uits.lms.provisioning.service.FileParsingUtil;
 import edu.iu.uits.lms.provisioning.service.exception.FileParsingException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.KeyValue;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -64,8 +65,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import uk.ac.ox.ctl.lti13.security.oauth2.client.lti.authentication.OidcAuthenticationToken;
 
-import javax.servlet.http.HttpSession;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -98,11 +99,15 @@ public class ProvisioningController extends OidcTokenAwareController {
         log.debug("/index");
         OidcAuthenticationToken token = getTokenWithoutContext();
         OidcTokenUtils tokenUtils = new OidcTokenUtils(token);
-        String[] groups = tokenUtils.getCustomArray(Constants.AVAILABLE_GROUPS_KEY);
-        if (groups != null) {
-            Arrays.sort(groups);
+        try {
+            String[] groups = tokenUtils.getCustomArray(Constants.AVAILABLE_GROUPS_KEY);
+            if (groups != null) {
+                Arrays.sort(groups);
+            }
+            model.addAttribute("groups", groups);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
         }
-        model.addAttribute("groups", groups);
         return new ModelAndView("index");
     }
 

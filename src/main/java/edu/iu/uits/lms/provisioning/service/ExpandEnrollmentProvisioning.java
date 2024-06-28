@@ -34,6 +34,7 @@ package edu.iu.uits.lms.provisioning.service;
  */
 
 import edu.iu.uits.lms.canvas.model.User;
+import edu.iu.uits.lms.canvas.services.CatalogListingService;
 import edu.iu.uits.lms.canvas.services.UserService;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
@@ -56,7 +57,7 @@ public class ExpandEnrollmentProvisioning {
     private UserService userService;
 
     @Autowired
-    private ExpandListingService expandListingService;
+    private CatalogListingService catalogListingService;
 
     /**
      * Pass in a path to a csv file and this will validate the data and send enrollments to Expand
@@ -168,7 +169,7 @@ public class ExpandEnrollmentProvisioning {
         if (user != null) {
             log.debug("found user = " + user.getName() + ", canvas id = " + user.getId());
 
-            if (expandListingService.addUserToListing(user.getId(), listingId, sendEmail)) {
+            if (catalogListingService.addUserToListing(user.getId(), listingId, sendEmail)) {
                 processCounts.incrementSuccessCount();
             } else {
                 processCounts.incrementFailureCount();

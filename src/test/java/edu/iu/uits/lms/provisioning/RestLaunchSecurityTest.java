@@ -33,9 +33,10 @@ package edu.iu.uits.lms.provisioning;
  * #L%
  */
 
-import edu.iu.uits.lms.iuonly.services.SisServiceImpl;
+import edu.iu.uits.lms.iuonly.services.DeptProvisioningUserServiceImpl;
 import edu.iu.uits.lms.lti.config.TestUtils;
-import edu.iu.uits.lms.provisioning.config.ToolConfig;
+import edu.iu.uits.lms.lti.repository.DefaultInstructorRoleRepository;
+import edu.iu.uits.lms.provisioning.config.SecurityConfig;
 import edu.iu.uits.lms.provisioning.controller.rest.ArchiveRestController;
 import edu.iu.uits.lms.provisioning.repository.ArchiveRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +44,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
@@ -52,6 +52,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collection;
@@ -61,7 +62,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ArchiveRestController.class, properties = {"oauth.tokenprovider.url=http://foo"})
-@Import(ToolConfig.class)
+@ContextConfiguration(classes = {ArchiveRestController.class, SecurityConfig.class})
 @Slf4j
 @ActiveProfiles("none")
 public class RestLaunchSecurityTest {
@@ -72,7 +73,10 @@ public class RestLaunchSecurityTest {
    private ArchiveRepository archiveRepository;
 
    @MockBean
-   private SisServiceImpl sisService;
+   private DefaultInstructorRoleRepository defaultInstructorRoleRepository;
+
+   @MockBean
+   private DeptProvisioningUserServiceImpl deptProvisioningUserService;
 
    @Test
    public void restNoAuthnLaunch() throws Exception {

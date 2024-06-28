@@ -39,11 +39,10 @@ import edu.iu.uits.lms.email.service.EmailService;
 import edu.iu.uits.lms.email.service.LmsEmailTooBigException;
 import edu.iu.uits.lms.provisioning.model.DeptAuthMessageSender;
 import edu.iu.uits.lms.provisioning.repository.DeptAuthMessageSenderRepository;
+import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.mail.MessagingException;
 
 @Service
 @Slf4j
