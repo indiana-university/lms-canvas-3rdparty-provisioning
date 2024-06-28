@@ -52,6 +52,7 @@ import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
 import edu.iu.uits.lms.provisioning.service.exception.FileUploadException;
 import edu.iu.uits.lms.provisioning.service.exception.ProvisioningException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
+import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
@@ -63,7 +64,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
-import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

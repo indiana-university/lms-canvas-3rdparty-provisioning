@@ -47,30 +47,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
-import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
-import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 @Configuration
 @EnableWebMvc
-@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 @EnableConfigurationProperties(OAuthConfig.class)
 @Slf4j
 public class ApplicationConfig implements WebMvcConfigurer {
@@ -114,33 +107,12 @@ public class ApplicationConfig implements WebMvcConfigurer {
                       .authorizationCode()
                       .refreshToken()
                       .clientCredentials()
-                      .password()
                       .build();
       AuthorizedClientServiceOAuth2AuthorizedClientManager authorizedClientManager =
               new AuthorizedClientServiceOAuth2AuthorizedClientManager(clientRegistrationRepository, clientService);
       authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 
-      // For the `password` grant, the `username` and `password` need to be supplied
-      // so map it to `OAuth2AuthorizationContext.getAttributes()`.
-      authorizedClientManager.setContextAttributesMapper(contextAttributesMapper());
-
       return authorizedClientManager;
-   }
-
-   private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper() {
-      return authorizeRequest -> {
-         Map<String, Object> contextAttributes = Collections.emptyMap();
-         String username = oAuthConfig.getClientId();
-         String password = oAuthConfig.getClientPassword();
-         if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
-            contextAttributes = new HashMap<>();
-
-            // `PasswordOAuth2AuthorizedClientProvider` requires both attributes
-            contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
-            contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
-         }
-         return contextAttributes;
-      };
    }
 
    @Bean(name = "backgroundQueue")

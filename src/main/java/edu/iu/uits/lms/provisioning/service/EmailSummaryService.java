@@ -46,6 +46,7 @@ import edu.iu.uits.lms.provisioning.model.CanvasImportId;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
 import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
+import jakarta.mail.MessagingException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +54,6 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;

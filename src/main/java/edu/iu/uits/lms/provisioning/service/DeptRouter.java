@@ -51,13 +51,13 @@ import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
 import edu.iu.uits.lms.provisioning.service.exception.FileProcessingException;
 import edu.iu.uits.lms.provisioning.service.exception.FileUploadException;
 import edu.iu.uits.lms.provisioning.service.exception.ZipException;
+import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.mail.MessagingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

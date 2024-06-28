@@ -33,6 +33,7 @@ package edu.iu.uits.lms.provisioning.service;
  * #L%
  */
 
+import edu.iu.uits.lms.canvas.services.CatalogListingService;
 import edu.iu.uits.lms.canvas.services.UserService;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
@@ -57,7 +58,7 @@ public class ExpandEnrollmentProvisioningTest {
    private UserService userService;
 
    @MockBean
-   private ExpandListingService expandListingService;
+   private CatalogListingService catalogListingService;
 
    @Test
    public void testDeferOneFile() {

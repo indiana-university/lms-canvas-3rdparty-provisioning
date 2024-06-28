@@ -33,13 +33,12 @@ package edu.iu.uits.lms.provisioning.model;
  * #L%
  */
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Entity
 @Table(schema = "IMS", name = "IMS_CANVAS_USERS_30_V")
