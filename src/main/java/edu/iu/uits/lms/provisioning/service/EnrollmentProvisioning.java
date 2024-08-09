@@ -131,7 +131,8 @@ public class EnrollmentProvisioning {
      * @param emailMessage
      * @return
      */
-    private List<String[]> processInputFiles(StringArrayFileContent fileToProcess, StringBuilder emailMessage, boolean allowSisEnrollments, List<String> authorizedAccounts, boolean overrideRestrictions) {
+    protected List<String[]> processInputFiles(StringArrayFileContent fileToProcess, StringBuilder emailMessage, boolean allowSisEnrollments, List<String> authorizedAccounts, boolean overrideRestrictions) {
+        // Method is protected visibility (vs private) so that unit tests don't need to use reflection to make the method call
         List<String[]> stringArray = new ArrayList<>();
 
         int rejected = 0;

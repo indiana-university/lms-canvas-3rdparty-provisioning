@@ -38,7 +38,6 @@ import edu.iu.uits.lms.canvas.services.AccountService;
 import edu.iu.uits.lms.canvas.services.CourseService;
 import edu.iu.uits.lms.canvas.services.UserService;
 import edu.iu.uits.lms.iuonly.services.SisServiceImpl;
-import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
 import edu.iu.uits.lms.provisioning.repository.ImsUserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +48,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,10 +96,6 @@ public class EnrollmentProvisioningTest {
 
       Mockito.when(sisService.isLegitSisCourse(sectionId)).thenReturn(false);
 
-      final Method processInputFileMethod = enrollmentProvisioning.getClass().getDeclaredMethod("processInputFiles",
-              StringArrayFileContent.class, StringBuilder.class, boolean.class, List.class, boolean.class);
-      processInputFileMethod.setAccessible(true);
-
       final String sisUserId = "sisuserid1";
       final User user = new User();
       user.setSisUserId(sisUserId);
@@ -113,9 +107,8 @@ public class EnrollmentProvisioningTest {
 
       final StringBuilder emailMessage = new StringBuilder();
 
-      final List<String[]> results = (List<String[]>)
-              processInputFileMethod.invoke(enrollmentProvisioning, stringArrayFileContent, emailMessage,
-                      allowSisEnrollments, new ArrayList<>(), allowOverides);
+      final List<String[]> results = enrollmentProvisioning
+              .processInputFiles(stringArrayFileContent, emailMessage, allowSisEnrollments, new ArrayList<>(), allowOverides);
 
       Assertions.assertNotNull(results);
       Assertions.assertEquals(1, results.size());
@@ -157,10 +150,6 @@ public class EnrollmentProvisioningTest {
 
       Mockito.when(sisService.isLegitSisCourse(sectionId)).thenReturn(false);
 
-      final Method processInputFileMethod = enrollmentProvisioning.getClass().getDeclaredMethod("processInputFiles",
-              StringArrayFileContent.class, StringBuilder.class, boolean.class, List.class, boolean.class);
-      processInputFileMethod.setAccessible(true);
-
       final String sisUserId = "sisuserid1";
       final User user = new User();
       user.setSisUserId(sisUserId);
@@ -172,9 +161,8 @@ public class EnrollmentProvisioningTest {
 
       final StringBuilder emailMessage = new StringBuilder();
 
-      final List<String[]> results = (List<String[]>)
-              processInputFileMethod.invoke(enrollmentProvisioning, stringArrayFileContent, emailMessage,
-                      allowSisEnrollments, new ArrayList<>(), allowOverides);
+      final List<String[]> results = enrollmentProvisioning
+              .processInputFiles(stringArrayFileContent, emailMessage, allowSisEnrollments, new ArrayList<>(), allowOverides);
 
       Assertions.assertNotNull(results);
       Assertions.assertEquals(1, results.size());
@@ -216,10 +204,6 @@ public class EnrollmentProvisioningTest {
 
       Mockito.when(sisService.isLegitSisCourse(sectionId)).thenReturn(false);
 
-      final Method processInputFileMethod = enrollmentProvisioning.getClass().getDeclaredMethod("processInputFiles",
-              StringArrayFileContent.class, StringBuilder.class, boolean.class, List.class, boolean.class);
-      processInputFileMethod.setAccessible(true);
-
       final String sisUserId = "sisuserid1";
       final User user = new User();
       user.setSisUserId(sisUserId);
@@ -231,9 +215,8 @@ public class EnrollmentProvisioningTest {
 
       final StringBuilder emailMessage = new StringBuilder();
 
-      final List<String[]> results = (List<String[]>)
-              processInputFileMethod.invoke(enrollmentProvisioning, stringArrayFileContent, emailMessage,
-                      allowSisEnrollments, new ArrayList<>(), allowOverides);
+      final List<String[]> results = enrollmentProvisioning
+              .processInputFiles(stringArrayFileContent, emailMessage, allowSisEnrollments, new ArrayList<>(), allowOverides);
 
       Assertions.assertNotNull(results);
       Assertions.assertEquals(1, results.size());
@@ -275,10 +258,6 @@ public class EnrollmentProvisioningTest {
 
       Mockito.when(sisService.isLegitSisCourse(sectionId)).thenReturn(false);
 
-      final Method processInputFileMethod = enrollmentProvisioning.getClass().getDeclaredMethod("processInputFiles",
-              StringArrayFileContent.class, StringBuilder.class, boolean.class, List.class, boolean.class);
-      processInputFileMethod.setAccessible(true);
-
       final String sisUserId = "sisuserid1";
       final User user = new User();
       user.setSisUserId(sisUserId);
@@ -288,9 +267,8 @@ public class EnrollmentProvisioningTest {
 
       final StringBuilder emailMessage = new StringBuilder();
 
-      final List<String[]> results = (List<String[]>)
-              processInputFileMethod.invoke(enrollmentProvisioning, stringArrayFileContent, emailMessage,
-                      allowSisEnrollments, new ArrayList<>(), allowOverides);
+      final List<String[]> results = enrollmentProvisioning
+              .processInputFiles(stringArrayFileContent, emailMessage, allowSisEnrollments, new ArrayList<>(), allowOverides);
 
       Assertions.assertNotNull(results);
       Assertions.assertEquals(0, results.size());
