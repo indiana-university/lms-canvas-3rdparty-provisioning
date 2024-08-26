@@ -49,6 +49,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import uk.ac.ox.ctl.lti13.Lti13Configurer;
 
@@ -114,7 +115,8 @@ public class SecurityConfig {
     public SecurityFilterChain catchallFilterChain(HttpSecurity http) throws Exception {
         //Setup the LTI handshake
         http.with(new Lti13Configurer(), lti ->
-                lti.grantedAuthoritiesMapper(new CustomRoleMapper(defaultInstructorRoleRepository, deptProvisioningUserService)));
+                lti.setSecurityContextRepository(new HttpSessionSecurityContextRepository())
+                        .grantedAuthoritiesMapper(new CustomRoleMapper(defaultInstructorRoleRepository, deptProvisioningUserService)));
 
         http.securityMatcher("/**")
                 .authorizeHttpRequests((authz) -> authz.anyRequest().authenticated()
