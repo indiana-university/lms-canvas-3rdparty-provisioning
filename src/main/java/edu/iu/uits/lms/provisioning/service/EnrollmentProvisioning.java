@@ -131,7 +131,8 @@ public class EnrollmentProvisioning {
      * @param emailMessage
      * @return
      */
-    private List<String[]> processInputFiles(StringArrayFileContent fileToProcess, StringBuilder emailMessage, boolean allowSisEnrollments, List<String> authorizedAccounts, boolean overrideRestrictions) {
+    protected List<String[]> processInputFiles(StringArrayFileContent fileToProcess, StringBuilder emailMessage, boolean allowSisEnrollments, List<String> authorizedAccounts, boolean overrideRestrictions) {
+        // Method is protected visibility (vs private) so that unit tests don't need to use reflection to make the method call
         List<String[]> stringArray = new ArrayList<>();
 
         int rejected = 0;
@@ -140,8 +141,6 @@ public class EnrollmentProvisioning {
 
         // read individual files line by line
         List <String[]> fileContents = fileToProcess.getContents();
-        Map<String, Boolean> sisCourses = new HashMap<>();
-        Map<String, Boolean> sisSections = new HashMap<>();
         Map<String, Boolean> accountChecksMap = new HashMap<>();
         Map<String, String> courseAndAccountTrackerMap = new HashMap<>();
 
@@ -166,36 +165,7 @@ public class EnrollmentProvisioning {
                 String status = lineContentArray[4];
 
                 // if overrideRestrictions OR allowSis is true, skip the SIS checks
-                boolean doSisCheck = !overrideRestrictions && !allowSisEnrollments;
-
-                // check existing maps to see if we've looked up this info previously and
-                if (doSisCheck) {
-                    if (sisCourses.containsKey(courseId)) {
-                        if (sisCourses.get(courseId)) {
-                            // confirmed course is 'true' in the map, so skip the sis course lookup later
-                            doSisCheck = false;
-                        } else {
-                            // confirmed course is 'false', so skip this line since we know it's not ok to use
-                            log.warn("Skipped " + emailOrUserId + " because it is in a SIS course and we already checked.");
-                            rejected++;
-                            emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
-                            continue;
-                        }
-                    }
-
-                    if (sisSections.containsKey(sectionId)) {
-                        if (sisSections.get(sectionId)) {
-                            // confirmed section is 'true' in the map, so skip the sis section lookup later
-                            doSisCheck = false;
-                        } else {
-                            // confirmed section is 'false', so skip this line since we know it's not ok to use
-                            log.warn("Skipped " + emailOrUserId + " because it is in a SIS section and we already checked.");
-                            rejected++;
-                            emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
-                            continue;
-                        }
-                    }
-                }
+                final boolean doSisCheck = !overrideRestrictions && !allowSisEnrollments;
 
                 // if user does not have overrideRestrictions, allowSis, or the course/sections have not been looked up yet, do the SIS checks
                 if (doSisCheck) {
@@ -204,7 +174,6 @@ public class EnrollmentProvisioning {
                         log.warn("Skipped " + emailOrUserId + " because it is in a SIS course and user did not have SIS permission.");
                         rejected++;
                         emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
-                        sisCourses.put(courseId, false);
                         continue;
                     }
 
@@ -213,15 +182,11 @@ public class EnrollmentProvisioning {
                         log.warn("Skipped " + emailOrUserId + " because it is in a SIS section and user did not have SIS permission.");
                         rejected++;
                         emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not authorized for SIS changes.\r\n");
-                        sisSections.put(sectionId, false);
                         continue;
                     }
                 }
 
                 // if we made it here, it passed the SIS checks. Add it to the lists
-                sisCourses.put(courseId, true);
-                sisSections.put(sectionId, true);
-
                 boolean isAccountAuthorized = false;
                 boolean accountPreviouslyAuthorized = false;
 
