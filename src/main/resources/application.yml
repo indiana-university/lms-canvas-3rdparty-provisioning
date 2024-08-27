@@ -123,7 +123,6 @@ spring:
   session:
     store-type: redis
     redis.namespace: deptprov-@app.version@:session
-  data.redis.ssl.enabled: true
 management.health.redis.enabled: true
 
 ---
