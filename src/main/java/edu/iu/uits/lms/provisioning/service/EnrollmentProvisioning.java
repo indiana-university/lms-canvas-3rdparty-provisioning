@@ -35,9 +35,11 @@ package edu.iu.uits.lms.provisioning.service;
 
 import edu.iu.uits.lms.canvas.model.Account;
 import edu.iu.uits.lms.canvas.model.Course;
+import edu.iu.uits.lms.canvas.model.Section;
 import edu.iu.uits.lms.canvas.model.User;
 import edu.iu.uits.lms.canvas.services.AccountService;
 import edu.iu.uits.lms.canvas.services.CourseService;
+import edu.iu.uits.lms.canvas.services.SectionService;
 import edu.iu.uits.lms.canvas.services.UserService;
 import edu.iu.uits.lms.iuonly.services.SisServiceImpl;
 import edu.iu.uits.lms.provisioning.model.ImsUser;
@@ -85,6 +87,9 @@ public class EnrollmentProvisioning {
 
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private SectionService sectionService;
 
     @Autowired
     private SisServiceImpl sisService;
@@ -143,6 +148,7 @@ public class EnrollmentProvisioning {
         List <String[]> fileContents = fileToProcess.getContents();
         Map<String, Boolean> accountChecksMap = new HashMap<>();
         Map<String, String> courseAndAccountTrackerMap = new HashMap<>();
+        Map<String, String> sectionMap = new HashMap<>();
 
         for (String[] lineContentArray : fileContents) {
             // increment the counter here and not several places
@@ -189,6 +195,26 @@ public class EnrollmentProvisioning {
                 // if we made it here, it passed the SIS checks. Add it to the lists
                 boolean isAccountAuthorized = false;
                 boolean accountPreviouslyAuthorized = false;
+
+                // If courseId is null, lookup the courseId via the sectionId
+                if (courseId == null || courseId.isEmpty()) {
+                    if (sectionMap.containsKey(sectionId)) {
+                        courseId = sectionMap.get(sectionId);
+                    } else {
+                        Section section = sectionService.getSection("sis_section_id:" + sectionId);
+                        if (section != null) {
+                            courseId = section.getSis_course_id();
+                            sectionMap.put(sectionId, courseId);
+                        }
+                    }
+                    // If there's still no sis course id, reject the row
+                    if (courseId == null || courseId.isEmpty()) {
+                        log.warn("Skipped " + emailOrUserId + " because we can't determine the parent course of the section for the extra permission checks.");
+                        rejected++;
+                        emailMessage.append("\tLine " + rowCounter + ": Enrollment for " + emailOrUserId + " rejected. Not able to determine parent course of section for account permission checks.\r\n");
+                        continue;
+                    }
+                }
 
                 // check existing maps to see if we've looked up this info previously and deal with it as appropriate
                 if (accountChecksMap.containsKey(courseId)) {
