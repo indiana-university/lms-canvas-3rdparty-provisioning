@@ -53,7 +53,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import uk.ac.ox.ctl.lti13.Lti13Configurer;
 
-import static edu.iu.uits.lms.lti.LTIConstants.BASE_USER_ROLE;
+import static edu.iu.uits.lms.lti.LTIConstants.BASE_USER_AUTHORITY;
 import static edu.iu.uits.lms.lti.LTIConstants.WELL_KNOWN_ALL;
 
 @Configuration
@@ -93,7 +93,7 @@ public class SecurityConfig {
         http.securityMatcher(WELL_KNOWN_ALL, "/error", "/app/**")
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers(WELL_KNOWN_ALL, "/error").permitAll()
-                        .requestMatchers("/**").hasAuthority(BASE_USER_ROLE)
+                        .requestMatchers("/**").hasAuthority(BASE_USER_AUTHORITY)
                         .withObjectPostProcessor(new LmsFilterSecurityInterceptorObjectPostProcessor())
                 )
                 .headers(headers -> headers
