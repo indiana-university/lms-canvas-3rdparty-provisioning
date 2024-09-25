@@ -33,9 +33,11 @@ package edu.iu.uits.lms.provisioning.service;
  * #L%
  */
 
+import edu.iu.uits.lms.canvas.model.Section;
 import edu.iu.uits.lms.canvas.model.User;
 import edu.iu.uits.lms.canvas.services.AccountService;
 import edu.iu.uits.lms.canvas.services.CourseService;
+import edu.iu.uits.lms.canvas.services.SectionService;
 import edu.iu.uits.lms.canvas.services.UserService;
 import edu.iu.uits.lms.iuonly.services.SisServiceImpl;
 import edu.iu.uits.lms.provisioning.model.content.StringArrayFileContent;
@@ -76,11 +78,14 @@ public class EnrollmentProvisioningTest {
    private CourseService courseService;
 
    @MockBean
+   private SectionService sectionService;
+
+   @MockBean
    private SisServiceImpl sisService;
 
    @Test
    public void processInputFiles_testSuccessfullyProcessSisCourseWithAllowSisEnrollmentsAndAllowOverrides() throws Exception {
-      final String courseId = "";
+      final String courseId = "course1";
       final String sectionId = "section1";
       final String userId = "user1";
       final String role = "student";
@@ -134,7 +139,7 @@ public class EnrollmentProvisioningTest {
 
    @Test
    public void processInputFiles_testSuccessfullyProcessSisCourseWithAllowSisEnrollmentsOnly() throws Exception {
-      final String courseId = "";
+      final String courseId = "course1";
       final String sectionId = "section1";
       final String userId = "user1";
       final String role = "student";
@@ -188,7 +193,7 @@ public class EnrollmentProvisioningTest {
 
    @Test
    public void processInputFiles_testSuccessfullyProcessSisCourseWithAllowOverridesOnly() throws Exception {
-      final String courseId = "";
+      final String courseId = "course1";
       final String sectionId = "section1";
       final String userId = "user1";
       final String role = "student";
@@ -279,6 +284,154 @@ public class EnrollmentProvisioningTest {
       Assertions.assertTrue(emailMessageString.contains("Line 2: Enrollment for user1 rejected. Not authorized for SIS changes."));
       Assertions.assertTrue(emailMessageString.contains("Enrollments rejected: 1"));
       Assertions.assertTrue(emailMessageString.contains("Enrollments sent to Canvas: 0"));
+      Assertions.assertTrue(emailMessageString.contains("Total enrollments processed: 1"));
+   }
+
+   @Test
+   public void processInputFiles_testProcessCourseWithOnlySection() throws Exception {
+      final String courseId = "";
+      final String sectionId = "section1";
+      final String userId = "user1";
+      final String role = "student";
+      final String action = "delete";
+
+      final boolean allowSisEnrollments = true;
+      final boolean allowOverides = false;
+
+      final List<String[]> fileContentsList = new ArrayList<>();
+      fileContentsList.add(new String[]{"course_id,user_id,role,section_id,status"});
+      fileContentsList.add(new String[]{courseId, userId, role, sectionId, action});
+      final StringArrayFileContent stringArrayFileContent = new StringArrayFileContent("file1.txt", fileContentsList);
+
+      Mockito.when(sisService.isLegitSisCourse(sectionId)).thenReturn(false);
+
+      final String sisUserId = "sisuserid1";
+      final User user = new User();
+      user.setSisUserId(sisUserId);
+
+      Mockito.when(userService.getUserBySisLoginId(userId)).thenReturn(user);
+      Mockito.when(sisService.isLegitSisCourse(sectionId)).thenReturn(true);
+
+      final StringBuilder emailMessage = new StringBuilder();
+
+      final List<String[]> results = enrollmentProvisioning
+              .processInputFiles(stringArrayFileContent, emailMessage, allowSisEnrollments, new ArrayList<>(), allowOverides);
+
+      Assertions.assertNotNull(results);
+      Assertions.assertEquals(0, results.size());
+
+      final String emailMessageString = emailMessage.toString();
+
+      Assertions.assertNotNull(emailMessageString);
+      Assertions.assertTrue(emailMessageString.contains("Line 2: Enrollment for user1 rejected. Not able to determine parent course of section for account permission checks."));
+      Assertions.assertTrue(emailMessageString.contains("Enrollments rejected: 1"));
+      Assertions.assertTrue(emailMessageString.contains("Enrollments sent to Canvas: 0"));
+      Assertions.assertTrue(emailMessageString.contains("Total enrollments processed: 1"));
+   }
+
+   @Test
+   public void processInputFiles_testProcessCourseWithOnlySection2() throws Exception {
+      final String courseId = "";
+      final String sectionId = "section1";
+      final String userId = "user1";
+      final String role = "student";
+      final String action = "delete";
+
+      final boolean allowSisEnrollments = true;
+      final boolean allowOverides = false;
+
+      final List<String[]> fileContentsList = new ArrayList<>();
+      fileContentsList.add(new String[]{"course_id,user_id,role,section_id,status"});
+      fileContentsList.add(new String[]{courseId, userId, role, sectionId, action});
+      final StringArrayFileContent stringArrayFileContent = new StringArrayFileContent("file1.txt", fileContentsList);
+
+      Mockito.when(sisService.isLegitSisCourse(sectionId)).thenReturn(false);
+
+      final String sisUserId = "sisuserid1";
+      final User user = new User();
+      user.setSisUserId(sisUserId);
+
+      Mockito.when(userService.getUserBySisLoginId(userId)).thenReturn(user);
+      Mockito.when(sisService.isLegitSisCourse(sectionId)).thenReturn(true);
+
+      Section section = new Section();
+      section.setSis_course_id("");
+      Mockito.when(sectionService.getSection("sis_section_id:" + sectionId)).thenReturn(section);
+
+      final StringBuilder emailMessage = new StringBuilder();
+
+      final List<String[]> results = enrollmentProvisioning
+              .processInputFiles(stringArrayFileContent, emailMessage, allowSisEnrollments, new ArrayList<>(), allowOverides);
+
+      Assertions.assertNotNull(results);
+      Assertions.assertEquals(0, results.size());
+
+      final String emailMessageString = emailMessage.toString();
+
+      Assertions.assertNotNull(emailMessageString);
+      Assertions.assertTrue(emailMessageString.contains("Line 2: Enrollment for user1 rejected. Not able to determine parent course of section for account permission checks."));
+      Assertions.assertTrue(emailMessageString.contains("Enrollments rejected: 1"));
+      Assertions.assertTrue(emailMessageString.contains("Enrollments sent to Canvas: 0"));
+      Assertions.assertTrue(emailMessageString.contains("Total enrollments processed: 1"));
+   }
+
+   @Test
+   public void processInputFiles_testProcessCourseWithOnlySection3() throws Exception {
+      final String courseId = "";
+      final String sectionId = "section1";
+      final String userId = "user1";
+      final String role = "student";
+      final String action = "delete";
+
+      final boolean allowSisEnrollments = false;
+      final boolean allowOverides = true;
+
+      final List<String[]> fileContentsList = new ArrayList<>();
+      fileContentsList.add(new String[]{"course_id,user_id,role,section_id,status"});
+      fileContentsList.add(new String[]{courseId, userId, role, sectionId, action});
+      final StringArrayFileContent stringArrayFileContent = new StringArrayFileContent("file1.txt", fileContentsList);
+
+      Mockito.when(sisService.isLegitSisCourse(sectionId)).thenReturn(false);
+
+      final String sisUserId = "sisuserid1";
+      final User user = new User();
+      user.setSisUserId(sisUserId);
+
+      final String isSectionLimit = Boolean.toString(true);
+
+      Mockito.when(userService.getUserBySisLoginId(userId)).thenReturn(user);
+      Mockito.when(sisService.isLegitSisCourse(sectionId)).thenReturn(true);
+
+      Section section = new Section();
+      section.setSis_course_id("course1");
+      Mockito.when(sectionService.getSection("sis_section_id:" + sectionId)).thenReturn(section);
+
+      final StringBuilder emailMessage = new StringBuilder();
+
+      final List<String[]> results = enrollmentProvisioning
+              .processInputFiles(stringArrayFileContent, emailMessage, allowSisEnrollments, new ArrayList<>(), allowOverides);
+
+      Assertions.assertNotNull(results);
+      Assertions.assertEquals(1, results.size());
+
+      final String[] resultsLine = results.get(0);
+
+      Assertions.assertNotNull(resultsLine);
+      Assertions.assertEquals(6, resultsLine.length);
+
+      // courseId result now comes after a section lookup
+      Assertions.assertEquals("course1", resultsLine[0]);
+      Assertions.assertEquals(sisUserId, resultsLine[1]);
+      Assertions.assertEquals(role, resultsLine[2]);
+      Assertions.assertEquals(sectionId, resultsLine[3]);
+      Assertions.assertEquals(action, resultsLine[4]);
+      Assertions.assertEquals(isSectionLimit, resultsLine[5]);
+
+      final String emailMessageString = emailMessage.toString();
+
+      Assertions.assertNotNull(emailMessageString);
+      Assertions.assertTrue(emailMessageString.contains("Enrollments rejected: 0"));
+      Assertions.assertTrue(emailMessageString.contains("Enrollments sent to Canvas: 1"));
       Assertions.assertTrue(emailMessageString.contains("Total enrollments processed: 1"));
    }
 }

@@ -56,13 +56,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -125,7 +125,7 @@ public class DeptProvFileUploadService {
                   false, newFile.getName(), (int) newFile.length(), newFile.getParentFile());
 
             IOUtils.copy(new FileInputStream(newFile), fileItem.getOutputStream());
-            files.add(new CommonsMultipartFile(fileItem));
+            files.add(new CommonMultipartFile(fileItem));
          }
          zipEntry = zis.getNextEntry();
       }
@@ -238,6 +238,59 @@ public class DeptProvFileUploadService {
          super(message);
          this.username = username;
          this.httpStatus = httpStatus;
+      }
+   }
+
+   /**
+    * Custom implementation of a MultipartFile
+    */
+   public static class CommonMultipartFile implements MultipartFile {
+
+      private FileItem fileItem;
+
+      public CommonMultipartFile(FileItem fileItem) {
+         this.fileItem = fileItem;
+      }
+
+      @Override
+      public String getName() {
+         return fileItem.getFieldName();
+      }
+
+      @Override
+      public String getOriginalFilename() {
+         return fileItem.getName();
+      }
+
+      @Override
+      public String getContentType() {
+         return fileItem.getContentType();
+      }
+
+      @Override
+      public boolean isEmpty() {
+         return getSize() == 0;
+      }
+
+      @Override
+      public long getSize() {
+         return fileItem.getSize();
+      }
+
+      @Override
+      public byte[] getBytes() throws IOException {
+         return fileItem.get();
+      }
+
+      @Override
+      public InputStream getInputStream() throws IOException {
+         return fileItem.getInputStream();
+      }
+
+      @Override
+      public void transferTo(File dest) throws IOException, IllegalStateException {
+//         fileItem.
+              throw new UnsupportedOperationException("Not implemented yet");
       }
    }
 

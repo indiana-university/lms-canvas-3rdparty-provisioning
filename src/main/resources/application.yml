@@ -35,8 +35,8 @@ spring:
             provider: uaa
             client-id: ${oauth.tokenprovider.clientId}
             client-secret: ${oauth.tokenprovider.clientSecret}
-            authorization-grant-type: password
-            client-authentication-method: post
+            authorization-grant-type: client_credentials
+            client-authentication-method: client_secret_post
         provider:
           uaa:
             token-uri: ${oauth.tokenprovider.accessTokenUri}
@@ -134,7 +134,7 @@ spring:
   cloud.vault:
     enabled: true
     config:
-      lifecycle.lease-endpoints: sysleases
+      lifecycle.lease-endpoints: leases
     generic:
       enabled: false
     kv:
