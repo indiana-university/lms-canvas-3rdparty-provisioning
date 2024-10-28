@@ -13,7 +13,7 @@
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
-    <version>6.0.1-SNAPSHOT</version>
+    <version>6.0.1</version>
 
     <description>LTI tool which allows department representatives to provision their own enrollments into Canvas</description>
     <url>https://github.com/indiana-university/lms-canvas-3rdparty-provisioning</url>
@@ -50,7 +50,7 @@
         <connection>scm:git:https://github.com/indiana-university/lms-canvas-3rdparty-provisioning.git</connection>
         <developerConnection>scm:git:https://github.com/indiana-university/lms-canvas-3rdparty-provisioning.git</developerConnection>
         <url>https://github.com/indiana-university/lms-canvas-3rdparty-provisioning</url>
-        <tag>HEAD</tag>
+        <tag>lms-lti-3rdpartyprovisioning-6.0.1</tag>
     </scm>
 
     <properties>
