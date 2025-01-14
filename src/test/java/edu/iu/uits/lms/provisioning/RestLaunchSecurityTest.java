@@ -33,7 +33,7 @@ package edu.iu.uits.lms.provisioning;
  * #L%
  */
 
-import edu.iu.uits.lms.iuonly.services.DeptProvisioningUserServiceImpl;
+import edu.iu.uits.lms.iuonly.services.AuthorizedUserService;
 import edu.iu.uits.lms.lti.config.TestUtils;
 import edu.iu.uits.lms.lti.repository.DefaultInstructorRoleRepository;
 import edu.iu.uits.lms.provisioning.config.SecurityConfig;
@@ -76,7 +76,7 @@ public class RestLaunchSecurityTest {
    private DefaultInstructorRoleRepository defaultInstructorRoleRepository;
 
    @MockBean
-   private DeptProvisioningUserServiceImpl deptProvisioningUserService;
+   private AuthorizedUserService authorizedUserService;
 
    @Test
    public void restNoAuthnLaunch() throws Exception {

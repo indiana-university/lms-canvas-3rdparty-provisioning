@@ -33,11 +33,11 @@ package edu.iu.uits.lms.provisioning.service;
  * #L%
  */
 
-import edu.iu.uits.lms.iuonly.model.DeptProvisioningUser;
-import edu.iu.uits.lms.iuonly.services.DeptProvisioningUserServiceImpl;
+import edu.iu.uits.lms.iuonly.model.acl.AuthorizedUser;
+import edu.iu.uits.lms.iuonly.services.AuthorizedUserService;
 import edu.iu.uits.lms.lti.config.TestUtils;
+import edu.iu.uits.lms.provisioning.Constants;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessageSender;
-import edu.iu.uits.lms.provisioning.controller.Constants;
 import edu.iu.uits.lms.provisioning.model.FileUploadResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -76,7 +76,7 @@ public class FileUploadServiceTest {
    private BackgroundMessageSender backgroundMessageSender;
 
    @MockBean
-   private DeptProvisioningUserServiceImpl deptProvisioningUserService;
+   private AuthorizedUserService authorizedUserService;
 
    @Test
    public void testUnzip() throws Exception {
@@ -208,9 +208,9 @@ public class FileUploadServiceTest {
    }
 
    private void mockUser(String username) {
-      DeptProvisioningUser user = new DeptProvisioningUser();
+      AuthorizedUser user = new AuthorizedUser();
       user.setUsername(username);
-      when(deptProvisioningUserService.findByUsername(anyString())).thenReturn(user);
+      when(authorizedUserService.findByUsernameAndToolPermission(anyString(), anyString())).thenReturn(user);
    }
 
    private MultipartFile mockFile(String fileName) throws IOException {

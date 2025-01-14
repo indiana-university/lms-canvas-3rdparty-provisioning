@@ -1,4 +1,4 @@
-package edu.iu.uits.lms.provisioning.controller;
+package edu.iu.uits.lms.provisioning;
 
 /*-
  * #%L
@@ -40,5 +40,11 @@ public interface Constants {
       API,
       APP
    }
+
+   String AUTH_USER_TOOL_PERMISSION = "DEPT_PROV";
+   String AUTH_USER_TOOL_PERM_PROP_GROUP_CODES = "DEPT_PROV_GROUP_CODES";
+   String AUTH_USER_TOOL_PERM_PROP_ALLOW_SIS_ENROLLMENTS = "DEPT_PROV_ALLOW_SIS_ENROLLMENTS";
+   String AUTH_USER_TOOL_PERM_PROP_AUTHORIZED_ACCOUNTS = "DEPT_PROV_AUTHORIZED_ACCOUNTS";
+   String AUTH_USER_TOOL_PERM_PROP_OVERRIDE_RESTRICTIONS = "DEPT_PROV_OVERRIDE_RESTRICTIONS";
 
 }

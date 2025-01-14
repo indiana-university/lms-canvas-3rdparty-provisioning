@@ -33,7 +33,7 @@ package edu.iu.uits.lms.provisioning.model;
  * #L%
  */
 
-import edu.iu.uits.lms.provisioning.controller.Constants;
+import edu.iu.uits.lms.provisioning.Constants;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -33,7 +33,7 @@ package edu.iu.uits.lms.provisioning.controller.rest;
  * #L%
  */
 
-import edu.iu.uits.lms.provisioning.controller.Constants;
+import edu.iu.uits.lms.provisioning.Constants;
 import edu.iu.uits.lms.provisioning.model.FileUploadResult;
 import edu.iu.uits.lms.provisioning.service.DeptProvFileUploadService;
 import io.swagger.v3.oas.annotations.Operation;

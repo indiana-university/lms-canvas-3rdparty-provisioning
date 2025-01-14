@@ -39,7 +39,7 @@ import edu.iu.uits.lms.email.model.EmailDetails;
 import edu.iu.uits.lms.email.service.EmailService;
 import edu.iu.uits.lms.iuonly.model.LmsBatchEmail;
 import edu.iu.uits.lms.iuonly.services.BatchEmailServiceImpl;
-import edu.iu.uits.lms.provisioning.controller.Constants;
+import edu.iu.uits.lms.provisioning.Constants;
 import edu.iu.uits.lms.provisioning.repository.ArchiveRepository;
 import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
 import lombok.extern.slf4j.Slf4j;
