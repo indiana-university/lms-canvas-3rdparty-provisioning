@@ -35,7 +35,7 @@ package edu.iu.uits.lms.provisioning.swagger;
 
 import edu.iu.uits.lms.email.config.EmailRestConfiguration;
 import edu.iu.uits.lms.iuonly.config.IuCustomRestConfiguration;
-import edu.iu.uits.lms.iuonly.services.DeptProvisioningUserServiceImpl;
+import edu.iu.uits.lms.iuonly.services.AuthorizedUserService;
 import edu.iu.uits.lms.iuonly.services.SisServiceImpl;
 import edu.iu.uits.lms.lti.config.LtiRestConfiguration;
 import edu.iu.uits.lms.lti.repository.DefaultInstructorRoleRepository;
@@ -86,7 +86,7 @@ public class DeptProvSwaggerConfig {
    private DefaultInstructorRoleRepository defaultInstructorRoleRepository;
 
    @MockBean
-   private DeptProvisioningUserServiceImpl deptProvisioningUserService;
+   private AuthorizedUserService authorizedUserService;
 
    @Bean
    public SwaggerTestingBean swaggerTestingBean() {

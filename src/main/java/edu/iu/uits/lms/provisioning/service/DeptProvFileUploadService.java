@@ -33,11 +33,11 @@ package edu.iu.uits.lms.provisioning.service;
  * #L%
  */
 
-import edu.iu.uits.lms.iuonly.model.DeptProvisioningUser;
-import edu.iu.uits.lms.iuonly.services.DeptProvisioningUserServiceImpl;
+import edu.iu.uits.lms.iuonly.model.acl.AuthorizedUser;
+import edu.iu.uits.lms.iuonly.services.AuthorizedUserService;
+import edu.iu.uits.lms.provisioning.Constants;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessage;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessageSender;
-import edu.iu.uits.lms.provisioning.controller.Constants;
 import edu.iu.uits.lms.provisioning.model.FileUploadResult;
 import edu.iu.uits.lms.provisioning.model.NotificationForm;
 import edu.iu.uits.lms.provisioning.model.content.ByteArrayFileContent;
@@ -82,7 +82,7 @@ public class DeptProvFileUploadService {
    private BackgroundMessageSender backgroundMessageSender;
 
    @Autowired
-   private DeptProvisioningUserServiceImpl deptProvisioningUserService;
+   private AuthorizedUserService authorizedUserService;
 
    /**
     *
@@ -200,7 +200,7 @@ public class DeptProvFileUploadService {
             username = jwt.getClaimAsString("client_id");
             log.debug("client id from Jwt: {}", username);
          }
-         DeptProvisioningUser user = deptProvisioningUserService.findByUsername(username);
+         AuthorizedUser user = authorizedUserService.findByUsernameAndToolPermission(username, Constants.AUTH_USER_TOOL_PERMISSION);
          log.debug("User: {}", user);
          if (user != null) {
             return user.getUsername();

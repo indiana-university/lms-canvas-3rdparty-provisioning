@@ -40,7 +40,7 @@ import edu.iu.uits.lms.email.service.EmailService;
 import edu.iu.uits.lms.email.service.LmsEmailTooBigException;
 import edu.iu.uits.lms.iuonly.model.LmsBatchEmail;
 import edu.iu.uits.lms.iuonly.services.BatchEmailServiceImpl;
-import edu.iu.uits.lms.provisioning.controller.Constants;
+import edu.iu.uits.lms.provisioning.Constants;
 import edu.iu.uits.lms.provisioning.model.CanvasImportId;
 import edu.iu.uits.lms.provisioning.model.DeptProvArchive;
 import edu.iu.uits.lms.provisioning.model.NotificationForm;

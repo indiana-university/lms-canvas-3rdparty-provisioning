@@ -34,10 +34,10 @@ package edu.iu.uits.lms.provisioning.controller;
  */
 
 import edu.iu.uits.lms.common.session.CourseSessionService;
-import edu.iu.uits.lms.iuonly.services.DeptProvisioningUserServiceImpl;
 import edu.iu.uits.lms.lti.LTIConstants;
 import edu.iu.uits.lms.lti.controller.OidcTokenAwareController;
 import edu.iu.uits.lms.lti.service.OidcTokenUtils;
+import edu.iu.uits.lms.provisioning.Constants;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessage;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessageSender;
 import edu.iu.uits.lms.provisioning.model.DeptAuthMessageSender;
@@ -77,9 +77,6 @@ import java.util.stream.Collectors;
 public class ProvisioningController extends OidcTokenAwareController {
 
     private static final String SESSION_KEY = "uploadedInfo";
-
-    @Autowired
-    private DeptProvisioningUserServiceImpl deptProvisioningUserService;
 
     @Autowired
     private DeptAuthMessageSenderRepository deptAuthMessageSenderRepository;

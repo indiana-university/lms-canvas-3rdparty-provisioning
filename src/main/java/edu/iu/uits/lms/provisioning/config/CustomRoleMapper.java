@@ -33,13 +33,13 @@ package edu.iu.uits.lms.provisioning.config;
  * #L%
  */
 
-import edu.iu.uits.lms.iuonly.model.DeptProvisioningUser;
-import edu.iu.uits.lms.iuonly.services.DeptProvisioningUserServiceImpl;
+import edu.iu.uits.lms.iuonly.model.acl.AuthorizedUser;
+import edu.iu.uits.lms.iuonly.services.AuthorizedUserService;
 import edu.iu.uits.lms.lti.LTIConstants;
 import edu.iu.uits.lms.lti.repository.DefaultInstructorRoleRepository;
 import edu.iu.uits.lms.lti.service.LmsDefaultGrantedAuthoritiesMapper;
 import edu.iu.uits.lms.lti.service.OidcTokenUtils;
-import edu.iu.uits.lms.provisioning.controller.Constants;
+import edu.iu.uits.lms.provisioning.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
@@ -49,14 +49,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static edu.iu.uits.lms.provisioning.Constants.AUTH_USER_TOOL_PERMISSION;
+import static edu.iu.uits.lms.provisioning.Constants.AUTH_USER_TOOL_PERM_PROP_GROUP_CODES;
+
 @Slf4j
 public class CustomRoleMapper extends LmsDefaultGrantedAuthoritiesMapper {
 
-   private DeptProvisioningUserServiceImpl deptProvisioningUserService;
+   private AuthorizedUserService authorizedUserService;
 
-   public CustomRoleMapper(DefaultInstructorRoleRepository defaultInstructorRoleRepository, DeptProvisioningUserServiceImpl deptProvisioningUserService) {
+   public CustomRoleMapper(DefaultInstructorRoleRepository defaultInstructorRoleRepository, AuthorizedUserService authorizedUserService) {
       super(defaultInstructorRoleRepository);
-      this.deptProvisioningUserService = deptProvisioningUserService;
+      this.authorizedUserService = authorizedUserService;
    }
 
    @Override
@@ -72,7 +75,7 @@ public class CustomRoleMapper extends LmsDefaultGrantedAuthoritiesMapper {
 
          String rolesString = "NotAuthorized";
 
-         DeptProvisioningUser user = deptProvisioningUserService.findByUsername(userId);
+         AuthorizedUser user = authorizedUserService.findByUsernameAndToolPermission(userId, AUTH_USER_TOOL_PERMISSION);
 
          if (user != null) {
             rolesString = LTIConstants.CANVAS_INSTRUCTOR_ROLE;
@@ -86,7 +89,8 @@ public class CustomRoleMapper extends LmsDefaultGrantedAuthoritiesMapper {
          if (user != null) {
             // Add a new custom claim
             Map<String, Object> jsonObj = (Map) userAuth.getAttributes().get(LTIConstants.CLAIMS_KEY_CUSTOM);
-            jsonObj.put(Constants.AVAILABLE_GROUPS_KEY, user.getGroupCode());
+            String groupCodes = user.getToolPermissionProperties(AUTH_USER_TOOL_PERMISSION).get(AUTH_USER_TOOL_PERM_PROP_GROUP_CODES);
+            jsonObj.put(Constants.AVAILABLE_GROUPS_KEY, AuthorizedUserService.convertPropertyToList(groupCodes));
          }
          OidcUserAuthority newUserAuth = new OidcUserAuthority(newAuthString, userAuth.getIdToken(), userAuth.getUserInfo());
          remappedAuthorities.add(newUserAuth);

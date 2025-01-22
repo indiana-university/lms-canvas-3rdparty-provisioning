@@ -35,7 +35,7 @@ package edu.iu.uits.lms.provisioning;
 
 import edu.iu.uits.lms.common.server.ServerInfo;
 import edu.iu.uits.lms.common.session.CourseSessionService;
-import edu.iu.uits.lms.iuonly.services.DeptProvisioningUserServiceImpl;
+import edu.iu.uits.lms.iuonly.services.AuthorizedUserService;
 import edu.iu.uits.lms.lti.LTIConstants;
 import edu.iu.uits.lms.lti.config.TestUtils;
 import edu.iu.uits.lms.lti.repository.DefaultInstructorRoleRepository;
@@ -83,7 +83,7 @@ public class AppLaunchSecurityTest {
    private DefaultInstructorRoleRepository defaultInstructorRoleRepository;
 
    @MockBean
-   private DeptProvisioningUserServiceImpl deptProvisioningUserService;
+   private AuthorizedUserService authorizedUserService;
 
    @MockBean(name = ServerInfo.BEAN_NAME)
    private ServerInfo serverInfo;

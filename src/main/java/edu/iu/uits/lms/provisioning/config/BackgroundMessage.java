@@ -33,7 +33,7 @@ package edu.iu.uits.lms.provisioning.config;
  * #L%
  */
 
-import edu.iu.uits.lms.provisioning.controller.Constants;
+import edu.iu.uits.lms.provisioning.Constants;
 import edu.iu.uits.lms.provisioning.model.NotificationForm;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
 import edu.iu.uits.lms.provisioning.service.DeptRouter;

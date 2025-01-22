@@ -37,10 +37,11 @@ import com.rabbitmq.client.Channel;
 import edu.iu.uits.lms.email.model.EmailDetails;
 import edu.iu.uits.lms.email.service.EmailService;
 import edu.iu.uits.lms.email.service.LmsEmailTooBigException;
-import edu.iu.uits.lms.iuonly.model.DeptProvisioningUser;
 import edu.iu.uits.lms.iuonly.model.LmsBatchEmail;
+import edu.iu.uits.lms.iuonly.model.acl.AuthorizedUser;
+import edu.iu.uits.lms.iuonly.services.AuthorizedUserService;
 import edu.iu.uits.lms.iuonly.services.BatchEmailServiceImpl;
-import edu.iu.uits.lms.iuonly.services.DeptProvisioningUserServiceImpl;
+import edu.iu.uits.lms.provisioning.Constants;
 import edu.iu.uits.lms.provisioning.model.CanvasImportId;
 import edu.iu.uits.lms.provisioning.model.PostProcessingData;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
@@ -66,9 +67,13 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+
+import static edu.iu.uits.lms.provisioning.Constants.AUTH_USER_TOOL_PERMISSION;
+import static edu.iu.uits.lms.provisioning.Constants.AUTH_USER_TOOL_PERM_PROP_ALLOW_SIS_ENROLLMENTS;
+import static edu.iu.uits.lms.provisioning.Constants.AUTH_USER_TOOL_PERM_PROP_AUTHORIZED_ACCOUNTS;
+import static edu.iu.uits.lms.provisioning.Constants.AUTH_USER_TOOL_PERM_PROP_OVERRIDE_RESTRICTIONS;
 
 @RabbitListener(queues = "${deptprov.backgroundQueueName}")
 @Profile("!batch")
@@ -80,7 +85,7 @@ public class BackgroundMessageListener {
    private DeptRouter deptRouter;
 
    @Autowired
-   private DeptProvisioningUserServiceImpl deptProvisioningUserApi;
+   private AuthorizedUserService authorizedUserService;
 
    @Autowired
    private CanvasImportIdRepository canvasImportIdRepository;
@@ -109,20 +114,16 @@ public class BackgroundMessageListener {
    public void handleMessage(BackgroundMessage message) {
       MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> postProcessingDataMap = new ArrayListValuedHashMap<>();
 
-      DeptProvisioningUser user = deptProvisioningUserApi.findByUsername(message.getUsername());
-      boolean allowSisEnrollments = user.isAllowSisEnrollments();
-      boolean overrideRestrictions = user.isOverrideRestrictions();
-      List<String> authorizedAccounts = new ArrayList<>();
-      String authorizedAccountString = user.getAuthorizedAccounts();
+      AuthorizedUser user = authorizedUserService.findByUsernameAndToolPermission(message.getUsername(), Constants.AUTH_USER_TOOL_PERMISSION);
+      Map<String, String> propertyMap = user.getToolPermissionProperties(AUTH_USER_TOOL_PERMISSION);
 
-      if (authorizedAccountString != null) {
-         authorizedAccounts = Arrays.stream(authorizedAccountString.split(","))
-                 .map(String::trim)
-                 .collect(Collectors.toList());
-      }
+      boolean allowSisEnrollments = AuthorizedUserService.convertPropertyToBoolean(propertyMap.get(AUTH_USER_TOOL_PERM_PROP_ALLOW_SIS_ENROLLMENTS));
+      boolean overrideRestrictions = AuthorizedUserService.convertPropertyToBoolean(propertyMap.get(AUTH_USER_TOOL_PERM_PROP_OVERRIDE_RESTRICTIONS));
+      List<String> authorizedAccounts = AuthorizedUserService.convertPropertyToList(propertyMap.get(AUTH_USER_TOOL_PERM_PROP_AUTHORIZED_ACCOUNTS));
 
       try {
-         List<ProvisioningResult> provisioningResults = deptRouter.processFiles(message.getDepartment(), message.getFilesByType(), message.getNotificationForm(), allowSisEnrollments, authorizedAccounts, overrideRestrictions);
+         List<ProvisioningResult> provisioningResults = deptRouter.processFiles(message.getDepartment(), message.getFilesByType(),
+                 message.getNotificationForm(), allowSisEnrollments, authorizedAccounts, overrideRestrictions);
 
          List<ProvisioningResult.FileObject> allFiles = new ArrayList<>();
          StringBuilder fullEmail = new StringBuilder();
