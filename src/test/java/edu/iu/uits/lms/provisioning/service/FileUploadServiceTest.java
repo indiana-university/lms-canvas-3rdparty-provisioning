@@ -210,7 +210,7 @@ public class FileUploadServiceTest {
    private void mockUser(String username) {
       AuthorizedUser user = new AuthorizedUser();
       user.setUsername(username);
-      when(authorizedUserService.findByUsernameAndToolPermission(anyString(), anyString())).thenReturn(user);
+      when(authorizedUserService.findByActiveUsernameAndToolPermission(anyString(), anyString())).thenReturn(user);
    }
 
    private MultipartFile mockFile(String fileName) throws IOException {

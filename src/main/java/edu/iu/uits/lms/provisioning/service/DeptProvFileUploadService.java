@@ -200,7 +200,7 @@ public class DeptProvFileUploadService {
             username = jwt.getClaimAsString("client_id");
             log.debug("client id from Jwt: {}", username);
          }
-         AuthorizedUser user = authorizedUserService.findByUsernameAndToolPermission(username, Constants.AUTH_USER_TOOL_PERMISSION);
+         AuthorizedUser user = authorizedUserService.findByActiveUsernameAndToolPermission(username, Constants.AUTH_USER_TOOL_PERMISSION);
          log.debug("User: {}", user);
          if (user != null) {
             return user.getUsername();
