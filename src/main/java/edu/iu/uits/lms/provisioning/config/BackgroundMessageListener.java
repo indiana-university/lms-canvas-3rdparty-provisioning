@@ -114,7 +114,7 @@ public class BackgroundMessageListener {
    public void handleMessage(BackgroundMessage message) {
       MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> postProcessingDataMap = new ArrayListValuedHashMap<>();
 
-      AuthorizedUser user = authorizedUserService.findByUsernameAndToolPermission(message.getUsername(), Constants.AUTH_USER_TOOL_PERMISSION);
+      AuthorizedUser user = authorizedUserService.findByActiveUsernameAndToolPermission(message.getUsername(), Constants.AUTH_USER_TOOL_PERMISSION);
       Map<String, String> propertyMap = user.getToolPermissionProperties(AUTH_USER_TOOL_PERMISSION);
 
       boolean allowSisEnrollments = AuthorizedUserService.convertPropertyToBoolean(propertyMap.get(AUTH_USER_TOOL_PERM_PROP_ALLOW_SIS_ENROLLMENTS));
