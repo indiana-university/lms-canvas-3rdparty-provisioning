@@ -40,6 +40,7 @@ import edu.iu.uits.lms.iuonly.services.SisServiceImpl;
 import edu.iu.uits.lms.lti.config.LtiRestConfiguration;
 import edu.iu.uits.lms.lti.repository.DefaultInstructorRoleRepository;
 import edu.iu.uits.lms.lti.swagger.SwaggerTestingBean;
+import edu.iu.uits.lms.provisioning.TestAppConfig;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessageListener;
 import edu.iu.uits.lms.provisioning.config.SecurityConfig;
 import edu.iu.uits.lms.provisioning.config.SwaggerConfig;
@@ -65,7 +66,8 @@ import static edu.iu.uits.lms.iuonly.IuCustomConstants.IUCUSTOM_GROUP_CODE_PATH;
         edu.iu.uits.lms.iuonly.config.SwaggerConfig.class,
         IuCustomRestConfiguration.class,
         edu.iu.uits.lms.email.config.SwaggerConfig.class,
-        EmailRestConfiguration.class
+        EmailRestConfiguration.class,
+        TestAppConfig.class
 })
 
 public class DeptProvSwaggerConfig {

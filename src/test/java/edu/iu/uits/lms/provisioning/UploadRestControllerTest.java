@@ -67,7 +67,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UploadRestController.class, properties = {"oauth.tokenprovider.url=http://foo"})
-@ContextConfiguration(classes = {SecurityConfig.class, UploadRestController.class})
+@ContextConfiguration(classes = {SecurityConfig.class, UploadRestController.class, TestAppConfig.class})
 @Slf4j
 @ActiveProfiles("none")
 public class UploadRestControllerTest {

@@ -100,6 +100,7 @@ public class GuestAccountService {
                 ga.setErrorMessages(errorMessageList);
             } catch (IOException ioe) {
                 log.error("Error parsing error message", ioe);
+                ga.setErrorMessages(List.of("Error creating guest account '" + input + "', but unable to parse the error message"));
             }
         }
         return ga;

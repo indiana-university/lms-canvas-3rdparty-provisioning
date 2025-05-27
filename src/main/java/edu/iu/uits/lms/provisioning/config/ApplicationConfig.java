@@ -33,7 +33,6 @@ package edu.iu.uits.lms.provisioning.config;
  * #L%
  */
 
-import edu.iu.uits.lms.common.oauth.OAuthConfig;
 import edu.iu.uits.lms.provisioning.Constants;
 import edu.iu.uits.lms.provisioning.model.NotificationForm;
 import edu.iu.uits.lms.provisioning.model.content.ByteArrayFileContent;
@@ -44,7 +43,6 @@ import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -64,12 +62,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @EnableWebMvc
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
-@EnableConfigurationProperties(OAuthConfig.class)
 @Slf4j
 public class ApplicationConfig implements WebMvcConfigurer {
-
-   @Autowired
-   private OAuthConfig oAuthConfig;
 
    @Autowired
    private ToolConfig toolConfig;
@@ -91,7 +85,8 @@ public class ApplicationConfig implements WebMvcConfigurer {
    WebClient webClient(OAuth2AuthorizedClientManager authorizedClientManager) {
       ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =
               new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
-      oauth2Client.setDefaultClientRegistrationId("uaa");
+      // Use the uaac, for client credentials
+      oauth2Client.setDefaultClientRegistrationId("uaac");
       return WebClient.builder()
               .apply(oauth2Client.oauth2Configuration())
               .build();
@@ -104,7 +99,6 @@ public class ApplicationConfig implements WebMvcConfigurer {
 
       OAuth2AuthorizedClientProvider authorizedClientProvider =
               OAuth2AuthorizedClientProviderBuilder.builder()
-                      .authorizationCode()
                       .refreshToken()
                       .clientCredentials()
                       .build();
