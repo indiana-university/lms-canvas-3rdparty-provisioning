@@ -50,7 +50,7 @@ import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.ArrayList;
 
@@ -63,43 +63,43 @@ public class DeptRouterTest {
    @Autowired
    private DeptRouter deptRouter;
 
-   @MockBean
+   @MockitoBean
    protected UserProvisioning userProvisioning;
 
-   @MockBean
+   @MockitoBean
    private CourseProvisioning courseProvisioning;
 
-   @MockBean
+   @MockitoBean
    private EnrollmentProvisioning enrollmentProvisioning;
 
-   @MockBean
+   @MockitoBean
    private SectionProvisioning sectionProvisioning;
 
-   @MockBean
+   @MockitoBean
    private ExpandEnrollmentProvisioning expandEnrollmentProvisioning;
 
-   @MockBean
+   @MockitoBean
    private CanvasImportIdRepository canvasImportIdRepository;
 
-   @MockBean
+   @MockitoBean
    private ImportService importService;
 
-   @MockBean
+   @MockitoBean
    private EmailService emailService;
 
    @Captor
    ArgumentCaptor<EmailDetails> emailCaptor;
 
-   @MockBean
+   @MockitoBean
    private CsvService csvService;
 
-   @MockBean
+   @MockitoBean
    private BatchEmailServiceImpl batchEmailService;
 
-   @MockBean
+   @MockitoBean
    private CanvasService canvasService;
 
-   @MockBean
+   @MockitoBean
    private ArchiveRepository archiveRepository;
 
    @Test

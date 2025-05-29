@@ -35,18 +35,10 @@ package edu.iu.uits.lms.provisioning.swagger;
 
 import edu.iu.uits.lms.email.config.EmailRestConfiguration;
 import edu.iu.uits.lms.iuonly.config.IuCustomRestConfiguration;
-import edu.iu.uits.lms.iuonly.services.AuthorizedUserService;
-import edu.iu.uits.lms.iuonly.services.SisServiceImpl;
 import edu.iu.uits.lms.lti.config.LtiRestConfiguration;
-import edu.iu.uits.lms.lti.repository.DefaultInstructorRoleRepository;
 import edu.iu.uits.lms.lti.swagger.SwaggerTestingBean;
-import edu.iu.uits.lms.provisioning.TestAppConfig;
-import edu.iu.uits.lms.provisioning.config.BackgroundMessageListener;
 import edu.iu.uits.lms.provisioning.config.SecurityConfig;
 import edu.iu.uits.lms.provisioning.config.SwaggerConfig;
-import edu.iu.uits.lms.provisioning.service.DeptRouter;
-import org.springframework.boot.context.metrics.buffering.BufferingApplicationStartup;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -66,29 +58,10 @@ import static edu.iu.uits.lms.iuonly.IuCustomConstants.IUCUSTOM_GROUP_CODE_PATH;
         edu.iu.uits.lms.iuonly.config.SwaggerConfig.class,
         IuCustomRestConfiguration.class,
         edu.iu.uits.lms.email.config.SwaggerConfig.class,
-        EmailRestConfiguration.class,
-        TestAppConfig.class
+        EmailRestConfiguration.class
 })
 
 public class DeptProvSwaggerConfig {
-
-   @MockBean
-   private BackgroundMessageListener backgroundMessageListener;
-
-   @MockBean
-   private BufferingApplicationStartup bufferingApplicationStartup;
-
-   @MockBean
-   private DeptRouter deptRouter;
-
-   @MockBean
-   private SisServiceImpl sisService;
-
-   @MockBean
-   private DefaultInstructorRoleRepository defaultInstructorRoleRepository;
-
-   @MockBean
-   private AuthorizedUserService authorizedUserService;
 
    @Bean
    public SwaggerTestingBean swaggerTestingBean() {

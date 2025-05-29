@@ -33,14 +33,22 @@ package edu.iu.uits.lms.provisioning.swagger;
  * #L%
  */
 
+import edu.iu.uits.lms.iuonly.services.AuthorizedUserService;
+import edu.iu.uits.lms.iuonly.services.SisServiceImpl;
+import edu.iu.uits.lms.lti.repository.DefaultInstructorRoleRepository;
 import edu.iu.uits.lms.lti.swagger.AbstractSwaggerCustomTest;
 import edu.iu.uits.lms.lti.swagger.AbstractSwaggerDisabledTest;
 import edu.iu.uits.lms.lti.swagger.AbstractSwaggerEmbeddedToolTest;
 import edu.iu.uits.lms.lti.swagger.AbstractSwaggerUiCustomTest;
+import edu.iu.uits.lms.provisioning.SharedMocks;
+import edu.iu.uits.lms.provisioning.config.BackgroundMessageListener;
+import edu.iu.uits.lms.provisioning.service.DeptRouter;
 import org.junit.jupiter.api.Nested;
+import org.springframework.boot.context.metrics.buffering.BufferingApplicationStartup;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.NestedTestConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static edu.iu.uits.lms.email.EmailConstants.EMAILREST_PROFILE;
 import static edu.iu.uits.lms.iuonly.IuCustomConstants.IUCUSTOMREST_PROFILE;
@@ -48,7 +56,26 @@ import static org.springframework.test.context.NestedTestConfiguration.Enclosing
 
 
 @NestedTestConfiguration(INHERIT)
+@SharedMocks
 public class SwaggerSuiteTest {
+
+    @MockitoBean
+    private BackgroundMessageListener backgroundMessageListener;
+
+    @MockitoBean
+    private BufferingApplicationStartup bufferingApplicationStartup;
+
+    @MockitoBean
+    private DeptRouter deptRouter;
+
+    @MockitoBean
+    private SisServiceImpl sisService;
+
+    @MockitoBean
+    private DefaultInstructorRoleRepository defaultInstructorRoleRepository;
+
+    @MockitoBean
+    private AuthorizedUserService authorizedUserService;
 
 
     @Nested
