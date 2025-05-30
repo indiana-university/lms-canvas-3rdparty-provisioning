@@ -41,7 +41,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -49,11 +48,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriTemplate;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,11 +71,7 @@ public class GuestAccountService {
     public GuestAccount createGuest(GuestAccount guest) {
         String url = toolConfig.getGuestAccountCreationUrl() + "/accounts/external/invite";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
         GuestInput input = new GuestInput(guest.getRegistrationEmail(), guest.getFirstName(), guest.getLastName(), guest.getServiceName());
-        HttpEntity<GuestInput> requestEntity = new HttpEntity<>(input, headers);
 
         // use this for returning error messages, if the requestEntity doesn't work out
         GuestAccount ga = new GuestAccount();
@@ -99,7 +92,7 @@ public class GuestAccountService {
                 List<String> errorMessageList = consolidateErrorMessages(ger);
                 ga.setErrorMessages(errorMessageList);
             } catch (IOException ioe) {
-                log.error("Error parsing error message", ioe);
+                log.error("Error parsing error message for create", ioe);
                 ga.setErrorMessages(List.of("Error creating guest account '" + input + "', but unable to parse the error message"));
             }
         }
@@ -108,13 +101,9 @@ public class GuestAccountService {
 
     public GuestAccount lookupGuestByEmail(String emailAddress) {
         String url = toolConfig.getGuestAccountCreationUrl() + "/accounts/external/search";
+        log.debug("{}", url);
 
-        UriTemplate GUEST_TEMPLATE = new UriTemplate(url);
-
-        URI uri = GUEST_TEMPLATE.expand(url, emailAddress);
-        log.debug("{}", uri);
-
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(uri);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url);
         builder.queryParam("internetAddress", emailAddress);
 
         try {
@@ -132,9 +121,9 @@ public class GuestAccountService {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 GuestErrorResponse ger = mapper.readValue(e.getResponseBodyAsString(), GuestErrorResponse.class);
-                log.warn("Error retrieving guest account for " + emailAddress + ": " + ger.getErrorMessage(), e);
+                log.warn("Error retrieving guest account for {}: {}", emailAddress, ger.getErrorMessage());
             } catch (IOException ioe) {
-                log.error("Error parsing error message", ioe);
+                log.error("Error parsing error message for lookup", ioe);
             }
         }
 

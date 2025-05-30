@@ -24,23 +24,6 @@ spring:
     password: ${lms.db.password}
     type: ${lms.db.poolType}
   cloud.vault.enabled: false
-#  security:
-#    oauth2:
-#      resourceserver:
-#        jwt:
-#          jwk-set-uri: ${oauth.tokenprovider.url}/.well-known/jwks.json
-#      client:
-#        registration:
-#          uaa:
-#            provider: uaa
-#            client-id: ${oauth.tokenprovider.clientId}
-#            client-secret: ${oauth.tokenprovider.clientSecret}
-#            authorization-grant-type: client_credentials
-#            client-authentication-method: client_secret_post
-#        provider:
-#          uaa:
-#            token-uri: ${oauth.tokenprovider.accessTokenUri}
-
   rabbitmq:
     addresses: ${lms.rabbitmq.address.${app.env}}
     username: ${lms.rabbitmq.username.${app.env}}
@@ -132,6 +115,7 @@ spring:
     activate.on-profile: vault
     import:
       - vault://${spring.cloud.vault.kv.backend}/managed/${spring.cloud.vault.kv.application-name}/${app.env}/oauth
+      - vault://${spring.cloud.vault.kv.backend}/managed/${spring.cloud.vault.kv.application-name}/${app.env}/database
       - vault://${spring.cloud.vault.kv.backend}/application
       - vault://${spring.cloud.vault.kv.backend}/${spring.cloud.vault.kv.application-name}/all
       - vault://${spring.cloud.vault.kv.backend}/${spring.cloud.vault.kv.application-name}/${app.env}

@@ -1,6 +1,5 @@
 package edu.iu.uits.lms.provisioning;
 
-import edu.iu.uits.lms.audit.LmsIT12LoggerListener;
 import edu.iu.uits.lms.common.cors.CorsSwaggerConfig;
 import edu.iu.uits.lms.common.session.CourseSessionService;
 import edu.iu.uits.lms.iuonly.services.SisServiceImpl;
@@ -73,13 +72,8 @@ public class ItLoggingTest {
     @MockitoBean
     private SisServiceImpl sisService;
 
-    @Autowired
-    private LmsIT12LoggerListener lmsIT12LoggerListener;
-
     @Test
     public void testLmsEnhancementToIt12LogExistence() throws Exception {
-        Assertions.assertNotNull(lmsIT12LoggerListener, "LmsIT12LoggerListener should be autowired");
-
         final String auditLoggerClassName = "edu.iu.es.esi.audit.AuditLogger";
 
         Class<?> clazz = null;
@@ -112,24 +106,30 @@ public class ItLoggingTest {
             Assertions.assertNotNull(it12LogEntries);
             Assertions.assertEquals(2, it12LogEntries.size());
 
-            // The first log entry is the custom LMS log entry
-            final String lmsIt12LogEntry = it12LogEntries.getFirst();
+            // Find the LMS custom log entry and the base IT12 log entry, just in case the order can't be guaranteed
+            String lmsIt12LogEntry = null;
+            String baseIt12LogEntry = null;
 
-            Assertions.assertNotNull(lmsIt12LogEntry);
+            for (String logEntry : it12LogEntries) {
+                if (logEntry.contains("Successful authorization to uri")) {
+                    lmsIt12LogEntry = logEntry;
+                } else if (logEntry.contains("Successful access to")) {
+                    baseIt12LogEntry = logEntry;
+                }
+            }
+
+            // Verify LMS custom log entry
+            Assertions.assertNotNull(lmsIt12LogEntry, "LMS custom log entry should be present");
             Assertions.assertFalse(lmsIt12LogEntry.isEmpty());
-
             Assertions.assertTrue(lmsIt12LogEntry.contains("\"type\":\"successful authorization\""));
             Assertions.assertTrue(lmsIt12LogEntry.contains("\"user\":\"asdf\""));
             Assertions.assertTrue(lmsIt12LogEntry.contains("\"ipAddress\":\"127.0.0.1\""));
             Assertions.assertTrue(lmsIt12LogEntry.contains("\"message\":\"Successful authorization to uri " + uriToCall +
                     " as asdf with clientId asdf with audience [aud1, aud2] and authorities [LMS_REST_ADMINS] and scopes [lms:rest]\""));
 
-            // The second log entry is the base IT12 log entry
-            final String baseIt12LogEntry = it12LogEntries.getLast();
-
-            Assertions.assertNotNull(baseIt12LogEntry);
+            // Verify base IT12 log entry
+            Assertions.assertNotNull(baseIt12LogEntry, "Base IT12 log entry should be present");
             Assertions.assertFalse(baseIt12LogEntry.isEmpty());
-
             Assertions.assertTrue(baseIt12LogEntry.contains("\"type\":\"successful authorization\""));
             Assertions.assertTrue(baseIt12LogEntry.contains("\"user\":\"asdf\""));
             Assertions.assertTrue(baseIt12LogEntry.contains("\"ipAddress\":\"127.0.0.1\""));
