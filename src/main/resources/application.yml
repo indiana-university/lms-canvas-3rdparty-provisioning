@@ -43,8 +43,8 @@ deptprov:
   env: ${app.env}
   prd:
     guestAccountCreationUrl: https://eaa.apps.iu.edu
-    canvasServiceName: CanvasProd
-    expandServiceName: ExpandProd
+    canvasServiceName: lmsLtiThirdpartyCanvasProd
+    expandServiceName: lmsLtiThirdpartyExpandProd
   stg:
     guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
     canvasServiceName: lmsLtiThirdpartyCanvasTestStg
