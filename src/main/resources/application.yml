@@ -47,24 +47,20 @@ deptprov:
     expandServiceName: ExpandProd
   stg:
     guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
-    canvasServiceName: CanvasTest
-    expandServiceName: ExpandBeta
+    canvasServiceName: lmsLtiThirdpartyCanvasTestStg
+    expandServiceName: lmsLtiThirdpartyExpandBetaStg
   reg:
     guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
-    canvasServiceName: CanvasBeta
-    expandServiceName: ExpandBeta
-  snd:
-    guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
-    canvasServiceName: CanvasSand
-    expandServiceName: ExpandBeta
+    canvasServiceName: lmsLtiThirdpartyCanvasBetaReg
+    expandServiceName: lmsLtiThirdpartyExpandBetaReg
   dev:
     guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
-    canvasServiceName: CanvasBeta
-    expandServiceName: ExpandBeta
+    canvasServiceName: lmsLtiThirdpartyCanvasBetaDev
+    expandServiceName: lmsLtiThirdpartyExpandBetaDev
   ci:
     guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
-    canvasServiceName: CanvasBeta
-    expandServiceName: ExpandBeta
+    canvasServiceName: lmsLtiThirdpartyCanvasBetaDev
+    expandServiceName: lmsLtiThirdpartyExpandBetaDev
   guestAccountCreationUrl: ${deptprov.${app.env}.guestAccountCreationUrl}
   canvasServiceName: ${deptprov.${app.env}.canvasServiceName}
   expandServiceName: ${deptprov.${app.env}.expandServiceName}
