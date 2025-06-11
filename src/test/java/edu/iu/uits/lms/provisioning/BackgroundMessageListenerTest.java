@@ -49,8 +49,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Collections;
 
@@ -63,16 +63,16 @@ public class BackgroundMessageListenerTest {
    @Autowired
    private BackgroundMessageListener backgroundMessageListener;
 
-   @MockBean
+   @MockitoBean
    private DeptRouter deptRouter;
 
-   @MockBean
+   @MockitoBean
    private CanvasImportIdRepository canvasImportIdRepository;
 
-   @MockBean
+   @MockitoBean
    private EmailService emailService;
 
-   @MockBean
+   @MockitoBean
    private BatchEmailServiceImpl batchEmailService;
 
    @Test

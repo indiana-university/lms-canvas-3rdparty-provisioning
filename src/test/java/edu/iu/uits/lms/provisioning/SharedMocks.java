@@ -1,10 +1,10 @@
-package edu.iu.uits.lms.provisioning.swagger;
+package edu.iu.uits.lms.provisioning;
 
 /*-
  * #%L
  * lms-lti-3rdpartyprovisioning
  * %%
- * Copyright (C) 2015 - 2022 Indiana University
+ * Copyright (C) 2015 - 2025 Indiana University
  * %%
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -33,46 +33,30 @@ package edu.iu.uits.lms.provisioning.swagger;
  * #L%
  */
 
-import edu.iu.uits.lms.email.config.EmailRestConfiguration;
-import edu.iu.uits.lms.iuonly.config.IuCustomRestConfiguration;
-import edu.iu.uits.lms.lti.config.LtiRestConfiguration;
-import edu.iu.uits.lms.lti.swagger.SwaggerTestingBean;
-import edu.iu.uits.lms.provisioning.config.SecurityConfig;
-import edu.iu.uits.lms.provisioning.config.SwaggerConfig;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import static edu.iu.uits.lms.email.EmailConstants.EMAIL_GROUP_CODE_PATH;
-import static edu.iu.uits.lms.iuonly.IuCustomConstants.IUCUSTOM_GROUP_CODE_PATH;
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@MockitoBean(types = {JwtDecoder.class, ClientRegistrationRepository.class, OAuth2AuthorizedClientService.class})
+public @interface SharedMocks {
 
-@Configuration
-@Import({
-        SecurityConfig.class,
-        SwaggerConfig.class,
-        edu.iu.uits.lms.lti.config.SwaggerConfig.class,
-        LtiRestConfiguration.class,
-        edu.iu.uits.lms.iuonly.config.SwaggerConfig.class,
-        IuCustomRestConfiguration.class,
-        edu.iu.uits.lms.email.config.SwaggerConfig.class,
-        EmailRestConfiguration.class
-})
-
-public class DeptProvSwaggerConfig {
-
-   @Bean
-   public SwaggerTestingBean swaggerTestingBean() {
-      SwaggerTestingBean stb = new SwaggerTestingBean();
-
-      List<String> expandedList = new ArrayList<>();
-      expandedList.add(IUCUSTOM_GROUP_CODE_PATH);
-      expandedList.add(EMAIL_GROUP_CODE_PATH);
-
-      stb.setEmbeddedSwaggerToolPaths(expandedList);
-      return stb;
-   }
-
+//    @MockBean
+//    public JwtDecoder jwtDecoder;
+//
+//    @MockitoBean
+//    public ClientRegistrationRepository clientRegistrationRepository;
+//
+//    @Bean
+//    @Primary
+//    public OAuth2AuthorizedClientService oAuth2AuthorizedClientService() {
+//        return Mockito.mock(OAuth2AuthorizedClientService.class);
+//    }
 }

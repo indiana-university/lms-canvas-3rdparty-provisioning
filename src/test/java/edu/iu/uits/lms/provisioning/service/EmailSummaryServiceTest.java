@@ -48,8 +48,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,25 +67,25 @@ public class EmailSummaryServiceTest {
    @Autowired
    private EmailSummaryService emailSummaryService;
 
-   @MockBean
+   @MockitoBean
    private CanvasImportIdRepository canvasImportIdRepository;
 
-   @MockBean
+   @MockitoBean
    private EmailService emailService;
 
-   @MockBean
+   @MockitoBean
    private BatchEmailServiceImpl batchEmailService;
 
-   @MockBean
+   @MockitoBean
    private ImportService importService;
 
-   @MockBean
+   @MockitoBean
    private CanvasService canvasService;
 
-   @MockBean
+   @MockitoBean
    private DeptRouter deptRouter;
 
-   @MockBean
+   @MockitoBean
    private ToolConfig toolConfig;
 
    @BeforeEach

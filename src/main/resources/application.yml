@@ -13,8 +13,8 @@ spring:
         jdbc:
           lob:
             non_contextual_creation: true
-        temp:
-          use_jdbc_metadata_defaults: false
+        boot:
+          allow_jdbc_metadata_access: false
       jadira:
         usertype:
           autoRegisterUserTypes: true
@@ -24,23 +24,6 @@ spring:
     password: ${lms.db.password}
     type: ${lms.db.poolType}
   cloud.vault.enabled: false
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: ${oauth.tokenprovider.url}/.well-known/jwks.json
-      client:
-        registration:
-          uaa:
-            provider: uaa
-            client-id: ${oauth.tokenprovider.clientId}
-            client-secret: ${oauth.tokenprovider.clientSecret}
-            authorization-grant-type: client_credentials
-            client-authentication-method: client_secret_post
-        provider:
-          uaa:
-            token-uri: ${oauth.tokenprovider.accessTokenUri}
-
   rabbitmq:
     addresses: ${lms.rabbitmq.address.${app.env}}
     username: ${lms.rabbitmq.username.${app.env}}
@@ -60,28 +43,24 @@ deptprov:
   env: ${app.env}
   prd:
     guestAccountCreationUrl: https://eaa.apps.iu.edu
-    canvasServiceName: CanvasProd
-    expandServiceName: ExpandProd
+    canvasServiceName: lmsLtiThirdpartyCanvasProd
+    expandServiceName: lmsLtiThirdpartyExpandProd
   stg:
     guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
-    canvasServiceName: CanvasTest
-    expandServiceName: ExpandBeta
+    canvasServiceName: lmsLtiThirdpartyCanvasTestStg
+    expandServiceName: lmsLtiThirdpartyExpandBetaStg
   reg:
     guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
-    canvasServiceName: CanvasBeta
-    expandServiceName: ExpandBeta
-  snd:
-    guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
-    canvasServiceName: CanvasSand
-    expandServiceName: ExpandBeta
+    canvasServiceName: lmsLtiThirdpartyCanvasBetaReg
+    expandServiceName: lmsLtiThirdpartyExpandBetaReg
   dev:
     guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
-    canvasServiceName: CanvasBeta
-    expandServiceName: ExpandBeta
+    canvasServiceName: lmsLtiThirdpartyCanvasBetaDev
+    expandServiceName: lmsLtiThirdpartyExpandBetaDev
   ci:
     guestAccountCreationUrl: https://eaa-stg.apps-test.iu.edu
-    canvasServiceName: CanvasBeta
-    expandServiceName: ExpandBeta
+    canvasServiceName: lmsLtiThirdpartyCanvasBetaDev
+    expandServiceName: lmsLtiThirdpartyExpandBetaDev
   guestAccountCreationUrl: ${deptprov.${app.env}.guestAccountCreationUrl}
   canvasServiceName: ${deptprov.${app.env}.canvasServiceName}
   expandServiceName: ${deptprov.${app.env}.expandServiceName}
@@ -130,7 +109,12 @@ management.health.redis.enabled: true
 spring:
   config:
     activate.on-profile: vault
-    import: vault://
+    import:
+      - vault://${spring.cloud.vault.kv.backend}/managed/${spring.cloud.vault.kv.application-name}/${app.env}/oauth
+      - vault://${spring.cloud.vault.kv.backend}/managed/${spring.cloud.vault.kv.application-name}/${app.env}/database
+      - vault://${spring.cloud.vault.kv.backend}/application
+      - vault://${spring.cloud.vault.kv.backend}/${spring.cloud.vault.kv.application-name}/all
+      - vault://${spring.cloud.vault.kv.backend}/${spring.cloud.vault.kv.application-name}/${app.env}
   cloud.vault:
     enabled: true
     config:
@@ -160,7 +144,7 @@ springdoc:
     # Setting supportedSubmitMethods to an empty list is what turns off the "try it out" button
     #    supportedSubmitMethods:
     oauth:
-      clientId: ${oauth.tokenprovider.clientId}
+      clientId: ${spring.security.oauth2.client.registration.uaa.client-id}
   oAuthFlow:
-    authorizationUrl: ${oauth.tokenprovider.url}/oauth/authorize
-    tokenUrl: ${oauth.tokenprovider.accessTokenUri}
+    authorizationUrl: ${spring.security.oauth2.client.provider.uaa.authorization-uri}
+    tokenUrl: ${spring.security.oauth2.client.provider.uaa.token-uri}

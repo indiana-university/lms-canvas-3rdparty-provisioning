@@ -43,7 +43,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -54,6 +53,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.IOException;
@@ -68,6 +68,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = UploadRestController.class, properties = {"oauth.tokenprovider.url=http://foo"})
 @ContextConfiguration(classes = {SecurityConfig.class, UploadRestController.class})
+@SharedMocks
 @Slf4j
 @ActiveProfiles("none")
 public class UploadRestControllerTest {
@@ -75,13 +76,13 @@ public class UploadRestControllerTest {
    @Autowired
    private MockMvc mvc;
 
-   @MockBean
+   @MockitoBean
    private DeptProvFileUploadService fileUploadService;
 
-   @MockBean
+   @MockitoBean
    private DefaultInstructorRoleRepository defaultInstructorRoleRepository;
 
-   @MockBean
+   @MockitoBean
    private AuthorizedUserService authorizedUserService;
 
    @Test

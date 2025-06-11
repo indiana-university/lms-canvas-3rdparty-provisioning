@@ -47,12 +47,12 @@ import edu.iu.uits.lms.provisioning.service.DeptRouter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.ac.ox.ctl.lti13.security.oauth2.client.lti.authentication.OidcAuthenticationToken;
 
@@ -62,30 +62,31 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = ProvisioningController.class, properties = {"oauth.tokenprovider.url=http://foo"})
 @ContextConfiguration(classes = {ProvisioningController.class, SecurityConfig.class})
 @ActiveProfiles("none")
+@SharedMocks
 public class AppLaunchSecurityTest {
 
    @Autowired
    private MockMvc mvc;
 
-   @MockBean
+   @MockitoBean
    private DeptAuthMessageSenderRepository deptAuthMessageSenderRepository;
 
-   @MockBean
+   @MockitoBean
    private DeptRouter deptRouter;
 
-   @MockBean
+   @MockitoBean
    private BackgroundMessageSender backgroundMessageSender;
 
-   @MockBean
+   @MockitoBean
    private CourseSessionService courseSessionService;
 
-   @MockBean
+   @MockitoBean
    private DefaultInstructorRoleRepository defaultInstructorRoleRepository;
 
-   @MockBean
+   @MockitoBean
    private AuthorizedUserService authorizedUserService;
 
-   @MockBean(name = ServerInfo.BEAN_NAME)
+   @MockitoBean(name = ServerInfo.BEAN_NAME)
    private ServerInfo serverInfo;
 
 

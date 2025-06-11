@@ -48,7 +48,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,28 +59,28 @@ public class EnrollmentProvisioningTest {
    @Autowired
    private EnrollmentProvisioning enrollmentProvisioning;
 
-   @MockBean
+   @MockitoBean
    private UserService userService = null;
 
-   @MockBean
+   @MockitoBean
    private GuestAccountService guestAccountService = null;
 
-   @MockBean
+   @MockitoBean
    private CsvService csvService = null;
 
-   @MockBean
+   @MockitoBean
    private ImsUserRepository imsUserRepository = null;
 
-   @MockBean
+   @MockitoBean
    private AccountService accountService;
 
-   @MockBean
+   @MockitoBean
    private CourseService courseService;
 
-   @MockBean
+   @MockitoBean
    private SectionService sectionService;
 
-   @MockBean
+   @MockitoBean
    private SisServiceImpl sisService;
 
    @Test
