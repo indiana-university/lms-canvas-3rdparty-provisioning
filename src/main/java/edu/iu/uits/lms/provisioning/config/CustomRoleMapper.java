@@ -33,7 +33,6 @@ package edu.iu.uits.lms.provisioning.config;
  * #L%
  */
 
-import edu.iu.uits.lms.iuonly.model.acl.AuthorizedUser;
 import edu.iu.uits.lms.iuonly.services.AuthorizedUserService;
 import edu.iu.uits.lms.lti.LTIConstants;
 import edu.iu.uits.lms.lti.repository.DefaultInstructorRoleRepository;
@@ -75,9 +74,9 @@ public class CustomRoleMapper extends LmsDefaultGrantedAuthoritiesMapper {
 
          String rolesString = "NotAuthorized";
 
-         AuthorizedUser user = authorizedUserService.findByActiveUsernameAndToolPermission(userId, AUTH_USER_TOOL_PERMISSION);
+         boolean isAuthorized = authorizedUserService.isAuthorized(userId, AUTH_USER_TOOL_PERMISSION);
 
-         if (user != null) {
+         if (isAuthorized) {
             rolesString = LTIConstants.CANVAS_INSTRUCTOR_ROLE;
          }
 
@@ -86,10 +85,11 @@ public class CustomRoleMapper extends LmsDefaultGrantedAuthoritiesMapper {
          String newAuthString = returnEquivalentAuthority(userRoles, getDefaultInstructorRoles());
 
 
-         if (user != null) {
+         if (isAuthorized) {
             // Add a new custom claim
             Map<String, Object> jsonObj = (Map) userAuth.getAttributes().get(LTIConstants.CLAIMS_KEY_CUSTOM);
-            String groupCodes = user.getToolPermissionProperties(AUTH_USER_TOOL_PERMISSION).get(AUTH_USER_TOOL_PERM_PROP_GROUP_CODES);
+            Map<String, String> permissionProperties = authorizedUserService.getPermissionPropertiesForUser(userId, AUTH_USER_TOOL_PERMISSION);
+            String groupCodes = permissionProperties.get(AUTH_USER_TOOL_PERM_PROP_GROUP_CODES);
             jsonObj.put(Constants.AVAILABLE_GROUPS_KEY, AuthorizedUserService.convertPropertyToList(groupCodes));
          }
          OidcUserAuthority newUserAuth = new OidcUserAuthority(newAuthString, userAuth.getIdToken(), userAuth.getUserInfo());

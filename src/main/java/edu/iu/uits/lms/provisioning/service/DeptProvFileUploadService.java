@@ -33,7 +33,6 @@ package edu.iu.uits.lms.provisioning.service;
  * #L%
  */
 
-import edu.iu.uits.lms.iuonly.model.acl.AuthorizedUser;
 import edu.iu.uits.lms.iuonly.services.AuthorizedUserService;
 import edu.iu.uits.lms.provisioning.Constants;
 import edu.iu.uits.lms.provisioning.config.BackgroundMessage;
@@ -200,10 +199,9 @@ public class DeptProvFileUploadService {
             username = jwt.getClaimAsString("client_id");
             log.debug("client id from Jwt: {}", username);
          }
-         AuthorizedUser user = authorizedUserService.findByActiveUsernameAndToolPermission(username, Constants.AUTH_USER_TOOL_PERMISSION);
-         log.debug("User: {}", user);
-         if (user != null) {
-            return user.getUsername();
+         boolean isAuthorized = authorizedUserService.isAuthorized(username, Constants.AUTH_USER_TOOL_PERMISSION);
+         if (isAuthorized) {
+            return username;
          } else {
             throw new UserAuthException("User (" + username + ") is not authorized to upload files", username, HttpStatus.FORBIDDEN);
          }

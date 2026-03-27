@@ -38,10 +38,8 @@ import edu.iu.uits.lms.email.model.EmailDetails;
 import edu.iu.uits.lms.email.service.EmailService;
 import edu.iu.uits.lms.email.service.LmsEmailTooBigException;
 import edu.iu.uits.lms.iuonly.model.LmsBatchEmail;
-import edu.iu.uits.lms.iuonly.model.acl.AuthorizedUser;
 import edu.iu.uits.lms.iuonly.services.AuthorizedUserService;
 import edu.iu.uits.lms.iuonly.services.BatchEmailServiceImpl;
-import edu.iu.uits.lms.provisioning.Constants;
 import edu.iu.uits.lms.provisioning.model.CanvasImportId;
 import edu.iu.uits.lms.provisioning.model.PostProcessingData;
 import edu.iu.uits.lms.provisioning.model.content.FileContent;
@@ -114,8 +112,7 @@ public class BackgroundMessageListener {
    public void handleMessage(BackgroundMessage message) {
       MultiValuedMap<DeptRouter.CSV_TYPES, FileContent> postProcessingDataMap = new ArrayListValuedHashMap<>();
 
-      AuthorizedUser user = authorizedUserService.findByActiveUsernameAndToolPermission(message.getUsername(), Constants.AUTH_USER_TOOL_PERMISSION);
-      Map<String, String> propertyMap = user.getToolPermissionProperties(AUTH_USER_TOOL_PERMISSION);
+      Map<String, String> propertyMap = authorizedUserService.getPermissionPropertiesForUser(message.getUsername(), AUTH_USER_TOOL_PERMISSION);
 
       boolean allowSisEnrollments = AuthorizedUserService.convertPropertyToBoolean(propertyMap.get(AUTH_USER_TOOL_PERM_PROP_ALLOW_SIS_ENROLLMENTS));
       boolean overrideRestrictions = AuthorizedUserService.convertPropertyToBoolean(propertyMap.get(AUTH_USER_TOOL_PERM_PROP_OVERRIDE_RESTRICTIONS));

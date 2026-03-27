@@ -34,8 +34,8 @@ package edu.iu.uits.lms.provisioning.job;
  */
 
 import edu.iu.uits.lms.common.batch.BatchJob;
-import edu.iu.uits.lms.iuonly.model.errorcontact.ErrorContactPostForm;
-import edu.iu.uits.lms.iuonly.services.ErrorContactServiceImpl;
+import edu.iu.uits.lms.errorcontact.model.ErrorContactPostForm;
+import edu.iu.uits.lms.errorcontact.service.ErrorContactServiceImpl;
 import edu.iu.uits.lms.provisioning.service.EmailSummaryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

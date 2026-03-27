@@ -41,6 +41,7 @@ import edu.iu.uits.lms.common.server.ServerInfo;
 import edu.iu.uits.lms.common.server.ServerUtils;
 import edu.iu.uits.lms.common.session.EnableCourseSessionService;
 import edu.iu.uits.lms.email.config.EnableEmailClient;
+import edu.iu.uits.lms.errorcontact.config.EnableErrorContactClient;
 import edu.iu.uits.lms.iuonly.config.EnableIuOnlyClient;
 import edu.iu.uits.lms.lti.config.EnableGlobalErrorHandler;
 import edu.iu.uits.lms.lti.config.EnableLtiClient;
@@ -63,6 +64,7 @@ import java.util.Date;
 @EnableCanvasClient
 @EnableEmailClient
 @EnableIuOnlyClient
+@EnableErrorContactClient
 @EnableCourseSessionService(sessionKey = "deptprov_course_session")
 @EnableConfigurationProperties(GitRepositoryState.class)
 @EnableBatch
