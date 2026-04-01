@@ -207,8 +207,6 @@ public class FileUploadServiceTest {
    }
 
    private void mockUser(String username) {
-//      AuthorizedUser user = new AuthorizedUser();
-//      user.setUsername(username);
       when(authorizedUserService.isAuthorized(anyString(), anyString())).thenReturn(true);
    }
 
