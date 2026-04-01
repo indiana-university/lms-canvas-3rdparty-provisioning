@@ -59,21 +59,28 @@ public class CustomWelcomeMessageController {
 
    @PostMapping(value="/validate")
    @Operation(summary = "Validate the given properties and send a test email welcome message")
-   public ResponseEntity validatePropertiesFile(@RequestParam("messagePropertiesFile") MultipartFile messagePropertiesFile,
+   public ResponseEntity<Results> validatePropertiesFile(@RequestParam("messagePropertiesFile") MultipartFile messagePropertiesFile,
                                                 @RequestParam("department") String department) throws IOException {
 
       CustomNotificationBuilder cnb = new CustomNotificationBuilder(messagePropertiesFile.getInputStream());
       if (!cnb.isFileValid()) {
-         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("properties file has missing or invalid values");
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                 .body(new Results(
+                         "properties file has missing or invalid values"
+                 ));
       }
 
       DeptAuthMessageSender validatedCustomMessageSender = customNotificationService.getValidatedCustomMessageSender(cnb, department);
 
       if (validatedCustomMessageSender != null) {
          customNotificationService.sendCustomWelcomeMessage(validatedCustomMessageSender.getEmail(), cnb);
-         return ResponseEntity.ok("test email sent");
+         return ResponseEntity.ok(new Results("test email sent"));
       }
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("email specified in file is not authorized to send messages for the '" + department + "' department");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(new Results(
+                "email specified in file is not authorized to send messages for the '" + department + "' department"
+            ));
    }
 
+   private record Results (String message) {}
 }

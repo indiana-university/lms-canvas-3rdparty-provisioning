@@ -1,4 +1,4 @@
-package edu.iu.uits.lms.provisioning;
+package edu.iu.uits.lms.provisioning.controller.rest;
 
 /*-
  * #%L
@@ -36,8 +36,8 @@ package edu.iu.uits.lms.provisioning;
 import edu.iu.uits.lms.iuonly.services.AuthorizedUserService;
 import edu.iu.uits.lms.lti.config.TestUtils;
 import edu.iu.uits.lms.lti.repository.DefaultInstructorRoleRepository;
+import edu.iu.uits.lms.provisioning.SharedMocks;
 import edu.iu.uits.lms.provisioning.config.SecurityConfig;
-import edu.iu.uits.lms.provisioning.controller.rest.UploadRestController;
 import edu.iu.uits.lms.provisioning.service.DeptProvFileUploadService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
