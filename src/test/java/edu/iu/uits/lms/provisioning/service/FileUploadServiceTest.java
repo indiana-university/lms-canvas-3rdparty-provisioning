@@ -33,7 +33,6 @@ package edu.iu.uits.lms.provisioning.service;
  * #L%
  */
 
-import edu.iu.uits.lms.iuonly.model.acl.AuthorizedUser;
 import edu.iu.uits.lms.iuonly.services.AuthorizedUserService;
 import edu.iu.uits.lms.lti.config.TestUtils;
 import edu.iu.uits.lms.provisioning.Constants;
@@ -208,9 +207,7 @@ public class FileUploadServiceTest {
    }
 
    private void mockUser(String username) {
-      AuthorizedUser user = new AuthorizedUser();
-      user.setUsername(username);
-      when(authorizedUserService.findByActiveUsernameAndToolPermission(anyString(), anyString())).thenReturn(user);
+      when(authorizedUserService.isAuthorized(anyString(), anyString())).thenReturn(true);
    }
 
    private MultipartFile mockFile(String fileName) throws IOException {
