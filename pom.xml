@@ -67,7 +67,7 @@
         <jdk.target>25</jdk.target>
         <jquery.version>3.7.1</jquery.version>
         <lms-canvas-rivet.version>6.2.9.1_1</lms-canvas-rivet.version>
-        <lms-embedded-services.version>6.3.12</lms-embedded-services.version>
+        <lms-embedded-services.version>6.3.15</lms-embedded-services.version>
         <lms-team-spring-boot-it12>6.5.2_2</lms-team-spring-boot-it12>
         <logcaptor.version>2.12.6</logcaptor.version>
         <opencsv.version>5.12.0</opencsv.version>
