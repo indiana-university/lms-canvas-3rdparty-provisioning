@@ -44,10 +44,12 @@ import edu.iu.uits.lms.provisioning.repository.ArchiveRepository;
 import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -101,6 +103,15 @@ public class DeptRouterTest {
 
    @MockitoBean
    private ArchiveRepository archiveRepository;
+
+   @BeforeEach
+   public void setUp() {
+      // The @Captor field above is a plain Mockito annotation, not a Spring one, so it isn't
+      // processed by @MockitoBean/SpringExtension - it must be initialized explicitly or it
+      // stays null. (Previously this got initialized as a side effect of Spring's older mock-bean
+      // support; that no longer happens under the current Spring Test framework.)
+      MockitoAnnotations.openMocks(this);
+   }
 
    @Test
    public void testResultsEmailUsesHostNotBaseUrl() throws Exception {

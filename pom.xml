@@ -9,11 +9,11 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.12</version>
+        <version>4.0.8</version>
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
-    <version>6.1.3-SNAPSHOT</version>
+    <version>7.0.0-SNAPSHOT</version>
 
     <description>LTI tool which allows department representatives to provision their own enrollments into Canvas</description>
     <url>https://github.com/indiana-university/lms-canvas-3rdparty-provisioning</url>
@@ -56,24 +56,23 @@
     <properties>
         <app.version>${project.version}</app.version>
         <commons-fileupload.version>1.6.0</commons-fileupload.version>
-        <commons-io.version>2.21.0</commons-io.version>
-        <commons-validator.version>1.10.1</commons-validator.version>
-        <denodo-hibernate-dialect.version>9.0.20240513</denodo-hibernate-dialect.version>
-        <denodo-jdbc.version>9.1.0</denodo-jdbc.version>
-        <git-commit-id-maven-plugin.version>9.0.2</git-commit-id-maven-plugin.version>
-        <hibernate6-ddl-maven-plugin.version>1.0.2</hibernate6-ddl-maven-plugin.version>
+        <commons-io.version>2.22.0</commons-io.version>
+        <commons-validator.version>1.11.0</commons-validator.version>
+        <denodo-hibernate-dialect.version>9.0.20251031</denodo-hibernate-dialect.version>
+        <denodo-jdbc.version>9.4.1</denodo-jdbc.version>
+        <git-commit-id-maven-plugin.version>10.0.0</git-commit-id-maven-plugin.version>
+        <hibernate-jpa-schemagen.version>7.2.2</hibernate-jpa-schemagen.version>
         <java.version>25</java.version>
         <jdk.source>25</jdk.source>
         <jdk.target>25</jdk.target>
-        <jquery.version>3.7.1</jquery.version>
-        <lms-canvas-rivet.version>6.2.9.1_1</lms-canvas-rivet.version>
-        <lms-embedded-services.version>6.3.15</lms-embedded-services.version>
-        <lms-team-spring-boot-it12>6.5.2_2</lms-team-spring-boot-it12>
-        <logcaptor.version>2.12.6</logcaptor.version>
+        <jquery.version>4.0.0</jquery.version>
+        <lms-canvas-rivet.version>7.2.9.1_0</lms-canvas-rivet.version>
+        <lms-embedded-services.version>7.0.5</lms-embedded-services.version>
+        <lms-team-spring-boot-it12>7.6.0_0</lms-team-spring-boot-it12>
+        <logcaptor.version>2.12.7</logcaptor.version>
         <opencsv.version>5.12.0</opencsv.version>
-        <spring-cloud-dependencies.version>2025.0.1</spring-cloud-dependencies.version>
-        <springdoc-openapi-ui.version>2.8.16</springdoc-openapi-ui.version>
-        <webjars-locator.version>0.52</webjars-locator.version>
+        <spring-cloud.version>2025.1.3</spring-cloud.version>
+        <springdoc-openapi-ui.version>3.0.3</springdoc-openapi-ui.version>
 
         <plugins.compiler.version>3.15.0</plugins.compiler.version>
         <plugins.license.version>2.7.1</plugins.license.version>
@@ -85,7 +84,7 @@
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud-dependencies.version}</version>
+                <version>${spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -94,7 +93,7 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -209,8 +208,8 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.session</groupId>
-            <artifactId>spring-session-data-redis</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-session-data-redis</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -232,8 +231,7 @@
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
-            <artifactId>webjars-locator</artifactId>
-            <version>${webjars-locator.version}</version>
+            <artifactId>webjars-locator-lite</artifactId>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
@@ -273,6 +271,22 @@
             <groupId>io.github.hakky54</groupId>
             <artifactId>logcaptor</artifactId>
             <version>${logcaptor.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Needed as of Spring Boot 4: @AutoConfigureTestDatabase (used by It12LoggingTest) moved out of
+             spring-boot-test-autoconfigure into this dedicated module, which is no longer pulled in
+             transitively by spring-boot-starter-test. It12LoggingTest isn't testing JDBC itself - it
+             boots the full JPA-backed WebApplication context to verify audit log entries, and
+             @AutoConfigureTestDatabase is just what swaps in an in-memory H2 database so that context
+             can start without a real datasource. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-jdbc-test</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -319,26 +333,46 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>de.jpdigital</groupId>
-                <artifactId>hibernate65-ddl-maven-plugin</artifactId>
-                <version>${hibernate6-ddl-maven-plugin.version}</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>copy-schemagen-jars</id>
+                        <phase>process-resources</phase>
                         <goals>
-                            <goal>gen-ddl</goal>
+                            <goal>copy</goal>
                         </goals>
-                        <phase>process-classes</phase>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/schemagen-jars</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>edu.iu.uits.lms</groupId>
+                                    <artifactId>lms-canvas-lti-framework</artifactId>
+                                    <destFileName>lms-canvas-lti-framework.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <dialects>
-                        <param>h2</param>
-                        <param>postgresql</param>
-                    </dialects>
-                    <packages>
-                        <param>edu.iu.uits.lms.provisioning</param>
-                    </packages>
-                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.dellroad</groupId>
+                <artifactId>hibernate-jpa-schemagen-maven-plugin</artifactId>
+                <version>${hibernate-jpa-schemagen.version}</version>
+                <executions>
+                    <execution>
+                        <id>gen-ddl-postgresql</id>
+                        <goals>
+                            <goal>export-jpa-schema</goal>
+                        </goals>
+                        <configuration>
+                            <jpaUnit>postgresql</jpaUnit>
+                            <outputFile>${project.build.directory}/generated-resources/postgresql.sql</outputFile>
+                            <verifyFile>NONE</verifyFile>
+                            <removePersistenceXml>true</removePersistenceXml>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
