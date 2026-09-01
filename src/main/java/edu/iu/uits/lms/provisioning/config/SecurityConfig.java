@@ -43,7 +43,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
@@ -102,11 +101,15 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Order(4)
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/app/jsrivet/**", "/app/webjars/**", "/app/css/**", "/app/js/**", "/favicon.ico");
+    public SecurityFilterChain staticResourcesFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/app/jsrivet/**", "/app/webjars/**", "/app/css/**", "/app/js/**", "/favicon.ico")
+                .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
+        return http.build();
     }
 
+    @Order(7)
     @Bean
     public SecurityFilterChain catchallFilterChain(HttpSecurity http) throws Exception {
         //Setup the LTI handshake
