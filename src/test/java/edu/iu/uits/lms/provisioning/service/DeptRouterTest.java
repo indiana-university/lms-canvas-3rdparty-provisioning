@@ -106,6 +106,10 @@ public class DeptRouterTest {
 
    @BeforeEach
    public void setUp() {
+      // The @Captor field above is a plain Mockito annotation, not a Spring one, so it isn't
+      // processed by @MockitoBean/SpringExtension - it must be initialized explicitly or it
+      // stays null. (Previously this got initialized as a side effect of Spring's older mock-bean
+      // support; that no longer happens under the current Spring Test framework.)
       MockitoAnnotations.openMocks(this);
    }
 
