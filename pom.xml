@@ -278,6 +278,12 @@
             <artifactId>spring-boot-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Needed as of Spring Boot 4: @AutoConfigureTestDatabase (used by It12LoggingTest) moved out of
+             spring-boot-test-autoconfigure into this dedicated module, which is no longer pulled in
+             transitively by spring-boot-starter-test. It12LoggingTest isn't testing JDBC itself - it
+             boots the full JPA-backed WebApplication context to verify audit log entries, and
+             @AutoConfigureTestDatabase is just what swaps in an in-memory H2 database so that context
+             can start without a real datasource. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-jdbc-test</artifactId>
