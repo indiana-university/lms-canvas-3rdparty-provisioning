@@ -45,8 +45,10 @@ import edu.iu.uits.lms.provisioning.repository.CanvasImportIdRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -56,8 +58,12 @@ import java.util.ArrayList;
 
 import static org.mockito.Mockito.verify;
 
-@Slf4j
+// After the Spring Boot 4 / Spring 7 upgrade, Boot's old Mockito test listener no longer auto-opens
+// Mockito annotations for this @SpringBootTest, so @Captor fields stay null unless we initialize Mockito explicitly.
+// Alternative: remove this annotation and call MockitoAnnotations.openMocks(this) in @BeforeEach.
+@ExtendWith(MockitoExtension.class)
 @SpringBootTest(classes = DeptRouter.class)
+@Slf4j
 public class DeptRouterTest {
 
    @Autowired
