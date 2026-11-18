@@ -4,7 +4,7 @@ package edu.iu.uits.lms.provisioning.config;
  * #%L
  * lms-lti-3rdpartyprovisioning
  * %%
- * Copyright (C) 2015 - 2022 Indiana University
+ * Copyright (C) 2015 - 2026 Indiana University
  * %%
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -86,9 +86,11 @@ public class SecurityConfig {
     @Order(6)
     @Bean
     public SecurityFilterChain appFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher(WELL_KNOWN_ALL, "/error", "/app/**")
+        http.securityMatcher(WELL_KNOWN_ALL, "/error", "/app/**", "/favicon.ico")
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers(WELL_KNOWN_ALL, "/error").permitAll()
+                        .requestMatchers("/app/jsrivet/**", "/app/webjars/**", "/app/css/**",
+                                "/app/js/**", "/favicon.ico").permitAll()
                         .requestMatchers("/**").hasAuthority(BASE_USER_AUTHORITY)
                 )
                 .headers(headers -> headers
@@ -98,14 +100,6 @@ public class SecurityConfig {
                                 .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN))
                 );
 
-        return http.build();
-    }
-
-    @Order(4)
-    @Bean
-    public SecurityFilterChain staticResourcesFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher("/app/jsrivet/**", "/app/webjars/**", "/app/css/**", "/app/js/**", "/favicon.ico")
-                .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
         return http.build();
     }
 
